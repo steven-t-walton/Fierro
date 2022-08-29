@@ -9,7 +9,7 @@ using namespace utils;
 // This function tracks the energy for the SGH solver
 //------------------------------------------------------------------------------
 
-void track_rdh(real_t &x, real_t &y){
+void track_rdh(real_t &x, real_t &y, int t_step){
 
     /* track the total energy in the problem */
     real_t mass = 0.0;
@@ -31,7 +31,7 @@ void track_rdh(real_t &x, real_t &y){
     for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++) {
         
         // create view into vertex velocity
-        auto vel = ViewCArray <real_t> (&node.vel(rk_storage, node_gid, 0), num_dim);
+        auto vel = ViewCArray <real_t> (&node.vel(t_step, node_gid, 0), num_dim);
 
         ke += 0.5 * node.mass(node_gid) * 
             (vel(0)*vel(0) + vel(1)*vel(1) + vel(2)*vel(2));

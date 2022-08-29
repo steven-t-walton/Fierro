@@ -53,12 +53,14 @@ bool Bern_test(ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv){
     } // end loop over j
   }// end loop over dim 
   
+  std::cout << "bv test result = " << pass << std::endl;
   return pass;
+
 
 
 }// end test
 
-
+/*
 int main(){
  
   std::cout.precision(15);
@@ -71,4 +73,4 @@ int main(){
   return 0;
 
 }//end main
-
+*/

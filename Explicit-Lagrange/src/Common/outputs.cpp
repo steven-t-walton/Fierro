@@ -16,7 +16,7 @@ using namespace utils;
 void ensight() {
     
     std::cout<<"in ensight writer"<<std::endl;
-    const int num_scalar_vars = 31; //23;
+    const int num_scalar_vars = 32; //23;
     const int num_vec_vars = 7;
 
     // const char name[10] = {"Outputs"};

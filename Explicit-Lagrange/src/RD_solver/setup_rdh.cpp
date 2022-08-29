@@ -1,5 +1,8 @@
 /* set rd */
 
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include <iostream>
 
 #include "utilities.h"
@@ -11,7 +14,7 @@
 
 using namespace utils;
 
-void setup_rd(char *MESH){
+void setup_rdh(char *MESH){
 
   std::cout << "Setting up RD Solver" << std::endl;
   
@@ -28,24 +31,30 @@ void setup_rd(char *MESH){
 
   std::cout << "Allocate and Initialize"  << std::endl;
   // repurposes rk_storage to specify number of sub_time steps and corrections //
-  std::cout << "Number of correction and sub-time stages = "<< rk_storage  << std::endl;
+  std::cout << "Number of correction steps = "<< num_correction_steps  << std::endl;
+  std::cout << "Number of prediciton steps = "<< num_prediction_steps << std::endl;
   // --- allocate and initialize the defaults for the problem ---
   
   // Initialize reference element //
   ref_elem.init(p_order, num_dim, elem);
 
   // ---- Node Initialization ---- //
-  node.init_node_state(num_dim, mesh, rk_storage);
+  node.init_node_state(num_dim, mesh, num_correction_steps);
   std::cout << "Node state allocated and initialized" << std::endl;
   std::cout << std::endl;
 
 
   // ---- Cell state initialization --- ///
-  cell_state.init_cell_state( num_dim, mesh, rk_storage);
+  cell_state.init_cell_state( num_dim, mesh, num_correction_steps);
   std::cout << "Cell state allocated and initialized" << std::endl;
   std::cout << std::endl;
+  
+  // ---- Material point initialization ---- //
+  mat_pt.init_mat_pt_state(num_dim, mesh, num_correction_steps);
+  std::cout << "Material point state allocated and initialized"  << std::endl;
+  std::cout << std::endl;
 
-  elem_state.init_elem_state( num_dim, mesh, rk_storage, ref_elem);
+  elem_state.init_elem_state( num_dim, mesh, num_correction_steps, ref_elem);
   std::cout << "Element state allocated and initialized" << std::endl;  std::cout<< std::endl;
 
 
@@ -55,7 +64,6 @@ void setup_rd(char *MESH){
   // build boundary mesh patches
   mesh.build_bdy_patches();
   std::cout << "number of bdy patches = " << mesh.num_bdy_patches() << std::endl;
-
 
   int num_bdy_sets = NB;
 
@@ -79,12 +87,12 @@ void setup_rd(char *MESH){
   }// end loop over this_bdy
   
    
-  for(int sub_tstep = 0; sub_tstep < rk_storage; sub_tstep++){
+  for(int t_step = 0; t_step < num_correction_steps; t_step++){
   
     for(int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
       
       for(int dim = 0; dim < mesh.num_dim(); dim++){
-        node.coords(sub_tstep, node_gid, dim) = mesh.node_coords(node_gid, dim);
+        node.coords(t_step, node_gid, dim) = mesh.node_coords(node_gid, dim);
       }//end loop over dim
     }// end loop over node_gid
   }// end loop over sub_tstep
@@ -93,11 +101,14 @@ void setup_rd(char *MESH){
   std::cout << "Calculating Jacobian at gauss points" << std::endl;
   get_gauss_pt_jacobian(mesh, ref_elem);
 
+  std::cout << "Before volume from Jacobian"  << std::endl;
+  get_vol_jacobi(mesh, ref_elem);
+
   std::cout << "Fill instruction NF = " << NF << std::endl;
 
   // Copying setup_dg and saving gauss_pts to material points //
   // We should discuss how to change this here and in setup_dg //
-
+  
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++) {
     for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
 
@@ -105,12 +116,12 @@ void setup_rd(char *MESH){
       mat_pt.weight(gauss_gid) = ref_elem.ref_node_g_weights(gauss_lid);
     }
   }
-
+  
 
   // apply fill instruction over the elements //
   // for initialization, copy data to each substep //
   
-  for (int sub_tstep = 0; sub_tstep < rk_storage; sub_tstep++){
+  for (int t_step = 0; t_step < num_correction_steps; t_step++){
     for (int f_id = 0; f_id < NF; f_id++){
       for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){        
 	// coords and radius of element //
@@ -139,7 +150,7 @@ void setup_rd(char *MESH){
         real_t radius_cyl = sqrt( elem_coords_x*elem_coords_x +
                             elem_coords_y*elem_coords_y);
  
- 
+        /* 
         // Setup Bernstein-Vandermonde matrix and invert //
         auto B_temp = CArray <real_t> (ref_elem.num_basis(), ref_elem.num_basis());
         auto B = ViewCArray <real_t> (&B_temp(0,0), ref_elem.num_basis(), ref_elem.num_basis());
@@ -149,7 +160,8 @@ void setup_rd(char *MESH){
         auto B_inv = ViewCArray <real_t> (&B_inv_temp(0,0), ref_elem.num_basis(), ref_elem.num_basis());
 
         BV_inv(B, B_inv);
-        Bern_test(B, B_inv);
+//        Bern_test(B, B_inv);
+        */
 
         // default is not to fill the element //
         int fill_this = 0;
@@ -200,8 +212,8 @@ void setup_rd(char *MESH){
              cell_state.mass(cell_gid) = cell_state.density(cell_gid)*mesh.cell_vol(cell_gid);
 
              // --- Internal energy ---
-             cell_state.ie(sub_tstep, cell_gid) = mat_fill[f_id].ie;
-             cell_state.total_energy(sub_tstep, cell_gid) = mat_fill[f_id].ie; // + initialization of kinetic energy later
+             cell_state.ie(t_step, cell_gid) = mat_fill[f_id].ie;
+             cell_state.total_energy(t_step, cell_gid) = mat_fill[f_id].ie; // + initialization of kinetic energy later
 
 
 
@@ -220,9 +232,9 @@ void setup_rd(char *MESH){
                  case init_conds::cartesian:
                  {
 
-                   node.vel(sub_tstep, node_gid, 0) = mat_fill[f_id].u;
-                   node.vel(sub_tstep, node_gid, 1) = mat_fill[f_id].v;
-                   node.vel(sub_tstep, node_gid, 2) = mat_fill[f_id].w;
+                   node.vel(t_step, node_gid, 0) = mat_fill[f_id].u;
+                   node.vel(t_step, node_gid, 1) = mat_fill[f_id].v;
+                   node.vel(t_step, node_gid, 2) = mat_fill[f_id].w;
 
                    break;
                  }
@@ -246,9 +258,9 @@ void setup_rd(char *MESH){
                        dir[dim] = 0.0;
                      }
                    } // end for
-                   node.vel(sub_tstep, node_gid, 0) = mat_fill[f_id].speed*dir[0];
-                   node.vel(sub_tstep, node_gid, 1) = mat_fill[f_id].speed*dir[1];
-                   node.vel(sub_tstep, node_gid, 2) = 0.0;
+                   node.vel(t_step, node_gid, 0) = mat_fill[f_id].speed*dir[0];
+                   node.vel(t_step, node_gid, 1) = mat_fill[f_id].speed*dir[1];
+                   node.vel(t_step, node_gid, 2) = 0.0;
 
                    break;
                  }
@@ -274,9 +286,9 @@ void setup_rd(char *MESH){
                    } // end for
 
 
-                   node.vel(sub_tstep, node_gid, 0) = mat_fill[f_id].speed*dir[0];
-                   node.vel(sub_tstep, node_gid, 1) = mat_fill[f_id].speed*dir[1];
-                   node.vel(sub_tstep, node_gid, 2) = mat_fill[f_id].speed*dir[2];
+                   node.vel(t_step, node_gid, 0) = mat_fill[f_id].speed*dir[0];
+                   node.vel(t_step, node_gid, 1) = mat_fill[f_id].speed*dir[1];
+                   node.vel(t_step, node_gid, 2) = mat_fill[f_id].speed*dir[2];
 
                    break;
                  }
@@ -294,15 +306,15 @@ void setup_rd(char *MESH){
                  {
                    //
                     
-                   node.vel(sub_tstep, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1)); 
-                   node.vel(sub_tstep, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1)); 
-                   node.vel(sub_tstep, node_gid, 2) = 0.0; 
+                   node.vel(t_step, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1)); 
+                   node.vel(t_step, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1)); 
+                   node.vel(t_step, node_gid, 2) = 0.0; 
                    
                    cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*elem_coords_x) + cos(2.0*PI*elem_coords_y) ) + 1.0;
 
                    // p = rho*ie*(gamma - 1)
 
-                   cell_state.ie(sub_tstep, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g - 1.0));
+                   cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g - 1.0));
 
                    break;
                  }

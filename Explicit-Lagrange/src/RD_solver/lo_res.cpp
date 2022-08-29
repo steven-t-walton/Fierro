@@ -26,15 +26,16 @@ void get_lo_res(real_t sub_dt, int t_step, real_t sub_time){
       auto vel_n = ViewCArray <real_t> (&node.vel(0,node_gid,0), num_dim);// Velocity at previous time (v^n) //
       
       // Create CArray for vel_bar used in artificial viscosity //
-      auto vel_bar = CArray <real_t> (num_dim, t_step);
+      real_t vel_bar_a[num_dim*t_step];
+      auto vel_bar = ViewCArray <real_t> (vel_bar_a, num_dim, t_step);
 
       // Create CArray for Q //
-      auto Q = CArray <real_t> (num_dim, t_step);
+      real_t Q_a[num_dim*t_step];
+      auto Q = ViewCArray <real_t> (Q_a,num_dim, t_step);
 
       // Create CArray for sigma //
-      auto sigma = CArray <real_t> (num_dim, num_dim, t_step);
-
-      
+      real_t sigma_a[num_dim*num_dim*t_step];
+      auto sigma = ViewCArray <real_t> (sigma_a,num_dim, num_dim, t_step);
       
       // Loop over cells in node //
       for (int cell_lid = 0; cell_lid < mesh.num_cells_in_node(node_gid); cell_lid++){
@@ -50,8 +51,15 @@ void get_lo_res(real_t sub_dt, int t_step, real_t sub_time){
 	  // Create view of each vel and vel_n in cell //
           //auto vel_in_cell = ViewCArray <real_t> (&node.vel(sub_time_steps, node_gid_from_cell, 0), num_dim);
           
-	  // Initialize sigma //
-	  auto sigma = CArray <real_t> (num_dim, num_dim, t_step);
+          // Initialize Q, sigma and vel_bar //
+#pragma omp simd
+          for (int dim = 0; dim < num_dim; dim++){
+            Q(dim, t_step) = 0.0;
+	    vel_bar(dim, t_step) =0.0;
+            for (int i = 0; i < num_dim; i++){
+              sigma(i,dim,t_step) = 0.0;
+            }
+          }
 
 	   
           // Fill sigma //

@@ -1,8 +1,9 @@
 #include "utilities.h"
 #include "state.h"
 #include "geometry.h"
+#include "slam.h"
 #include "variables.h"
-#include "lin_alg.h"
+
 #include "bernstein_polynomials.cpp"
 
 using namespace utils;
@@ -11,8 +12,10 @@ void bernstein_vandermonde(ViewCArray <real_t> &B){
        
   for(int j = 0; j < elem.num_basis(); j++){
     for (int i = 0; i < elem.num_basis(); i++){
-      int ref_position = elem.vert_node_map(i);
-      B(i,j) = ref_elem.ref_nodal_basis(ref_position,j);
+      //for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+        int ref_position = elem.vert_node_map(i);
+        B(i,j) = ref_elem.ref_nodal_basis(ref_position,j);
+     // }// end loop over gauss lid
     }// end loop over i
   } // end loop over j
 }// end B-V matrix

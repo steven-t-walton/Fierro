@@ -80,6 +80,8 @@ real_t dt_start = 1.0e-8;
 int rk_num_stages = 1;
 int rk_storage = 2;
 //int rk_stage = 0;
+int num_prediction_steps = 1; // RD
+int num_correction_steps = 2; // RD
 
 int cycle = 0;
 int cycle_stop = 1000000000;
@@ -117,7 +119,7 @@ real_t ke;
 // Main function for the testing program
 int main(int argc, char *argv[]){
 
-    // check to see of a mesh was supplied when running the code
+    // check to see if a mesh was supplied when running the code
     if (argc == 1) {
         std::cout << "\n\n**********************************\n\n";
         std::cout << " ERROR:\n";
@@ -162,13 +164,13 @@ int main(int argc, char *argv[]){
     if(CCH == true) setup_cch(argv[1]);
     if(SGH == true) setup_sgh(argv[1]);
     if(DGH == true) setup_dgh(argv[1]);
-    //if(RDH == true) setup_rdh(argv[1]);
+    if(RDH == true) setup_rdh(argv[1]);
 
     // calculate the total energy at the beginning of the calculation 
     if(CCH == true) track_cch(ke, ie);
     if(SGH == true) track_sgh(ke, ie);
     if(DGH == true) track_dgh(ke, ie);
-    //if(RDH == true) track_rdh(ke, ie);
+    if(RDH == true) track_rdh(ke, ie, 0);
 
     // Save total energy at time=0
     te_0 = ke + ie;
@@ -219,7 +221,7 @@ int main(int argc, char *argv[]){
 
     if(DGH == true) dg_hydro();
 
-    //if(RDH == true) rd_hydro();
+    if(RDH == true) rd_hydro();
 
     // graphics output after end of hydro solve
     ensight();
@@ -390,6 +392,7 @@ int main(int argc, char *argv[]){
     fclose(out_matpt_state);
     fclose(out_elem_state);
 
+    // copied from SGH. -------  NEEDS TO BE FIXED ------//
     if (RDH==true){
        // print to file energy diagonostics
         fprintf(out_energy,
@@ -431,7 +434,7 @@ int main(int argc, char *argv[]){
     if(CCH == true) track_cch(ke, ie);
     if(SGH == true) track_sgh(ke, ie);
     if(DGH == true) track_dgh(ke, ie);
-    if(RDH == true) track_rdh(ke, ie);
+    if(RDH == true) track_rdh(ke, ie, num_correction_steps);
 
     std::cout<<"Kinetic Energy at time = " << TIME << " is = " << ke <<std::endl;
     std::cout<<"Internal Energy at time = " << TIME << " is = " << ie <<std::endl;

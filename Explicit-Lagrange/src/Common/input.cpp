@@ -25,8 +25,8 @@ void input(){
     // ---- Method Choice ---- //
     CCH = false;
     SGH = false;
-    DGH = true;
-    RDH = false;
+    DGH = false;
+    RDH = true;
 
 
     // With DG, p_order =
@@ -42,7 +42,7 @@ void input(){
 
     // ---- time varaibles and cycle info ---- //
     // time step
-    TFINAL = 1.4;  //1.0;
+    TFINAL = 0.5;  //1.0;
     
     //C1 = 1.0;
     //C2 = 1.333;
@@ -54,14 +54,10 @@ void input(){
     cycle_stop = 1000000;
     rk_num_stages = 2;
 
-    if (RDH == false){
-     rk_storage = 2;
-    }
-    else if(RDH == true){
-      rk_storage = 2; // number of sub-time steps and correction steps
-      int num_correction_steps = rk_storage;
-      int num_prediction_steps = rk_storage-1;
-    }
+    rk_storage = 2;
+
+    num_correction_steps = 1;
+    num_prediction_steps = 1;
 
     dt_cfl = 0.4;
 
@@ -99,7 +95,7 @@ void input(){
     // 9 = Shockless Noh (fix boundary conditions)
 
     
-    int test_problem = 2;
+    int test_problem = 8;
 
     // SEDOV on a 30x30x30 mesh
     if (test_problem == 1){

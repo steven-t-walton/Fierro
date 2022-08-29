@@ -15,17 +15,25 @@ void lumped_mass(){
 
   int num_basis = ref_elem.num_basis();
 
-  auto diag_M = CArray <real_t>(mesh.num_elems(), num_basis);
+  real_t diag_a[mesh.num_elems()*num_basis];
+  auto diag_M = ViewCArray <real_t> (diag_a, mesh.num_elems(), num_basis);
 
   for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
  
-    //mass_mat_array[num_basis*num_basis]; // Status: Changed
-    auto mass_mat = CArray <real_t>(num_basis, num_basis);
+    real_t mass_mat_a[num_basis*num_basis]; // Status: Changed
+    auto mass_mat = ViewCArray <real_t>(mass_mat_a, num_basis, num_basis);
 
-    // Initialize mass matrix to zero 
+    // Initialize mass matrix to zero // 
     for(int i = 0; i < num_basis; i++){
       for(int j = 0; j < num_basis; j++){
         mass_mat(i,j) = 0.0;
+      }
+    }
+
+    // Initialize diag M to zero //
+    for (int i = 0; i < num_basis; i++){
+      for (int j = 0; j < mesh.num_elems(); j++){
+        diag_M(j,i) = 0.0;
       }
     }
 

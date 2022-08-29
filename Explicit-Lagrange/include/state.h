@@ -1100,15 +1100,13 @@ void run_info(int cycle);
 
 void boundary_force();
 void boundary_velocity();
-void gauss_properties(int mat_pt_gid);
+//void gauss_properties(int mat_pt_gid);
 
 void gauss_properties(int mat_pt_gid);
 void cell_properties(int cell_gid);
 
 void get_timestep();
 void rk_init();
-
-
 
 void test_corner_normals();
 
@@ -1150,7 +1148,7 @@ void calc_average_specific_total_energy();
 void calc_average_specific_vol();
 void bernstein_vandermonde(ViewCArray <real_t> &B);
 void BV_inv(ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv);
-bool test();
+bool Bern_test(ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv);
 
 
 // RD code
@@ -1160,10 +1158,12 @@ void get_lo_res(real_t sub_dt, int t_step, real_t sub_time);
 void lumped_mass();
 void get_cell_mass();
 void prediction_step(real_t sub_dt, int pred_step);
-void track_rdh(real_t &x, real_t &y);
+void track_rdh(real_t &x, real_t &y, int t_step);
 void bernstein_vandermonde(ViewCArray <real_t> &B);
 void BV_inv(ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv);
 void get_state();
+void get_stress(int t_step);
 bool Bern_test(ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv);
+void setup_rdh(char *MESH);
 
 #endif 
