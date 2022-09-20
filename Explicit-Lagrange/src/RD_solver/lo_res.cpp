@@ -1,4 +1,4 @@
-/* low order residual */
+/* nodal residual */
 /* R^{r,m}_{p(h)} = \sum_{q}M_{qp}(v^{r,m}_p - v^n_p)
  *                                      + \int^{t^m}_{t^n}(Q^{r,m}_p + \int_{V_h}(\grad\varphi\cdot\sigma)dV)dt  */
 
@@ -35,8 +35,30 @@ void get_lo_res(real_t sub_dt, int t_step, real_t sub_time){
 
       // Create CArray for sigma //
       real_t sigma_a[num_dim*num_dim*t_step];
-      auto sigma = ViewCArray <real_t> (sigma_a,num_dim, num_dim, t_step);
+      auto sigma = ViewCArray <real_t> (sigma_a, num_dim, num_dim, t_step);
+ 
+      // Create CArray to store volume integral over cell of force at each sub time //
+      auto force_cell_volume = CArray <real_t> (num_dim, t_step);
+
+      real_t alpha_k = 1.0; // set alpha_k to 1 for now. <--- (CHANGE THIS)
       
+      // Create CArray to store time integral of force and artificial viscosity
+      auto time_integral = CArray <real_t> (num_dim);  
+      // compute chebyshev nodes for tie integration	
+      auto cheb_nodes = CArray <real_t> (t_step);
+	
+      elements::chebyshev_nodes_1D( cheb_nodes, t_step);	         
+      // Initialize Q, sigma and vel_bar //
+#pragma omp simd
+      for (int dim = 0; dim < num_dim; dim++){
+        Q(dim, t_step) = 0.0;
+	vel_bar(dim, t_step) = 0.0;
+        for (int i = 0; i < num_dim; i++){
+          sigma(i,dim,t_step) = 0.0;
+        }
+      }
+
+#pragma omp simd
       // Loop over cells in node //
       for (int cell_lid = 0; cell_lid < mesh.num_cells_in_node(node_gid); cell_lid++){
         // get cell_gid //
@@ -47,107 +69,54 @@ void get_lo_res(real_t sub_dt, int t_step, real_t sub_time){
           // Get node_gid for each node_lid in cell  //
           int node_gid_from_cell = mesh.nodes_in_cell(cell_gid,node_lid);
           
-	  //  replaced with line 71
-	  // Create view of each vel and vel_n in cell //
-          //auto vel_in_cell = ViewCArray <real_t> (&node.vel(sub_time_steps, node_gid_from_cell, 0), num_dim);
-          
-          // Initialize Q, sigma and vel_bar //
-#pragma omp simd
-          for (int dim = 0; dim < num_dim; dim++){
-            Q(dim, t_step) = 0.0;
-	    vel_bar(dim, t_step) =0.0;
-            for (int i = 0; i < num_dim; i++){
-              sigma(i,dim,t_step) = 0.0;
-            }
-          }
-
-	   
-          // Fill sigma //
-	  for (int prev_times = 0; prev_times <= t_step; prev_times++){
-	    for (int j=0; j < num_dim; j++){
-	      for (int i = 0; i < num_dim; i++){
-                 sigma(i, j, prev_times) = cell_state.stress(prev_times, cell_gid, i, j);
-	      } // end loop over i
-	    }// end loop over j
-	  }//end loop over previous sub-times
-	  
-
-          // Loop over dimension to assign vel_bar values //
-	  for (int prev_times = 0 ; prev_times <= t_step; prev_times++){
-            for (int dim = 0; dim < num_dim; dim++){
-              vel_bar(dim, prev_times) += node.vel(prev_times, node_gid, dim);
-            }// end loop over dim for vel_bar and vel_bar_n
-	  }// end loop over previous sub times
-        }// end loop over node_lid in cell_gid
          
+       	  for (int prev_times = 0; prev_times <= t_step; prev_times++){
+	    for (int dim_j=0; dim_j < num_dim; dim_j++){
+	      for (int dim_i = 0; dim_i < num_dim; dim_i++){
+                 
+                 // Fill sigma //
+                 sigma(dim_i, dim_j, prev_times) = cell_state.stress(prev_times, cell_gid, dim_i, dim_j);
+                 
+                 // Begin volume integration of "force" over cell //
+                 // \int_{V_h}(\grad\varphi\cdot\sigma)dV //
+                 // and rational chebyshev interpolation //
+                 for (int basis_id = 0; basis_id < elem.num_basis(); basis_id++){
+                   force_cell_volume(dim_i, prev_times) += mesh.gauss_cell_pt_jacobian_inverse(cell_gid, dim_i, dim_j)
+                                                           *ref_elem.ref_cell_gradient(cell_lid, basis_id, dim_j)
+                                                           *sigma(dim_i, dim_i, prev_times) /// --- everythong around this line needs to be fixed --- ///
+                                                           *ref_elem.ref_cell_g_weights(cell_lid)
+                                                           *mesh.gauss_cell_pt_det_j(cell_gid)
+	                	                           *jacobi::eval(t_step, -0.5, -0.5, (1-sub_time)/(1+sub_time)); // rational chebyshev approximation
 
-        // Assign values to Q //
-        real_t alpha_k = 1.0; // set alpha_k to 1 for now. <--- (CHANGE THIS)
-	for (int prev_times = 0; prev_times <= t_step; prev_times++){
-          for (int dim = 0; dim < num_dim; dim++){
-            Q(dim, prev_times) = alpha_k
-		                     *(node.vel(prev_times,node_gid,dim) - vel_bar(dim,prev_times))
-				     *jacobi::eval(t_step,-0.5, -0.5, (1-sub_time)/(1+sub_time) );
-          }// end loop over dim for Q
-        }// end loop over previous sub times
-        
-         
-        // Create CArray to store volume integral over cell of force at each sub time //
-        auto force_cell_volume = CArray <real_t> (num_dim, t_step);
+                 }// end loop over basis_id
+              } // end loop over dim_i
 
-        // Begin volume integration of "force" over cell //
-        // \int_{V_h}(\grad\varphi\cdot\sigma)dV //
-	// and rational chebyshev interpolation //
-	for (int prev_times = 0 ; prev_times <= t_step; prev_times++){
-          for (int dim_i=0; dim_i < num_dim; dim_i ++){
-            for (int dim_j =0; dim_j < num_dim; dim_j++){
-              for (int basis_id = 0; basis_id < elem.num_basis(); basis_id++){
+              // Fill vel_bar //
+              vel_bar(dim_j, prev_times) += node.vel(prev_times, node_gid, dim_j); 
               
-                force_cell_volume(dim_i, prev_times) += mesh.gauss_cell_pt_jacobian_inverse(cell_gid, dim_i, dim_j)
-                                          *ref_elem.ref_cell_gradient(cell_lid, basis_id, dim_j)
-                                          *sigma(dim_i, dim_i, prev_times) /// --- everythong around this line needs to be fixed --- ///
-                                          *ref_elem.ref_cell_g_weights(cell_lid)
-                                          *mesh.gauss_cell_pt_det_j(cell_gid)
-					  *jacobi::eval(t_step, -0.5, -0.5, (1-sub_time)/(1+sub_time)); // rational chebyshev approximation
-
-              }// end loop over basis_id
-            }// end loop over dim_j        
-          }// end loop over dim_i
-        }// end loop over previous sub_times
-	
-
-        // Create CArray to store time integral of force and artificial viscosity
-        auto time_integral = CArray <real_t> (num_dim);
-        
-	// Begin time integration of force_cell_volume and Q //
-        // int^{t^m}_{t^n}(Q^{r,m}_p + \int_{V_h}(\grad\varphi\cdot\sigma)dV)dt /
-        
-	// compute chebyshev nodes for tie integration
-	
-	auto cheb_nodes = CArray <real_t> (t_step);
-	
-	elements::chebyshev_nodes_1D( cheb_nodes, t_step);
-
-        for (int dim = 0; dim < num_dim; dim++){
-          for (int prev_times = 0; prev_times <= t_step; prev_times++){
-
-            time_integral(dim) += cheb_nodes(prev_times)*(force_cell_volume(dim, prev_times)+Q(dim,prev_times));
-	  
-	  }// end loop over previous sub times
-        }// end loop over dim for time_int_term
-	
-
-        // Store lo_res with node_gid and cell_gid (how to best do this?...)
-        
-        for (int dim = 0; dim < num_dim; dim++){
-          node.lo_res(node_gid, cell_gid, dim) = vel(dim) - vel_n(dim) + time_integral(dim)/cell_state.lumped_mass(cell_gid,node_gid);  // mass_p undefined, node.lo_res(node_gid, cell_gid, dim) undefined //
-        }// end loop over dim 
-
-      }// end loop over cells in node 
+              // Fill Q //
+              Q(dim_j, prev_times) = alpha_k
+	                           *(node.vel(prev_times,node_gid,dim_j) - vel_bar(dim_j,prev_times))
+				   *jacobi::eval(t_step,-0.5, -0.5, (1-sub_time)/(1+sub_time) );
             
+              // Begin time integration of force_cell_volume and Q //
+              // int^{t^m}_{t^n}(Q^{r,m}_p + \int_{V_h}(\grad\varphi\cdot\sigma)dV)dt  
+              time_integral(dim_j) += cheb_nodes(prev_times)*(force_cell_volume(dim,prev_times)+Q(dim,prev_times));
+
+	    }// end loop over dim_j
+          }// end loop over previous sub times 
+
+          // Store lo_res with node_gid and cell_gid //
+          for (int dim = 0; dim < num_dim; dim++){
+            node.lo_res(node_gid, cell_gid, dim) = vel(dim) - vel_n(dim) + time_integral(dim)/cell_state.lumped_mass(cell_gid,node_gid);
+          }// end loop over dim 
+
+        }// end loop over nodes in cell 
+
+      }// end loop over cell_lid      
+
     }// end loop over node_lid
   }// end loop over elements
-
 
 
 }// end get_lo_res
