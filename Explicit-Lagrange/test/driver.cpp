@@ -220,7 +220,7 @@ int main(int argc, char *argv[]){
     if(SGH == true) sgh_hydro();
 
     if(DGH == true) dg_hydro();
-
+    std::cout<< "made it to rd_hydro() call " << std::endl;
     if(RDH == true) rd_hydro();
 
     // graphics output after end of hydro solve

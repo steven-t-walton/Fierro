@@ -33,23 +33,32 @@ void rd_hydro(){
 
       // DeC update //
       for (int pred_step = 0; pred_step < num_prediction_steps; pred_step++){
+        std::cout<<" pred_step = "<< pred_step << std::endl;
         for (int correction_step = 0; correction_step <= num_correction_steps; correction_step++){
-                    
+          std::cout<< " correction step = "<< correction_step << std::endl;          
 	  real_t sub_dt = (correction_step+1)*dt/num_correction_steps;
           real_t sub_time = TIME + sub_dt;          
           
 	  get_stress(correction_step); // assign values to stress
-
-	  get_cell_mass(); // lumped mass in a cell. used in lo_res
-
+          std::cout << "called get stress" << std::endl;
+	  
+          get_cell_mass(); // lumped mass in a cell. used in lo_res
+          std::cout << " called get cell mass" << std::endl;
+          
+          std::cout << "calling get_lo_res" << std::endl;
           get_lo_res(dt, correction_step, TIME);// low order approx
           
-	  lumped_mass();// used in momentum
-                  
-          prediction_step(sub_dt, pred_step);// low order approx
 
+          std::cout << "calling lumped_mass " << std::endl;
+	  lumped_mass();// used in momentum
+          
+          std::cout << "calling prediction step" << std::endl;
+          prediction_step(sub_dt, pred_step);// low order approx
+          
+          std::cout << " updating momentum " << std::endl;
           get_momentum_rd(pred_step, correction_step);// high order correction
           
+          std::cout << " calling get state " << std::endl;
           get_state();
         }//end correction steps
       }//end prediction steps
@@ -57,7 +66,7 @@ void rd_hydro(){
     
     // Track total energy //
     track_rdh(ke,ie, num_correction_steps);
-
+    
     //Update position
     for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++) {
     // create view of the nodal velocities

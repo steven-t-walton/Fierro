@@ -1,5 +1,7 @@
 /* momentum_rd.cpp*/
 
+#include<iostream>
+
 #include "utilities.h"
 #include "state.h"
 #include "geometry.h"
@@ -34,16 +36,21 @@ void get_momentum_rd(int pred_step, int correction_step){
       for (int cell_lid = 0; cell_lid < mesh.num_cells_in_node(node_gid); cell_lid++){
 
         // Get cell_gid //
-        int cell_gid = mesh.cells_in_node(node_gid, cell_gid);
+        int cell_gid = mesh.cells_in_node(node_gid, cell_lid);
 
         // Perform summation //
         sum_res(dim) += node.lo_res(node_gid, cell_gid, dim);
 
       }// end loop over cell_lid
+      std::cout << " summed over residuals " << std::endl;
 
       // Update momentum //
-      node.vel(correction_step,node_gid,dim) = vel_r(dim) - sum_res(dim)/node.mass(node_gid);
-
+      //std::cout << "mass at node "<< node_gid <<" is "<< node.mass(node_gid) << std::endl;
+      node.vel(correction_step,node_gid,dim) = vel_r(dim) - sum_res(dim);///node.mass(node_gid);
+      std::cout << "assignment to node.vel(corr_step, pred_step,dim) " << vel_r(dim) - sum_res(dim)
+<< std::endl;
+      
     }// end loop over dim
   }//end loop over nodes
+  std::cout << "finished get momentum" << std::endl;
 }// end get_momentum_rd()
