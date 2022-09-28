@@ -21,8 +21,11 @@ private:
     int num_nodes_;
 
     // Num cells in node
-    int num_cells_in_node_;
-
+    //int num_cells_in_node_;
+    
+    // Num cells
+    int num_cells_;
+    
     // Position
     real_t *node_coords_ = NULL; 
 
@@ -43,8 +46,11 @@ private:
 
     real_t *corner_norm_sum_ = NULL;
 
-    // lo_res at nodes
-    real_t *node_lo_res_ = NULL;
+    // nodal_res at nodes
+    real_t *node_nodal_res_ = NULL;
+    
+    // lumped mass at nodes
+    real_t *node_lumped_mass_ = NULL;
 
 public:
 
@@ -53,10 +59,14 @@ public:
 
         num_dim_   = num_dim;
         num_rk_    = num_rk;
-
+        
         // **** Node State **** //
         num_nodes_ = mesh.num_nodes();
-
+        
+        // num cells 
+        num_cells_ = mesh.num_cells();
+        
+        
         node_coords_ = new real_t[num_rk_*num_nodes_*num_dim_]();
         node_vel_ = new real_t[num_rk_*num_nodes_*num_dim_]();
         node_vel_norm_ = new real_t[num_nodes_*num_dim_]();
@@ -65,8 +75,10 @@ public:
         node_mass_ = new real_t[num_nodes_]();
         corner_norm_sum_  = new real_t[num_nodes_*num_dim_]();
         
-        node_lo_res_ = new real_t[num_nodes_*num_dim_*num_cells_in_node_]();
-
+        node_nodal_res_ = new real_t[num_nodes_*num_dim_*num_cells_]();
+        
+        node_lumped_mass_ = new real_t[num_nodes_*num_cells_]();
+        
     }
 
 
@@ -106,13 +118,17 @@ public:
         return node_mass_[node_gid];
     }
     
-    inline real_t& lo_res(int node_gid, int cell_gid, int this_dim) const
+    inline real_t& nodal_res(int node_gid, int cell_gid, int this_dim) const
     {
         //---- CHECK THIS ----//
-        return node_lo_res_[num_nodes_*num_dim_ + num_cells_in_node_*num_dim_ + node_gid*num_dim_ + cell_gid*num_dim_ + this_dim];
+        return node_nodal_res_[num_nodes_*num_dim_ + num_cells_*num_dim_ + node_gid*num_dim_ + cell_gid*num_dim_ + this_dim];
     }
 
-
+    inline real_t& lumped_mass(int node_gid, int cell_gid) const
+    {
+        return node_lumped_mass_[num_nodes_ + num_cells_];
+    }
+    
     // deconstructor
     ~node_t ( ) {
 
@@ -122,7 +138,8 @@ public:
         delete[] corner_norm_sum_;
         delete[] node_force_;
         delete[] node_mass_;
-        delete[] node_lo_res_;
+        delete[] node_nodal_res_;
+        delete[] node_lumped_mass_;
     }
 
 };
@@ -1154,9 +1171,9 @@ bool Bern_test(ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv);
 // RD code
 void rd_hydro();
 void get_momentum_rd(int pred_step, int correction_step);
-void get_lo_res(real_t sub_dt, int t_step, real_t sub_time);
+void get_nodal_res(real_t sub_dt, int t_step, real_t sub_time);
 void lumped_mass();
-void get_cell_mass();
+//void get_cell_mass();
 void prediction_step(real_t sub_dt, int pred_step);
 void track_rdh(real_t &x, real_t &y, int t_step);
 void bernstein_vandermonde(ViewCArray <real_t> &B);

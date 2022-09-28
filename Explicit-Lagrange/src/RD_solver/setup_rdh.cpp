@@ -87,7 +87,7 @@ void setup_rdh(char *MESH){
   }// end loop over this_bdy
   
    
-  for(int t_step = 0; t_step < num_correction_steps; t_step++){
+  for(int t_step = 0; t_step < num_correction_steps+1; t_step++){
   
     for(int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
       
@@ -107,15 +107,14 @@ void setup_rdh(char *MESH){
   std::cout << "Fill instruction NF = " << NF << std::endl;
 
   // Copying setup_dg and saving gauss_pts to material points //
-  // We should discuss how to change this here and in setup_dg //
-  
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++) {
-    for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+  // We should discuss how to change this here and in setup_dg // 
+  //for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++) {
+  //  for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
 
-      int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
-      mat_pt.weight(gauss_gid) = ref_elem.ref_node_g_weights(gauss_lid);
-    }
-  }
+  //    int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+  //    mat_pt.weight(gauss_gid) = ref_elem.ref_node_g_weights(gauss_lid);
+  //  }
+ // }
   
 
   // apply fill instruction over the elements //
@@ -139,7 +138,7 @@ void setup_rdh(char *MESH){
           elem_coords_y += mesh.node_coords(node_gid, 1)/mesh.num_nodes_in_elem();
           elem_coords_z += mesh.node_coords(node_gid, 2)/mesh.num_nodes_in_elem();
 
-        } // end loop over guass points //
+        } // end loop over gauss points //
 
 	// spherical radius //
         real_t radius = sqrt( elem_coords_x*elem_coords_x +
@@ -306,10 +305,13 @@ void setup_rdh(char *MESH){
                  {
                    //
                     
-                   node.vel(t_step, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1)); 
-                   node.vel(t_step, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1)); 
-                   node.vel(t_step, node_gid, 2) = 0.0; 
+                   node.vel(t_step, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
+                   //std::cout << "ic vel at dim " << 0 << " is " << node.vel(t_step, node_gid, 0) << std::endl; 
                    
+                   node.vel(t_step, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1)); 
+                   //std::cout << "ic vel at dim " << 1 << " is " << node.vel(t_step, node_gid, 1) << std::endl;
+                   node.vel(t_step, node_gid, 2) = 0.0; 
+                   //std::cout << "ic vel at dim " << 2 << " is " << node.vel(t_step, node_gid, 2) << std::endl;
                    cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*elem_coords_x) + cos(2.0*PI*elem_coords_y) ) + 1.0;
 
                    // p = rho*ie*(gamma - 1)
@@ -334,6 +336,6 @@ void setup_rdh(char *MESH){
      boundary_velocity();
   }// end loop over sub_tstep stages
 
-  lumped_mass();
+  //lumped_mass();
 
 }// end setup_rd

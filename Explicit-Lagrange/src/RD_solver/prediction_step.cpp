@@ -22,16 +22,17 @@ void prediction_step(real_t sub_dt, int prediction_step){
     
       // Loop over dims //
       for (int dim = 0; dim < num_dim; dim++){
-        real_t sum_lo_res = 0.0;
+        real_t sum_nodal_res = 0.0;
 
         // Loop over cells to sum residual //
         for (int cell_lid = 0; cell_lid < mesh.num_cells_in_node(node_gid); cell_lid++){
           int cell_gid = mesh.cells_in_node(node_gid, cell_lid);
-          sum_lo_res += node.lo_res(node_gid, cell_gid, dim);
+          sum_nodal_res += node.nodal_res(node_gid, cell_gid, dim);
+          sum_nodal_res = sum_nodal_res/node.lumped_mass(node_gid,cell_gid);
         }// end loop over cell_lid
         
 	// push initial correction to nodes
-        node.vel(prediction_step, node_gid, dim) = vel_n(dim) - sub_dt*sum_lo_res/node.mass(node_gid);
+        node.vel(prediction_step, node_gid, dim) = vel_n(dim) - sub_dt*sum_nodal_res;
 
       } // end loop over dims
 

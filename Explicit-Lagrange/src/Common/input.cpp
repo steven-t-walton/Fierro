@@ -42,7 +42,7 @@ void input(){
 
     // ---- time varaibles and cycle info ---- //
     // time step
-    TFINAL = 0.1;  //1.0;
+    TFINAL = 1.0;
     
     //C1 = 1.0;
     //C2 = 1.333;
@@ -56,8 +56,8 @@ void input(){
 
     rk_storage = 2;
 
-    num_correction_steps = 1;
-    num_prediction_steps = 1;
+    num_correction_steps = 3;
+    num_prediction_steps = 3;
 
     dt_cfl = 0.4;
 

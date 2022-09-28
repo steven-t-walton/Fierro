@@ -9,74 +9,69 @@
 
 using namespace utils;
 
-// Creates Global Mass Matrix
-
 void lumped_mass(){
 
   int num_basis = ref_elem.num_basis();
 
-  real_t diag_a[mesh.num_elems()*num_basis];
-  auto diag_M = ViewCArray <real_t> (diag_a, mesh.num_elems(), num_basis);
+  real_t diag_a[mesh.num_cells_in_elem()*num_basis];
+  auto diag_M = ViewCArray <real_t> (diag_a, mesh.num_cells_in_elem(), num_basis);
+  
+  real_t mass_mat_a[num_basis*num_basis];
+  auto mass_mat = ViewCArray <real_t> (mass_mat_a, num_basis, num_basis);
 
+  
   for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
  
-    real_t mass_mat_a[num_basis*num_basis]; // Status: Changed
-    auto mass_mat = ViewCArray <real_t>(mass_mat_a, num_basis, num_basis);
-
-    // Initialize mass matrix to zero // 
-    for(int i = 0; i < num_basis; i++){
+    for(int cell_lid = 0 ; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
+    
+      int cell_gid = mesh.cells_in_elem(elem_gid,cell_lid);
       for(int j = 0; j < num_basis; j++){
-        mass_mat(i,j) = 0.0;
+        for(int i = 0; i < num_basis; i++){
+          mass_mat(i,j) = 0.0;
+        }// end loop over i
+      }// end loop over j
+
+      for (int i = 0; i < num_basis; i++){
+        for (int j = 0; j < mesh.num_cells_in_elem(); j++){ diag_M(j,i) = 0.0; }
       }
-    }
 
-    // Initialize diag M to zero //
-    for (int i = 0; i < num_basis; i++){
-      for (int j = 0; j < mesh.num_elems(); j++){
-        diag_M(j,i) = 0.0;
-      }
-    }
+      
+   	for(int basis_n = 0; basis_n < num_basis; basis_n++){
+      	  for(int basis_m = 0; basis_m < num_basis; basis_m++){
+            for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
+              int gauss_gid = mesh.gauss_in_cell(cell_gid, gauss_lid);
+              mass_mat(basis_m, basis_n) +=  cell_state.density(cell_gid) 
+	     				    * ref_elem.ref_nodal_basis(gauss_lid, basis_m) 
+					    * ref_elem.ref_nodal_basis(gauss_lid, basis_n) 
+					    * mesh.gauss_pt_det_j(gauss_gid) 
+					    * ref_elem.ref_node_g_weights(gauss_lid);
+ 	      //std::cout<< " mass mat entry = "<< mass_mat(basis_m,basis_n) << std::endl;			
+            } // end loop over gauss in element
 
-    // Fills mass matrix
-    for(int basis_m = 0; basis_m < num_basis; basis_m++){
+          //diag_M(cell_gid, basis_n) += mass_mat(basis_m,basis_n);
+          int node_lid = elem.vert_node_map(basis_n);
+          int node_gid = mesh.nodes_in_cell(cell_gid,node_lid);
+          node.lumped_mass(node_gid,cell_gid) += mass_mat(basis_m,basis_n);
 
-      for(int basis_n = 0; basis_n < num_basis; basis_n++){
-			
-        for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+          //std::cout << " lumped mass is " << diag_M(cell_gid, basis_n) << std::endl;
 
-          int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+          } // end loop over basis_m         
+        } // end loop over basis_n
 
-          mass_mat(basis_m, basis_n) += mat_pt.density(gauss_gid) // WHERE DO THESE VALUES COME FROM
-					* ref_elem.ref_nodal_basis(gauss_lid, basis_m) 
-					* ref_elem.ref_nodal_basis(gauss_lid, basis_n) 
-					* mesh.gauss_pt_det_j(gauss_gid) 
-					* ref_elem.ref_node_g_weights(gauss_lid);
-				
-        } // end loop over gauss in element
-      } // end loop over basis_n
-    } // end loop over basis_m
-
-    // Makes Matrix where each row has the lumped mass values for a particular element
-    for (int j = 0; j<num_basis; j++){ 
-      for (int i = 0; i<num_basis; i++){
-	 if ( i != j) diag_M(elem_gid, j) += mass_mat(i,j);
-      }
-    }
+      //node.lumped_mass(node_gid,cell_gid) = diag_M(cell_gid, node_lid);
+      //std::cout<< "mass at node " << node_gid << " is " << node.lumped_mass(node_gid,cell_gid) << std::endl;
+     
+      /*
+      for (int vertex_id = 0; vertex_id < num_basis; vertex_id++){
+        int node_lid = elem.vert_node_map(vertex_id);
+        int node_gid = mesh.nodes_in_cell(cell_gid, node_lid);
+        node.mass(node_gid) = diag_M(cell_gid, vertex_id);
+        std::cout<< "mass at node " << node_gid << " is " << node.mass(node_gid) << std::endl;
+      } // end loop over vertex_id
+      */
+    }// end loop over cell_lid
 		
-  } // End loop over the elements
-
-  // Assigns Values of Lumped Mass into a Nodal Global ID Vector
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-
-    for (int vertex_id = 0; vertex_id < num_basis; vertex_id++){
-
-      int node_lid = elem.vert_node_map(vertex_id); // Gets node local ID from the basis id (vertex ID basically)
-      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid); // Gets the node global ID from the element gid and the node lid
-      node.mass(node_gid) = diag_M(elem_gid, vertex_id); // Uses the global node index in the node.mass to put in the the corresponding lumped mass values
-
-    } // End Loop over number of basis functions
-		
-  } // End Loop over number of elements in grid
+  } // end loop over elem_gid
 
 }
 
