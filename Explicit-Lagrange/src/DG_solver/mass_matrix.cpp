@@ -72,8 +72,9 @@ void mass_mat_inverse(){
 
 
 		real_t src_a[num_basis*num_basis];
-		auto mass_mat = ViewCArray <real_t>(&src_a[0], num_basis, num_basis);
-
+		//real_t temp_src_a[num_basis*num_basis];
+                auto mass_mat = ViewCArray <real_t>(&src_a[0], num_basis, num_basis);
+                //auto temp_mat = ViewCArray <real_t>(&temp_src_a[0], num_basis, num_basis);
 		// Initialize mass matrix to zero 
 		for(int i=0; i<num_basis; i++){
 			for(int j=0; j<num_basis; j++){
@@ -97,8 +98,10 @@ void mass_mat_inverse(){
 						* ref_elem.ref_nodal_basis(gauss_lid, basis_n)
 						* mesh.gauss_pt_det_j(gauss_gid)
 						* ref_elem.ref_node_g_weights(gauss_lid);
-
+                                        
 				} // end loop over gauss in element
+
+                        //temp_mat(basis_m, basis_n) = mass_mat(basis_m, basis_n);
 			} // end loop over basis_n
 		} // end loop over basis_m
 
@@ -147,7 +150,27 @@ void mass_mat_inverse(){
      //        }
      //        std::cout << std::endl;
      //    }
+      /*
+      real_t val=0;
+      real_t val2=0;
+      if (elem_gid == 0){
+        for (int i = 0; i < num_basis; i++){
+           
+          for (int j = 0; j < num_basis; j++){
+             
+            for (int k = 0; k < num_basis; k++){
+              val += temp_mat(i,k)*elem_state.mass_mat_inv(elem_gid,k,j);
+              val2 += elem_state.mass_mat_inv(elem_gid, i, k)*temp_mat(k,j);
+            }
 
-
+            std::cout << "val in elem " << elem_gid << " at i = " << i << " j = " << j << " is " << val;
+            std::cout << ",  val2 in elem " << elem_gid << " at i = " << i << " j = " << j << " is " << val2 << std::endl;
+            val2 = 0.0;
+            val = 0.0; 
+          }
+           
+        }
+      }
+      */  
 	} // end of loop over elements
 } // end of routine

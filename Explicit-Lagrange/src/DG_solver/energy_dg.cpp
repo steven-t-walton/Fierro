@@ -132,13 +132,12 @@ void energy_dg(real_t rk_alpha, int cyle){
 	        		for(int j=0; j<mesh.num_dim(); j++){
 	        			for(int k=0; k<mesh.num_dim(); k++){
         				
-	        				volume_int(basis_id) += 
-	        								ref_elem.ref_nodal_gradient(node_rid, basis_id, i)
-	        								* mesh.gauss_pt_jacobian_inverse(gauss_gid, i, j)
-	        								* mat_pt.stress(gauss_gid, j, k)
-	        								* mat_pt.velocity(1, gauss_gid, k)
-	        								* mesh.gauss_pt_det_j(gauss_gid)
-	        								* ref_elem.ref_node_g_weights(gauss_lid);
+	        				volume_int(basis_id) += ref_elem.ref_nodal_gradient(node_rid, basis_id, i)
+	        							* mesh.gauss_pt_jacobian_inverse(gauss_gid, i, j)
+	        							* mat_pt.stress(gauss_gid, j, k)
+	        							* mat_pt.velocity(1, gauss_gid, k)
+	        							* mesh.gauss_pt_det_j(gauss_gid)
+	        							* ref_elem.ref_node_g_weights(gauss_lid);
 	        			}
 	        		}
 	        	}

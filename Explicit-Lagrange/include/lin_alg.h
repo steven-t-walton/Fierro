@@ -12,7 +12,7 @@ using namespace utils;
 ////////////////////////////
 
 /* "small number" to avoid overflow in some cases */
-#define TINY 1.e-30
+#define TINY 1.e-40
 
 /* ------------------------- */
 /* LU decomposition function */

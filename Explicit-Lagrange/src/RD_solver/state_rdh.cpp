@@ -8,7 +8,7 @@
 using namespace utils;
 
 // -----------------------------------------------------------------------------
-// This function that calculates the cell pressure, density, sound speed
+// This function calculates the cell pressure, density, sound speed
 //------------------------------------------------------------------------------
 void get_state(){
 

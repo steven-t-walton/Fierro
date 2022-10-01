@@ -603,7 +603,8 @@ class elem_state_t {
         real_t *avg_specific_total_energy_ = NULL;
         real_t *avg_density_ = NULL;
         real_t *avg_specific_volume_ = NULL;
-
+        
+        real_t *BV_mat_inverse_ = NULL;
 
     public:
     
@@ -631,6 +632,7 @@ class elem_state_t {
             avg_specific_total_energy_ = new real_t[num_elem_]();
             avg_density_ = new real_t[num_elem_]();
             avg_specific_volume_ = new real_t[num_elem_]();
+            BV_mat_inverse_ = new real_t[num_basis_*num_basis_*num_dim_]();
         
         }
 
@@ -651,6 +653,12 @@ class elem_state_t {
         {
             return inverse_mass_matrix_[elem_gid*num_basis_*num_basis_ + basis_m * num_basis_ + basis_n];
         }
+        
+        inline real_t& BV_mat_inv(int basis_m, int basis_n, int dim) const
+        {
+            return BV_mat_inverse_[ basis_m*num_basis_ + basis_n*num_dim_+ dim];
+        }
+
     
         // were are the dims?
         inline real_t& velocity(int rk_stage, int elem_gid, int this_basis, int dim) const
@@ -688,7 +696,7 @@ class elem_state_t {
         return avg_specific_volume_[elem_gid];
         }
 
-        // deconstructor
+       // deconstructor
         ~elem_state_t ( ) {
 
             delete[] mat_id_;
@@ -701,6 +709,7 @@ class elem_state_t {
             delete[] avg_specific_total_energy_;
             delete[] avg_specific_volume_;
             delete[] bad_;
+            delete[] BV_mat_inverse_;
 
         }
 };
@@ -1163,24 +1172,18 @@ void calc_average_density();
 void calc_average_velocity();
 void calc_average_specific_total_energy();
 void calc_average_specific_vol();
-void bernstein_vandermonde(ViewCArray <real_t> &B);
-void BV_inv(ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv);
-bool Bern_test(ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv);
-
 
 // RD code
 void rd_hydro();
 void get_momentum_rd(int pred_step, int correction_step);
 void get_nodal_res(real_t sub_dt, int t_step, real_t sub_time);
 void lumped_mass();
-//void get_cell_mass();
 void prediction_step(real_t sub_dt, int pred_step);
 void track_rdh(real_t &x, real_t &y, int t_step);
 void bernstein_vandermonde(ViewCArray <real_t> &B);
-void BV_inv(ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv);
+void BV_inv();//ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv);
 void get_state();
 void get_stress(int t_step);
-bool Bern_test(ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv);
 void setup_rdh(char *MESH);
 
 #endif 

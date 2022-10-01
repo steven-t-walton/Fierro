@@ -12,7 +12,7 @@ void rd_hydro(){
   
   for (cycle = 1; cycle <= cycle_stop; cycle++){
     
-    std::cout<<"cycle = "<<cycle<<std::endl;
+    //std::cout<<"cycle = "<<cycle<<std::endl;
 
     if (stop_calc == 1) break;
     if (cycle == 1){
@@ -34,6 +34,16 @@ void rd_hydro(){
 
     dt = fmin(dt, (graphics_time - TIME)+fuzz);
     
+    //Update position
+    for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++) {
+    // create view of the nodal velocities
+      auto vel = ViewCArray <real_t> (&node.vel(num_correction_steps, node_gid, 0), num_dim);
+      for (int dim = 0; dim < 3; dim++){
+        node.coords(1, node_gid, dim) = node.coords(0, node_gid, dim) +  dt*(vel(dim));
+        mesh.node_coords(node_gid, dim) = node.coords(1, node_gid, dim);
+      }// end loop over dim
+    } // end for loop over nodes
+
     { // Time integration scope //
      
       // DeC update //
@@ -57,32 +67,30 @@ void rd_hydro(){
         //std::cout << " updating momentum " << std::endl;
         get_momentum_rd(num_correction_steps, correction_step);
         
+        //std::cout << "Calculating Jacobian at gauss points" << std::endl;
+        get_gauss_pt_jacobian(mesh, ref_elem);
+
+        //std::cout << "Before volume from Jacobian"  << std::endl;
+        get_vol_jacobi(mesh, ref_elem); 
+        
         //std::cout << " calling get state " << std::endl;
         get_state();
       }//end correction steps
-      // Update velocity
-      for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++) {
-        for (int dim = 0; dim < mesh.num_dim(); dim++){
-          node.vel(0,node_gid,dim) = node.vel(num_correction_steps,node_gid,dim);
-        }// end loop over dim       
-      }// end loop over node_gid
-
-     
+       
      
     } // end time integration scope
+    
+    // Update velocity
+    for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++) {
+      for (int dim = 0; dim < mesh.num_dim(); dim++){
+        node.vel(0,node_gid,dim) = node.vel(num_correction_steps,node_gid,dim);
+      }// end loop over dim      
+    }// end loop over node_gid
     
     // Track total energy //
     track_rdh(ke,ie, num_correction_steps);
     
-    //Update position
-    for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++) {
-    // create view of the nodal velocities
-      auto vel = ViewCArray <real_t> (&node.vel(num_correction_steps, node_gid, 0), num_dim);
-      for (int dim = 0; dim < 3; dim++){
-        node.coords(1, node_gid, dim) = node.coords(0, node_gid, dim) +  dt*(vel(dim));
-        mesh.node_coords(node_gid, dim) = node.coords(1, node_gid, dim);
-      }// end loop over dim
-    } // end for loop over nodes
+        
     
         
     // Increment time //

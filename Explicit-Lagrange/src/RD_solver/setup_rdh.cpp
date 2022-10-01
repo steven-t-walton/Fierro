@@ -106,16 +106,16 @@ void setup_rdh(char *MESH){
 
   std::cout << "Fill instruction NF = " << NF << std::endl;
 
-  // Copying setup_dg and saving gauss_pts to material points //
-  // We should discuss how to change this here and in setup_dg // 
-  //for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++) {
-  //  for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
-
-  //    int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
-  //    mat_pt.weight(gauss_gid) = ref_elem.ref_node_g_weights(gauss_lid);
-  //  }
- // }
-  
+   // Setup Bernstein-Vandermonde matrix and invert //
+   //real_t B_a[ref_elem.num_basis()*ref_elem.num_basis()*mesh.num_dim()];
+   //auto B = ViewCArray <real_t> (&B_a[0], ref_elem.num_basis(), ref_elem.num_basis(), mesh.num_dim());
+   
+  // real_t B_inv_a[ref_elem.num_basis()*ref_elem.num_basis()*mesh.num_dim()];
+  // auto B_inv = ViewCArray <real_t> (&B_inv_a[0], ref_elem.num_basis(), ref_elem.num_basis(), mesh.num_dim());
+   
+   //bernstein_vandermonde(B);
+   BV_inv();
+ 
 
   // apply fill instruction over the elements //
   // for initialization, copy data to each substep //
@@ -148,19 +148,7 @@ void setup_rdh(char *MESH){
         // cylindrical radius //
         real_t radius_cyl = sqrt( elem_coords_x*elem_coords_x +
                             elem_coords_y*elem_coords_y);
- 
-        /* 
-        // Setup Bernstein-Vandermonde matrix and invert //
-        auto B_temp = CArray <real_t> (ref_elem.num_basis(), ref_elem.num_basis());
-        auto B = ViewCArray <real_t> (&B_temp(0,0), ref_elem.num_basis(), ref_elem.num_basis());
-        bernstein_vandermonde(B);
-
-        auto B_inv_temp = CArray <real_t> (ref_elem.num_basis(), ref_elem.num_basis());
-        auto B_inv = ViewCArray <real_t> (&B_inv_temp(0,0), ref_elem.num_basis(), ref_elem.num_basis());
-
-        BV_inv(B, B_inv);
-//        Bern_test(B, B_inv);
-        */
+  
 
         // default is not to fill the element //
         int fill_this = 0;
@@ -312,18 +300,18 @@ void setup_rdh(char *MESH){
                    //std::cout << "ic vel at dim " << 1 << " is " << node.vel(t_step, node_gid, 1) << std::endl;
                    node.vel(t_step, node_gid, 2) = 0.0; 
                    //std::cout << "ic vel at dim " << 2 << " is " << node.vel(t_step, node_gid, 2) << std::endl;
-                   cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*elem_coords_x) + cos(2.0*PI*elem_coords_y) ) + 1.0;
-
-                   // p = rho*ie*(gamma - 1)
-
-                   cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g - 1.0));
-
+                  
                    break;
                  }
                } // end of switch
 
 
              } // end for loop over nodes in cell
+
+             if(mat_fill[f_id].velocity == init_conds::tg_vortex){
+               cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*elem_coords_x) + cos(2.0*PI*elem_coords_y) ) + 1.0;
+               cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g-1.0));
+             }// end if
            
            }// end loop over cells in the element
 
@@ -336,6 +324,19 @@ void setup_rdh(char *MESH){
      boundary_velocity();
   }// end loop over sub_tstep stages
 
-  //lumped_mass();
+  
+  // calculate the nodal masses by looping over all cells 
+  real_t partition = 1.0/(8.0);
+
+  for (int cell_gid = 0; cell_gid < mesh.num_cells(); cell_gid++) {
+
+    // distribute mass to the nodes
+    real_t mass = partition*cell_state.mass(cell_gid);
+
+    for (int node_lid = 0; node_lid < mesh.num_nodes_in_cell(); node_lid++){
+      node.mass(mesh.nodes_in_cell(cell_gid, node_lid)) += mass;
+    }
+
+  } // end for cell k
 
 }// end setup_rd

@@ -80,7 +80,7 @@ void dg_hydro(){
                 
                 
                 // selecting strong mass or evolve specific volume
-                int do_strong_mass = 1; // = 0 or = 1
+                int do_strong_mass = 0; // = 0 or = 1
                 
                 
                 // Evolve the specific volume polynomial
@@ -120,7 +120,7 @@ void dg_hydro(){
                 // calculate the element average total energy
                 calc_average_specific_total_energy();
                 
-                /* 
+                
                 // Limit the polynomial fields
                 for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
                     
@@ -137,7 +137,7 @@ void dg_hydro(){
                     limit_vel(mesh, ref_elem, "V", elem_gid);
                     
                 } // ned for elem_gid
-                */
+                
                 
                 // Calculate the ke and ie at the mat_pnts using the limited fields
                 for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
