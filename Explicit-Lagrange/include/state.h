@@ -121,7 +121,7 @@ public:
     inline real_t& nodal_res(int node_gid, int cell_gid, int this_dim) const
     {
         //---- CHECK THIS ----//
-        return node_nodal_res_[num_nodes_*num_dim_ + num_cells_*num_dim_ + node_gid*num_dim_ + cell_gid*num_dim_ + this_dim];
+        return node_nodal_res_[node_gid*num_cells_*num_dim_ + cell_gid*num_dim_ + this_dim];//num_nodes_*num_dim_ + num_cells_*num_dim_ + node_gid*num_dim_ + cell_gid*num_dim_ + this_dim];
     }
 
     inline real_t& lumped_mass(int node_gid, int cell_gid) const
@@ -333,9 +333,6 @@ class cell_state_t {
 
         real_t *mass_ = NULL;
         
-	// add for RD //
-	real_t *lumped_mass_ = NULL;
-
         real_t *density_ = NULL;
 
         real_t *pressure_ = NULL;
@@ -396,8 +393,6 @@ class cell_state_t {
             
             mass_ = new real_t[num_cells_]();
 
-	    lumped_mass_ = new real_t[num_cells_*num_nodes_]();
-
             density_ = new real_t[num_cells_]();
 
             pressure_ = new real_t[num_cells_]();
@@ -442,12 +437,8 @@ class cell_state_t {
         {
             return mass_[cell_gid];
         }
-
-	inline real_t& lumped_mass(int cell_gid, int node_gid) const
-	{
-	    return lumped_mass_[cell_gid+num_nodes_];
-	}
-
+        
+       
         inline real_t& density(int cell_gid) const
         {
             return density_[cell_gid];
@@ -546,8 +537,7 @@ class cell_state_t {
 
             delete[] mat_id_;
             delete[] mass_;
-	    delete[] lumped_mass_;
-            delete[] density_;
+	    delete[] density_;
             delete[] pressure_;
 
             delete[] cs_;
@@ -632,7 +622,7 @@ class elem_state_t {
             avg_specific_total_energy_ = new real_t[num_elem_]();
             avg_density_ = new real_t[num_elem_]();
             avg_specific_volume_ = new real_t[num_elem_]();
-            BV_mat_inverse_ = new real_t[num_basis_*num_basis_*num_dim_]();
+            BV_mat_inverse_ = new real_t[num_basis_*num_basis_]();
         
         }
 
@@ -654,9 +644,9 @@ class elem_state_t {
             return inverse_mass_matrix_[elem_gid*num_basis_*num_basis_ + basis_m * num_basis_ + basis_n];
         }
         
-        inline real_t& BV_mat_inv(int basis_m, int basis_n, int dim) const
+        inline real_t& BV_mat_inv(int basis_m, int basis_n) const
         {
-            return BV_mat_inverse_[ basis_m*num_basis_ + basis_n*num_dim_+ dim];
+            return BV_mat_inverse_[ basis_m*num_basis_ + basis_n];
         }
 
     
@@ -1180,8 +1170,8 @@ void get_nodal_res(real_t sub_dt, int t_step, real_t sub_time);
 void lumped_mass();
 void prediction_step(real_t sub_dt, int pred_step);
 void track_rdh(real_t &x, real_t &y, int t_step);
-void bernstein_vandermonde(ViewCArray <real_t> &B);
-void BV_inv();//ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv);
+//void bernstein_vandermonde(ViewCArray <real_t> &B);
+void BV_inv();
 void get_state();
 void get_stress(int t_step);
 void setup_rdh(char *MESH);

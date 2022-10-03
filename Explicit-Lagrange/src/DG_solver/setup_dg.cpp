@@ -106,8 +106,6 @@ void setup_dgh(char *MESH){
 
     }
     
-
-    
     
     // WARNING: COPY MESH.NODE_COORDS TO NODE.COORDS AT SOME POINT ADD TO RK_INIT
     for(int rk_step = 0; rk_step < rk_storage; rk_step++){
@@ -120,6 +118,7 @@ void setup_dgh(char *MESH){
         }  
     }
    
+    BV_inv();
 
     // Calculate all geometry
 

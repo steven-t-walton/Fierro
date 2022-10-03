@@ -15,17 +15,40 @@ void rd_hydro(){
     //std::cout<<"cycle = "<<cycle<<std::endl;
 
     if (stop_calc == 1) break;
+    
+        
     if (cycle == 1){
+          
+      real_t BV_coeffs_a[mesh.num_elems()*elem.num_basis()*mesh.num_dim()];
+      auto BV_coeffs = ViewCArray <real_t> (&BV_coeffs_a[0], mesh.num_elems(), elem.num_basis(), mesh.num_dim());
+
+      // initialize control coeffs to zero //
+      for( int k = 0; k < mesh.num_dim(); k ++){
+        for (int j = 0; j < elem.num_basis(); j++){
+          for (int i = 0; i < mesh.num_elems(); i++){
+             BV_coeffs(i,j,k) =  0.0;
+          }// end loop over i
+        }// end loop over j
+      }// end loop over k
+      
       for (int elem_gid = 0 ; elem_gid < mesh.num_elems(); elem_gid++){
-        for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
-          int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-          for (int t_step = 0; t_step < num_correction_steps+1;t_step++){
-            for (int dim = 0; dim < mesh.num_dim(); dim++){  
-              node.vel(t_step, node_gid, dim) = node.vel(0, node_gid, dim);
-            }// end loop over dim
-          } // end loop over t_step
-        }// end loop over node_lid
+        for (int dim = 0; dim < mesh.num_dim(); dim++){
+          for(int basis_id = 0; basis_id < elem.num_basis(); basis_id++){
+         
+            for (int k = 0; k < elem.num_basis(); k++){
+              int node_basis_id = elem.vert_node_map(k);
+              int interp_gid = mesh.gauss_in_elem(elem_gid, node_basis_id);
+              BV_coeffs(elem_gid,basis_id,dim) += elem_state.BV_mat_inv(basis_id, k)*node.vel(0,interp_gid ,dim); 
+            }// end loop over k
+                
+            //std::cout << "Control coeffs in elem  " << elem_gid << " and dim " << dim << " are " << BV_coeffs(elem_gid, basis_id, dim) << std::endl;
+            int node_id = elem.vert_node_map(basis_id);
+            int node_gid_for_control_coeff = mesh.nodes_in_elem(elem_gid, node_id);
+            node.vel(0,node_gid_for_control_coeff,dim) = BV_coeffs(elem_gid, basis_id, dim);
+          }// end loop over basis id
+        }// end loop over dim
       }// end loop over elem_gid 
+      
       track_rdh(ke, ie, 0);
       te_0 = ie + ke;
     }// end if
@@ -34,16 +57,7 @@ void rd_hydro(){
 
     dt = fmin(dt, (graphics_time - TIME)+fuzz);
     
-    //Update position
-    for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++) {
-    // create view of the nodal velocities
-      auto vel = ViewCArray <real_t> (&node.vel(num_correction_steps, node_gid, 0), num_dim);
-      for (int dim = 0; dim < 3; dim++){
-        node.coords(1, node_gid, dim) = node.coords(0, node_gid, dim) +  dt*(vel(dim));
-        mesh.node_coords(node_gid, dim) = node.coords(1, node_gid, dim);
-      }// end loop over dim
-    } // end for loop over nodes
-
+    
     { // Time integration scope //
      
       // DeC update //
@@ -76,17 +90,28 @@ void rd_hydro(){
         //std::cout << " calling get state " << std::endl;
         get_state();
       }//end correction steps
-       
+      
+
+      //Update position
+      for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++) {
+        // create view of the nodal velocities
+        //auto vel = ViewCArray <real_t> (&node.vel(num_correction_steps, node_gid, 0), num_dim);
+        for (int dim = 0; dim < 3; dim++){
+          node.coords(1, node_gid, dim) = node.coords(0, node_gid, dim) +  dt*node.vel(num_correction_steps, node_gid,dim);//*(vel(dim));
+          mesh.node_coords(node_gid, dim) = node.coords(1, node_gid, dim);
+        //}// end loop over dim
+      //} // end for loop over nodes
+
+      // Update velocity
+      //for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++) {
+        //for (int dim = 0; dim < mesh.num_dim(); dim++){
+          node.vel(0,node_gid,dim) = node.vel(num_correction_steps,node_gid,dim);
+        }// end loop over dim      
+      }// end loop over node_gid 
      
     } // end time integration scope
     
-    // Update velocity
-    for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++) {
-      for (int dim = 0; dim < mesh.num_dim(); dim++){
-        node.vel(0,node_gid,dim) = node.vel(num_correction_steps,node_gid,dim);
-      }// end loop over dim      
-    }// end loop over node_gid
-    
+       
     // Track total energy //
     track_rdh(ke,ie, num_correction_steps);
     
@@ -101,3 +126,16 @@ void rd_hydro(){
   }// end loop over time integration cycles
 
 }// end rd_hydro
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+          for (int t_step = 0; t_step < num_correction_steps+1;t_step++){
+            for (int dim = 0; dim < mesh.num_dim(); dim++){  
+              node.vel(t_step, node_gid, dim) = node.vel(0, node_gid, dim);
+            }// end loop over dim
+          } // end loop over t_step
+          */
+

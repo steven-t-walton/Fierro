@@ -25,8 +25,8 @@ void input(){
     // ---- Method Choice ---- //
     CCH = false;
     SGH = false;
-    DGH = false;
-    RDH = true;
+    DGH = true;//false;
+    RDH = false;//true;
 
 
     // With DG, p_order =
@@ -34,7 +34,7 @@ void input(){
     //  = 1 uese 3x3x3 (Simpson's rule) quadrature points
     //  = 2 uses 5x5x5 quadrature points
     //  = N uses (2N+1)(2N+1)(2N+1) quadrature points
-    p_order = 1;  // DG will use = 1,2,3,..,N
+    p_order = 2;  // DG will use = 1,2,3,..,N
     
     // With SGH and CCH, p_order = 0 and it is uses a single quadrature point element
     if(SGH == true) p_order = 0;
@@ -56,7 +56,7 @@ void input(){
 
     rk_storage = 2;
 
-    num_correction_steps = 2;
+    num_correction_steps = 3;
     num_prediction_steps = 1;
 
     dt_cfl = 0.4;
@@ -799,7 +799,7 @@ void input(){
         
         // Tag Z = 1 plane
         boundary[5].surface = bdy::z_plane;
-        boundary[5].value = 0.33;
+        boundary[5].value = 0.1;
         boundary[5].hydro_bc = bdy::reflected;
         
 

@@ -7,7 +7,7 @@ CCH_solver/force_cch.cpp CCH_solver/geometry_cch.cpp CCH_solver/mom_energy_cch.c
 SGH_solver/energy_sgh.cpp SGH_solver/force_sgh.cpp SGH_solver/geometry_sgh.cpp SGH_solver/momentum_sgh.cpp SGH_solver/setup_sgh.cpp SGH_solver/state_sgh.cpp SGH_solver/vel_gradient.cpp SGH_solver/track_sgh.cpp SGH_solver/sgh_hydro.cpp 
 
 
-DG_solver/limit_vel.cpp DG_solver/limit_energy.cpp DG_solver/dg_hydro.cpp DG_solver/build_corner_normals.cpp DG_solver/momentum_dg.cpp DG_solver/energy_dg.cpp DG_solver/mass_matrix.cpp DG_solver/riemann.cpp DG_solver/setup_dg.cpp DG_solver/track_dgh.cpp DG_solver/limit_density.cpp DG_solver/limit_specific_volume.cpp DG_solver/specific_vol_dg.cpp
+DG_solver/limit_vel.cpp DG_solver/limit_energy.cpp DG_solver/dg_hydro.cpp DG_solver/build_corner_normals.cpp DG_solver/momentum_dg.cpp DG_solver/energy_dg.cpp DG_solver/mass_matrix.cpp DG_solver/riemann.cpp DG_solver/setup_dg.cpp DG_solver/track_dgh.cpp DG_solver/limit_density.cpp DG_solver/limit_specific_volume.cpp DG_solver/specific_vol_dg.cpp DG_solver/bernstein_vandermonde.cpp
 
 RD_solver/nodal_res.cpp RD_solver/lumped_mass_mtx.cpp RD_solver/prediction_step.cpp RD_solver/rd_hydro.cpp RD_solver/momentum_rdh.cpp RD_solver/track_rdh.cpp RD_solver/setup_rdh.cpp RD_solver/bernstein_vandermonde.cpp RD_solver/state_rdh.cpp RD_solver/stress_rdh.cpp
 

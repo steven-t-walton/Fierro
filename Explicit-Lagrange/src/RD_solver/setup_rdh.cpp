@@ -96,7 +96,9 @@ void setup_rdh(char *MESH){
       }//end loop over dim
     }// end loop over node_gid
   }// end loop over sub_tstep
-
+  
+  // Setup Bernstein-Vandermonde matrix inverse //
+  BV_inv();
 
   std::cout << "Calculating Jacobian at gauss points" << std::endl;
   get_gauss_pt_jacobian(mesh, ref_elem);
@@ -106,16 +108,7 @@ void setup_rdh(char *MESH){
 
   std::cout << "Fill instruction NF = " << NF << std::endl;
 
-   // Setup Bernstein-Vandermonde matrix and invert //
-   //real_t B_a[ref_elem.num_basis()*ref_elem.num_basis()*mesh.num_dim()];
-   //auto B = ViewCArray <real_t> (&B_a[0], ref_elem.num_basis(), ref_elem.num_basis(), mesh.num_dim());
    
-  // real_t B_inv_a[ref_elem.num_basis()*ref_elem.num_basis()*mesh.num_dim()];
-  // auto B_inv = ViewCArray <real_t> (&B_inv_a[0], ref_elem.num_basis(), ref_elem.num_basis(), mesh.num_dim());
-   
-   //bernstein_vandermonde(B);
-   BV_inv();
- 
 
   // apply fill instruction over the elements //
   // for initialization, copy data to each substep //
@@ -205,10 +198,8 @@ void setup_rdh(char *MESH){
 
 
              // --- Pressure ---
-             cell_properties(cell_gid);
+             cell_properties(cell_gid); 
             
-             
-
              for (int node_lid = 0; node_lid < mesh.num_nodes_in_cell(); node_lid++){
 
                int node_gid = mesh.nodes_in_cell(cell_gid, node_lid);
@@ -312,7 +303,23 @@ void setup_rdh(char *MESH){
                cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*elem_coords_x) + cos(2.0*PI*elem_coords_y) ) + 1.0;
                cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g-1.0));
              }// end if
-           
+            /* 
+             for (int dim = 0; dim < mesh.num_dim();  dim++){
+               real_t B_coeff_val = 0;
+               for(int vert_id = 0; vert_id < ref_elem.num_basis(); vert_id++){
+
+                 for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
+                   int node_lid = ref_elem.vert_node_map(basis_id);
+                   int node_gid = mesh.nodes_in_cell(cell_gid, node_lid);
+                   B_coeff_val += elem_state.BV_mat_inv(vert_id, basis_id)*node.vel(t_step, node_gid, dim);
+                 }// end loop over basis_id
+                 int node_lid_from_vert = ref_elem.vert_node_map(vert_id);
+                 int node_gid_from_vert = mesh.nodes_in_cell(cell_gid, node_lid_from_vert);
+                 node.vel(t_step, node_gid_from_vert, dim) = B_coeff_val;
+               }// end loop over vert_id
+             }// end loop over dim
+           */               
+
            }// end loop over cells in the element
 
 

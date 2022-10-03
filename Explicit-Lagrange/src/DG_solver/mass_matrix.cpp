@@ -12,7 +12,6 @@
 
 using namespace utils;
 
-
 void calc_average_density(){
     
     for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
@@ -75,7 +74,8 @@ void mass_mat_inverse(){
 		//real_t temp_src_a[num_basis*num_basis];
                 auto mass_mat = ViewCArray <real_t>(&src_a[0], num_basis, num_basis);
                 //auto temp_mat = ViewCArray <real_t>(&temp_src_a[0], num_basis, num_basis);
-		// Initialize mass matrix to zero 
+		
+                // Initialize mass matrix to zero 
 		for(int i=0; i<num_basis; i++){
 			for(int j=0; j<num_basis; j++){
 				mass_mat(i,j) = 0.0;
