@@ -117,9 +117,6 @@ void setup_dgh(char *MESH){
             }  
         }  
     }
-   
-    BV_inv();
-
     // Calculate all geometry
 
     // Calculate the jacobian at each corner

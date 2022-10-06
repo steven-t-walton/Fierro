@@ -32,7 +32,7 @@ void setup_rdh(char *MESH){
   std::cout << "Allocate and Initialize"  << std::endl;
   // repurposes rk_storage to specify number of sub_time steps and corrections //
   std::cout << "Number of correction steps = "<< num_correction_steps  << std::endl;
-  std::cout << "Number of prediciton steps = "<< num_prediction_steps << std::endl;
+  //std::cout << "Number of prediciton steps = "<< num_prediction_steps << std::endl;
   // --- allocate and initialize the defaults for the problem ---
   
   // Initialize reference element //
@@ -87,7 +87,7 @@ void setup_rdh(char *MESH){
   }// end loop over this_bdy
   
    
-  for(int t_step = 0; t_step < num_correction_steps+1; t_step++){
+  for(int t_step = 0; t_step < num_correction_steps; t_step++){
   
     for(int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
       
@@ -97,8 +97,7 @@ void setup_rdh(char *MESH){
     }// end loop over node_gid
   }// end loop over sub_tstep
   
-  // Setup Bernstein-Vandermonde matrix inverse //
-  BV_inv();
+ 
 
   std::cout << "Calculating Jacobian at gauss points" << std::endl;
   get_gauss_pt_jacobian(mesh, ref_elem);
@@ -107,8 +106,6 @@ void setup_rdh(char *MESH){
   get_vol_jacobi(mesh, ref_elem);
 
   std::cout << "Fill instruction NF = " << NF << std::endl;
-
-   
 
   // apply fill instruction over the elements //
   // for initialization, copy data to each substep //

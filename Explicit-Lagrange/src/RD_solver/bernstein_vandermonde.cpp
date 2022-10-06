@@ -1,3 +1,5 @@
+
+
 #include<iostream>
 #include<math.h>
 
@@ -12,13 +14,15 @@
 using namespace utils;
 
 
-void BV_inv(){//ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv){
- 
+void BV_inv(){
+
   real_t B_a[ref_elem.num_basis()*ref_elem.num_basis()];
   real_t check_B_a[ref_elem.num_basis()*ref_elem.num_basis()];
   
   auto B = ViewCArray <real_t> (&B_a[0], ref_elem.num_basis(), ref_elem.num_basis());
   auto check_B = ViewCArray <real_t> (&check_B_a[0], ref_elem.num_basis(), ref_elem.num_basis());
+
+#pragma omp simd
   for (int j = 0; j < ref_elem.num_basis(); j++){
     for (int i = 0; i < ref_elem.num_basis(); i++){
       B(i, j) = 0.0;
@@ -32,6 +36,7 @@ void BV_inv(){//ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv){
   auto rid = ViewCArray <int> (&rid_a[0], ref_elem.num_basis());
   for (int m=0; m < ref_elem.num_basis(); m++) rid(m) = 0;
 
+#pragma omp simd
   int ind = 0;
   for (int k = 0; k <  cbrt(ref_elem.num_basis()); k++){
     for (int j = 0; j < cbrt(ref_elem.num_basis()); j++){
@@ -39,22 +44,23 @@ void BV_inv(){//ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv){
         rid(ind) = ref_elem.node_rid(i,j,k);
         //std::cout << "node_rid at i = " << i << " j = " << j << " k = " << k << " is " << rid(ind) << std::endl;
         ind++;
-      }// end loop over i
-    }// end loop over j
-  }// end loop over k
+      };// end loop over i
+    };// end loop over j
+  };// end loop over k
   
-  int degree = 0;
-  int dim = 0;
+  //int degree = 0;
+  //int dim = 0;
   for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
     for (int index = 0; index < ref_elem.num_basis(); index++){  
-      B(index,basis_id) = bernstein::eval(p_order, degree, ref_elem.ref_node_positions(rid(index),dim));
+      B(index,basis_id) = ref_elem.ref_nodal_basis( rid(index), basis_id );
+      //B(index,basis_id) = bernstein::eval(p_order, degree, ref_elem.ref_node_positions(rid(index),dim));
       check_B(index,basis_id) = B(index,basis_id);
       //std::cout << "B-V mat at row i = "<< index << " and column j = " << basis_id << " is " << B(index,basis_id) << std::endl;
-      degree++;
-      if ( degree == p_order+1){
-        degree = 0;
-        dim++;
-      }
+      //degree++;
+      //if ( degree == p_order+1){
+      //  degree = 0;
+      //  dim++;
+      //};
     }
   }
  
@@ -65,14 +71,14 @@ void BV_inv(){//ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv){
   auto lu_index = ViewCArray <int> (&lu_index_a[0], ref_elem.num_basis());
   for(int i=0; i < ref_elem.num_basis(); i++){
     lu_index(i) = 0;
-  }
+  };
   int parity = 0;
 
   real_t col_a[ref_elem.num_basis()];
   auto col = ViewCArray <real_t> (&col_a[0], ref_elem.num_basis());
   for(int i=0; i < ref_elem.num_basis(); i++){
     col(i) = 0;
-  }
+  };
 
   
   auto B_lu = ViewCArray(&B(0,0), ref_elem.num_basis(), ref_elem.num_basis());
@@ -82,7 +88,7 @@ void BV_inv(){//ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv){
   auto B_inv = ViewCArray <real_t> (&elem_state.BV_mat_inv(0,0), ref_elem.num_basis(), ref_elem.num_basis());
   LU_invert(B, lu_index, B_inv, col, ref_elem.num_basis());
   
-  /*  
+    
   real_t val1 = 0.0;
   real_t val2 = 0.0;
   
@@ -98,64 +104,13 @@ void BV_inv(){//ViewCArray <real_t> &B, ViewCArray <real_t> &B_inv){
       val2 = 0.0;
     }// end loop over i
   }// end loop over j
-  */ 
+  
 
 }// end BV inverse
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/*
-void bernstein_vandermonde(ViewCArray <real_t> &B){
-  
-  int rid_a[ref_elem.num_basis()];
-  int ind = 0;
-  auto rid = ViewCArray <int> (rid_a, ref_elem.num_basis());
-  for (int m = 0; m < ref_elem.num_basis(); m ++) rid(m) = 0;
-
-
-  for (int k = 0; k <  cbrt(ref_elem.num_basis()); k++){
-    for (int j = 0; j < cbrt(ref_elem.num_basis()); j++){
-      for (int i = 0; i < cbrt(ref_elem.num_basis()); i++){
-        rid(ind) = ref_elem.node_rid(i,j,k);
-        //std::cout << "node_rid at i = " << i << " j = " << j << " k = " << k << " is " << ref_elem.node_rid(i,j,k) << std::endl;
-        ind++;
-      }// end loop over i
-    }// end loop over j
-  }// end loop over k
-
-  int degree = 0;
-  for (int dim = 0; dim < mesh.num_dim(); dim++){      
-    for (int index = 0; index < ref_elem.num_basis(); index++){
-      for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){  
-        B(index,basis_id,dim) = bernstein::eval(p_order,degree, ref_elem.ref_node_positions(rid(index),dim));
-        degree++;
-        if ( degree == p_order) degree = 0;
-        //std::cout << "B-V mat at node i = "<< index << " and j " << basis_id << " with dim "<< dim <<" is "<< B(index,basis_id,dim) << std::endl;
-      }// end loop over degree
-    }// end loop over index
-  }// end loop over dim
-      
-}// end B-V matrix
-*/
 
 
 
-/*
-  for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
-    for (int index = 0; index < ref_elem.num_basis(); index++){
-      B(index,basis_id) = ref_elem.ref_nodal_basis( rid(index), basis_id );
-      std::cout << "B-V mat at row i = "<< index << " and column j = " << basis_id << " is " << B(index,basis_id) << std::endl;
-      check_B(index,basis_id) = B(index,basis_id);
-    }// end loop over basis_id
-  }// end loop over index
-  */
-
-
-
-
-/*
-   */
 

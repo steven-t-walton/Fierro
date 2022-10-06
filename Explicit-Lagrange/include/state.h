@@ -1165,7 +1165,7 @@ void calc_average_specific_vol();
 
 // RD code
 void rd_hydro();
-void get_momentum_rd(int pred_step, int correction_step);
+void get_momentum_rd(int cycle, int correction_step);
 void get_nodal_res(real_t sub_dt, int t_step, real_t sub_time);
 void lumped_mass();
 void prediction_step(real_t sub_dt, int pred_step);

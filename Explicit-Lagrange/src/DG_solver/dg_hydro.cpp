@@ -19,7 +19,7 @@ void dg_hydro(){
     // loop over the max number of time integration cycles
     for (cycle = 1; cycle <= cycle_stop; cycle++) {
 
-		std::cout<<"cycle = "<<cycle<<std::endl;
+	//	std::cout<<"cycle = "<<cycle<<std::endl;
 
 	
         // reset rk_stage to zero
@@ -32,6 +32,7 @@ void dg_hydro(){
 
         // pushing control coeffs to nodes to initialize ///
         if (cycle ==1) {
+          BV_inv();
           real_t BV_coeffs_a[mesh.num_elems()*elem.num_basis()*mesh.num_dim()];
           auto BV_coeffs = ViewCArray <real_t> (&BV_coeffs_a[0], mesh.num_elems(), elem.num_basis(), mesh.num_dim());
 
@@ -53,15 +54,23 @@ void dg_hydro(){
                   int interp_gid = mesh.gauss_in_elem(elem_gid, node_basis_id);
                   BV_coeffs(elem_gid,basis_id,dim) += elem_state.BV_mat_inv(basis_id, k)*node.vel(0,interp_gid ,dim);
                 }// end loop over k
-
+ 
+              }// end loop over basis id
+            }// end loop over dim
+          }// end loop over elem_gid
+          
+          for(int dim = 0 ; dim < mesh.num_dim(); dim++){
+            for(int basis_id = 0; basis_id < elem.num_basis(); basis_id++){ 
+              for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
                 //std::cout << "Control coeffs in elem  " << elem_gid << " and dim " << dim << " are " << BV_coeffs(elem_gid, basis_id, dim) << std::endl;
                 int node_id = elem.vert_node_map(basis_id);
                 int node_gid_for_control_coeff = mesh.nodes_in_elem(elem_gid, node_id);
                 node.vel(0,node_gid_for_control_coeff,dim) = BV_coeffs(elem_gid, basis_id, dim);
-              }// end loop over basis id
-            }// end loop over dim
-          }// end loop over elem_gid
-        }// end if       
+              }
+            }
+          }
+
+        };// end if       
 
         // get the step
         get_timestep();
@@ -112,7 +121,7 @@ void dg_hydro(){
                 
                 
                 // selecting strong mass or evolve specific volume
-                int do_strong_mass = 0; // = 0 or = 1
+                int do_strong_mass = 1; // = 0 or = 1
                 
                 
                 // Evolve the specific volume polynomial
@@ -152,7 +161,7 @@ void dg_hydro(){
                 // calculate the element average total energy
                 calc_average_specific_total_energy();
                 
-                
+               /* 
                 // Limit the polynomial fields
                 for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
                     
@@ -168,8 +177,8 @@ void dg_hydro(){
                     // limit the velocity field, BJ or V
                     limit_vel(mesh, ref_elem, "V", elem_gid);
                     
-                } // ned for elem_gid
-               
+                } // end for elem_gid
+                */
                 
                 // Calculate the ke and ie at the mat_pnts using the limited fields
                 for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){

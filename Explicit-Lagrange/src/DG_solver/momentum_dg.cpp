@@ -37,7 +37,7 @@ void momentum_dg(real_t rk_alpha, int cycle){
 	// FILE *out_alpha;
 	// out_alpha = fopen("vel_alpha_end", "w");
 	// fprintf(out_alpha, "elem_gid, gauss_gid, r, alpha, r, ke, r, avg_ke\n");
-    if( cycle == 1 ){
+    /*if( cycle == 1 ){
       for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
         for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
 
@@ -65,7 +65,7 @@ void momentum_dg(real_t rk_alpha, int cycle){
         }
       }
     }
-    
+    */
     
     // conservation check
     real_t RHS_momentum_check[mesh.num_dim()];

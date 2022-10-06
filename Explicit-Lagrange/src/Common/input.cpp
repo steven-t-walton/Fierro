@@ -25,8 +25,8 @@ void input(){
     // ---- Method Choice ---- //
     CCH = false;
     SGH = false;
-    DGH = true;//false;
-    RDH = false;//true;
+    DGH = false;
+    RDH = true;
 
 
     // With DG, p_order =
@@ -56,7 +56,7 @@ void input(){
 
     rk_storage = 2;
 
-    num_correction_steps = 3;
+    num_correction_steps = 2;
     num_prediction_steps = 1;
 
     dt_cfl = 0.4;
@@ -799,7 +799,7 @@ void input(){
         
         // Tag Z = 1 plane
         boundary[5].surface = bdy::z_plane;
-        boundary[5].value = 0.1;
+        boundary[5].value = 0.33;
         boundary[5].hydro_bc = bdy::reflected;
         
 
