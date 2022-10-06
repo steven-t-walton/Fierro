@@ -34,7 +34,7 @@ void input(){
     //  = 1 uese 3x3x3 (Simpson's rule) quadrature points
     //  = 2 uses 5x5x5 quadrature points
     //  = N uses (2N+1)(2N+1)(2N+1) quadrature points
-    p_order = 2;  // DG will use = 1,2,3,..,N
+    p_order = 1;  // DG will use = 1,2,3,..,N
     
     // With SGH and CCH, p_order = 0 and it is uses a single quadrature point element
     if(SGH == true) p_order = 0;
@@ -760,7 +760,7 @@ void input(){
         mat_fill[0].volume = region::global;   // fill everywhere
         mat_fill[0].mat_id = 0;                // material id
         mat_fill[0].r = 1.0;                   // intial density
-        mat_fill[0].ie = 1.0;             // intial specific internal energy
+        mat_fill[0].ie = 1.0;             // initial specific internal energy
         
         mat_fill[0].velocity = init_conds::tg_vortex;  // note: pressure and energy are setup with this vel ic
 
@@ -780,11 +780,12 @@ void input(){
         boundary[1].surface = bdy::y_plane;
         boundary[1].value = 0.0;
         boundary[1].hydro_bc = bdy::reflected;
+
         
         // Tag Z = 0 plane
         boundary[2].surface = bdy::z_plane;
         boundary[2].value = 0.0;
-        boundary[2].hydro_bc = bdy::reflected;
+        boundary[2].hydro_bc = bdy::reflected; 
 
 
         // Tag X = 7 plane

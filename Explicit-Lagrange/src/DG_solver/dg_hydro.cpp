@@ -31,7 +31,7 @@ void dg_hydro(){
         // calculate the total energy <---- WHERE IS THIS??? -steven
 
         // pushing control coeffs to nodes to initialize ///
-        if (cycle ==1) {
+        /*if (cycle ==1) {
           BV_inv();
           real_t BV_coeffs_a[mesh.num_elems()*elem.num_basis()*mesh.num_dim()];
           auto BV_coeffs = ViewCArray <real_t> (&BV_coeffs_a[0], mesh.num_elems(), elem.num_basis(), mesh.num_dim());
@@ -71,7 +71,7 @@ void dg_hydro(){
           }
 
         };// end if       
-
+        */
         // get the step
         get_timestep();
         
@@ -178,7 +178,7 @@ void dg_hydro(){
                     limit_vel(mesh, ref_elem, "V", elem_gid);
                     
                 } // end for elem_gid
-                */
+               */
                 
                 // Calculate the ke and ie at the mat_pnts using the limited fields
                 for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){

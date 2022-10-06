@@ -21,7 +21,7 @@ void get_nodal_res(real_t sub_dt, int t_step, real_t TIME){
   // Create CArray for vel_bar used in artificial viscosity //
   real_t vel_bar_a[num_dim*(t_step+1)];
   auto vel_bar = ViewCArray <real_t> (&vel_bar_a[0], num_dim, t_step);
-
+  // set to zero //
   // Create CArray for Q //
   real_t Q_a[num_dim*(t_step+1)];
   auto Q = ViewCArray <real_t> (&Q_a[0],num_dim, t_step);
@@ -168,7 +168,7 @@ void get_nodal_res(real_t sub_dt, int t_step, real_t TIME){
              // Begin time integration of force_cell_volume and Q //
              // int^{t^m}_{t^n}(Q^{r,m}_p + \int_{V_h}(\grad\varphi\cdot\sigma)dV)dt
              // real_t sub_time = prev_times*sub_dt+TIME; 
-             time_integral(dim_j) += sub_dt*time_weights[prev_times]*(force_cell_volume(dim_j,prev_times) + Q(dim_j,prev_times));
+             time_integral(dim_j) += sub_dt*time_weights[prev_times]*(force_cell_volume(dim_j,prev_times) + 0.0*Q(dim_j,prev_times));
                                   
             //std::cout << "time integral is = " << time_integral(dim_j) << std::endl;
            }// end loop over prev times for time_integral
