@@ -1175,5 +1175,6 @@ void BV_inv();
 void get_state();
 void get_stress(int t_step);
 void setup_rdh(char *MESH);
+void boundary_rdh();
 
 #endif 

@@ -25,8 +25,8 @@ void input(){
     // ---- Method Choice ---- //
     CCH = false;
     SGH = false;
-    DGH = false;
-    RDH = true;
+    DGH = true;//false;
+    RDH = false;//true;
 
 
     // With DG, p_order =

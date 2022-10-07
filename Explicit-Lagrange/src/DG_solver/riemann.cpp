@@ -125,7 +125,7 @@ Note: N includes the surface area (N = surface area normal)
         // Initialize corner values (corner value = cell value)
         for(int dim = 0; dim < mesh.num_dim(); dim++){
 
-            // node.vel(1, node_gid, dim) = 0.0; // make this the average of all the corner velocities in the cell for below
+             node.vel(1, node_gid, dim) = 0.0; // make this the average of all the corner velocities in the cell for below
 
         } 
 

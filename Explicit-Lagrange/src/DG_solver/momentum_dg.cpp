@@ -666,7 +666,7 @@ void art_viscosity(){
              
              mat_pt.q_visc(gauss_gid) = 0.0;
              for (int dim_i = 0; dim_i < mesh.num_dim(); dim_i++) {
-                 mat_pt.q_visc(gauss_gid) -= Q_visc(dim_i, dim_i);
+                 mat_pt.q_visc(gauss_gid) -= 0.0*Q_visc(dim_i, dim_i);
              }
              
              
@@ -675,7 +675,7 @@ void art_viscosity(){
              for (int dim_i = 0; dim_i < mesh.num_dim(); dim_i++) {
                  for (int dim_j = 0; dim_j < mesh.num_dim(); dim_j++) {
                      //corner.stress(corner_gid, dim_i, dim_j) -= Q_visc(dim_i, dim_j); //cell_state.stress(1, cell_gid, dim_i, dim_j);
-                     mat_pt.stress(gauss_gid, dim_i, dim_j) -= Q_visc(dim_i, dim_j);
+                     mat_pt.stress(gauss_gid, dim_i, dim_j) -= 0.0*Q_visc(dim_i, dim_j);
                  }
              }
  

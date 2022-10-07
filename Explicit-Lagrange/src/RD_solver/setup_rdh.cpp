@@ -325,7 +325,7 @@ void setup_rdh(char *MESH){
        } // end for element loop
 
      } // end for fills
-     boundary_velocity();
+     boundary_rdh();
   }// end loop over sub_tstep stages
 
   

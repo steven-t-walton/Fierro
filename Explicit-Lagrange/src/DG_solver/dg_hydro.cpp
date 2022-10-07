@@ -127,13 +127,13 @@ void dg_hydro(){
                 // Evolve the specific volume polynomial
                 if(do_strong_mass == 0) specific_vol_dg(rk_alpha);
 
-                // Evolve the specific total energy polynomial
-                // and update energy terms
-                energy_dg(rk_alpha, cycle);
-                
+               
                 // Evolve the momentum polynomial
                 momentum_dg(rk_alpha, cycle);
 
+                // Evolve the specific total energy polynomial
+                // and update energy terms
+                energy_dg(rk_alpha, cycle);
                 
                 // Get jacobians at the gauss points
                 get_gauss_pt_jacobian(mesh, ref_elem);
@@ -215,7 +215,7 @@ void dg_hydro(){
                     
                     
                 } // end loop over elements
-
+                
 
                 // Update the properties at all of the gauss points (material points)
                 for(int gauss_gid=0; gauss_gid<mesh.num_gauss_pts(); gauss_gid++){

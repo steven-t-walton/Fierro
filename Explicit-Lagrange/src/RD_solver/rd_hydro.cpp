@@ -111,11 +111,12 @@ void rd_hydro(){
         
         //std::cout << "calling prediction step" << std::endl;
        // prediction_step(sub_dt, pred_step);
-
+       
         get_momentum_rd(cycle, correction_step);
         //std::cout << " updated momentum " << std::endl;
-
-    
+        
+        boundary_rdh();
+            
         //std::cout << "Calculating Jacobian at gauss points" << std::endl;
         get_gauss_pt_jacobian(mesh, ref_elem);
 
@@ -130,7 +131,7 @@ void rd_hydro(){
       }//end correction steps
      
  
-      
+     //boundary_velocity(); 
      
     }; // end time integration scope
     
