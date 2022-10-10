@@ -102,27 +102,8 @@ void get_nodal_res(real_t sub_dt, int t_step, real_t TIME){
           }// end loop over prev_times for Q
         }// end loop over dim_j for Q 
 
-
-        real_t mass = 0.0;
-        real_t mass_a[num_basis];
-        auto mass_vec = ViewCArray <real_t> (&mass_a[0], num_basis);
-        for (int basis_m = 0; basis_m < num_basis; basis_m++){
-          mass_vec(basis_m) = 0.0;
-        }// end loop over basis_m
-
-        for(int basis_m = 0; basis_m < num_basis; basis_m++){
-          for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
-            int gauss_gid = mesh.gauss_in_cell(cell_gid, gauss_lid);
-            mass_vec(basis_m) += cell_state.density(cell_gid)
-                    *ref_elem.ref_nodal_basis(gauss_lid, basis_m)
-                    *ref_elem.ref_nodal_basis(gauss_lid, node_lid)
-                    *mesh.gauss_pt_det_j(gauss_gid)
-                    *ref_elem.ref_node_g_weights(gauss_lid);
-          } // end loop over gauss in elementi
-          mass += mass_vec(basis_m);
-        } // end loop over basis_m
-        //std::cout << "mass is = " << mass << std::endl;
-
+        
+ 
        // Loop over cells in node //
        for (int cells_in_node_lid = 0; cells_in_node_lid < mesh.num_cells_in_node(node_gid); cells_in_node_lid++){
          // get cell_gid //
@@ -173,7 +154,28 @@ void get_nodal_res(real_t sub_dt, int t_step, real_t TIME){
             //std::cout << "time integral is = " << time_integral(dim_j) << std::endl;
            }// end loop over prev times for time_integral
          } //end loop over dim_j for time_integral
-         
+
+         real_t mass = 0.0;
+         real_t mass_a[num_basis];
+         auto mass_vec = ViewCArray <real_t> (&mass_a[0], num_basis);
+         for (int basis_m = 0; basis_m < num_basis; basis_m++){
+           mass_vec(basis_m) = 0.0;
+         }// end loop over basis_m
+    
+         for(int basis_m = 0; basis_m < num_basis; basis_m++){
+           for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
+             int gauss_gid = mesh.gauss_in_cell(cells_in_node_gid, gauss_lid);
+             mass_vec(basis_m) += cell_state.density(cells_in_node_gid)
+                                  *ref_elem.ref_nodal_basis(gauss_lid, basis_m)
+                                  *ref_elem.ref_nodal_basis(gauss_lid, node_lid)
+                                  *mesh.gauss_pt_det_j(gauss_gid)
+                                  *ref_elem.ref_node_g_weights(gauss_lid);
+           } // end loop over gauss in element
+           mass += mass_vec(basis_m);
+         } // end loop over basis_m
+
+
+ 
          // Store lo_res with node_gid and cell_gid //
             
          for (int dim = 0; dim < num_dim; dim++){

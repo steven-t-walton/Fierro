@@ -115,7 +115,7 @@ void rd_hydro(){
         get_momentum_rd(cycle, correction_step);
         //std::cout << " updated momentum " << std::endl;
         
-        boundary_rdh();
+        boundary_rdh(correction_step);
             
         //std::cout << "Calculating Jacobian at gauss points" << std::endl;
         get_gauss_pt_jacobian(mesh, ref_elem);

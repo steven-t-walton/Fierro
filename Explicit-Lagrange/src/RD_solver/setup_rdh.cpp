@@ -300,22 +300,7 @@ void setup_rdh(char *MESH){
                cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*elem_coords_x) + cos(2.0*PI*elem_coords_y) ) + 1.0;
                cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g-1.0));
              }// end if
-            /* 
-             for (int dim = 0; dim < mesh.num_dim();  dim++){
-               real_t B_coeff_val = 0;
-               for(int vert_id = 0; vert_id < ref_elem.num_basis(); vert_id++){
-
-                 for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
-                   int node_lid = ref_elem.vert_node_map(basis_id);
-                   int node_gid = mesh.nodes_in_cell(cell_gid, node_lid);
-                   B_coeff_val += elem_state.BV_mat_inv(vert_id, basis_id)*node.vel(t_step, node_gid, dim);
-                 }// end loop over basis_id
-                 int node_lid_from_vert = ref_elem.vert_node_map(vert_id);
-                 int node_gid_from_vert = mesh.nodes_in_cell(cell_gid, node_lid_from_vert);
-                 node.vel(t_step, node_gid_from_vert, dim) = B_coeff_val;
-               }// end loop over vert_id
-             }// end loop over dim
-           */               
+                          
 
            }// end loop over cells in the element
 
@@ -325,7 +310,7 @@ void setup_rdh(char *MESH){
        } // end for element loop
 
      } // end for fills
-     boundary_rdh();
+     boundary_rdh(0);
   }// end loop over sub_tstep stages
 
   

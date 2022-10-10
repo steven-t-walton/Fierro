@@ -6,7 +6,7 @@
 
 using namespace utils;
 
-void boundary_rdh(){
+void boundary_rdh(int correction_step){
 
     // Loop over boundary sets
     for(int bdy_set = 0; bdy_set < mesh.num_bdy_sets(); bdy_set++){
@@ -25,7 +25,7 @@ void boundary_rdh(){
                 int node_gid = mesh.node_in_patch(patch_gid, node_lid);
 
                 // Set nodal force to zero
-                node.vel(num_correction_steps, node_gid, direction) = 0.0;
+                node.vel(correction_step, node_gid, direction) = 0.0;
                 
 
             }
