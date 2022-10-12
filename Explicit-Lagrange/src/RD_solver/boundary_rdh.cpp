@@ -1,3 +1,4 @@
+#include<iostream>
 
 #include "utilities.h"
 #include "state.h"
@@ -12,7 +13,7 @@ void boundary_rdh(int correction_step){
     for(int bdy_set = 0; bdy_set < mesh.num_bdy_sets(); bdy_set++){
 
         int direction = boundary[bdy_set].surface;
-
+        
         // Loop over boundary patches in boundary set
         for (int bdy_patch_gid = 0; bdy_patch_gid < mesh.num_bdy_patches_in_set(bdy_set); bdy_patch_gid++){
 

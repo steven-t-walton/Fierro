@@ -111,7 +111,10 @@ void rd_hydro(){
         
         //std::cout << "calling prediction step" << std::endl;
        // prediction_step(sub_dt, pred_step);
-       
+        
+        // energy update //
+        get_energy_rdh(correction_step, sub_dt);
+ 
         get_momentum_rd(cycle, correction_step);
         //std::cout << " updated momentum " << std::endl;
         
@@ -131,7 +134,7 @@ void rd_hydro(){
       }//end correction steps
      
  
-     //boundary_velocity(); 
+     boundary_rdh(num_correction_steps); 
      
     }; // end time integration scope
     

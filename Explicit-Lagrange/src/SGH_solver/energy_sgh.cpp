@@ -47,7 +47,7 @@ void update_energy_sgh(real_t rk_alpha){
                            + force(node_lid, 2)*((vel(2) + vel_n(2))*0.5);
             }
 
-             real_t x = 0.0; //mesh.cell_coords(cell_gid, 0);
+            real_t x = 0.0; //mesh.cell_coords(cell_gid, 0);
             real_t y = 0.0; //mesh.cell_coords(cell_gid, 1); 
 
             for (int node_lid = 0; node_lid < mesh.num_nodes_in_cell(); node_lid++) {
@@ -67,7 +67,7 @@ void update_energy_sgh(real_t rk_alpha){
             // real_t front =  3.0*3.14159265/(8.0);  
 
             // Source term for taylor green problem
-            real_t source = 0.0*front * (cos(3.0*3.14159265*x)*cos(3.14159265*y) 
+            real_t source = front * (cos(3.0*3.14159265*x)*cos(3.14159265*y) 
                                     - cos(3.0*3.14159265*y)*(cos(3.14159265*x))); //*8.0;// * 8.0;
 
 
