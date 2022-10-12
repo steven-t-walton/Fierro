@@ -17,16 +17,16 @@ using namespace utils;
 void BV_inv(){
 
   real_t B_a[ref_elem.num_basis()*ref_elem.num_basis()];
-  real_t check_B_a[ref_elem.num_basis()*ref_elem.num_basis()];
+  //real_t check_B_a[ref_elem.num_basis()*ref_elem.num_basis()];
   
   auto B = ViewCArray <real_t> (&B_a[0], ref_elem.num_basis(), ref_elem.num_basis());
-  auto check_B = ViewCArray <real_t> (&check_B_a[0], ref_elem.num_basis(), ref_elem.num_basis());
+  //auto check_B = ViewCArray <real_t> (&check_B_a[0], ref_elem.num_basis(), ref_elem.num_basis());
 
 #pragma omp simd
   for (int j = 0; j < ref_elem.num_basis(); j++){
     for (int i = 0; i < ref_elem.num_basis(); i++){
       B(i, j) = 0.0;
-      check_B(i,j) = 0.0;
+      //check_B(i,j) = 0.0;
       elem_state.BV_mat_inv(i, j) = 0.0;
     }
   }  
@@ -48,19 +48,19 @@ void BV_inv(){
     };// end loop over j
   };// end loop over k
   
-  //int degree = 0;
-  //int dim = 0;
+  int degree = 0;
+  int dim = 0;
   for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
     for (int index = 0; index < ref_elem.num_basis(); index++){  
-      B(index,basis_id) = ref_elem.ref_nodal_basis( rid(index), basis_id );
-      //B(index,basis_id) = bernstein::eval(p_order, degree, ref_elem.ref_node_positions(rid(index),dim));
-      check_B(index,basis_id) = B(index,basis_id);
+      //B(index,basis_id) = ref_elem.ref_nodal_basis( rid(index), basis_id );
+      B(index,basis_id) = bernstein::eval(p_order, degree, ref_elem.ref_node_positions(rid(index),dim));
+      //check_B(index,basis_id) = B(index,basis_id);
       //std::cout << "B-V mat at row i = "<< index << " and column j = " << basis_id << " is " << B(index,basis_id) << std::endl;
-      //degree++;
-      //if ( degree == p_order+1){
-      //  degree = 0;
-      //  dim++;
-      //};
+      degree++;
+      if ( degree == p_order+1){
+        degree = 0;
+        dim++;
+      };
     }
   }
  
@@ -88,7 +88,7 @@ void BV_inv(){
   auto B_inv = ViewCArray <real_t> (&elem_state.BV_mat_inv(0,0), ref_elem.num_basis(), ref_elem.num_basis());
   LU_invert(B, lu_index, B_inv, col, ref_elem.num_basis());
   
-    
+  /*  
   real_t val1 = 0.0;
   real_t val2 = 0.0;
   
@@ -104,7 +104,7 @@ void BV_inv(){
       val2 = 0.0;
     }// end loop over i
   }// end loop over j
-  
+  */
 
 }// end BV inverse
 

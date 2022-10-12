@@ -102,6 +102,9 @@ void setup_rdh(char *MESH){
   std::cout << "Calculating Jacobian at gauss points" << std::endl;
   get_gauss_pt_jacobian(mesh, ref_elem);
 
+  std::cout <<"Calculating Jacobian at gauss pts in cells" << std::endl;
+  get_gauss_cell_pt_jacobian(mesh, ref_elem);
+
   std::cout << "Before volume from Jacobian"  << std::endl;
   get_vol_jacobi(mesh, ref_elem);
 
@@ -299,7 +302,7 @@ void setup_rdh(char *MESH){
              if(mat_fill[f_id].velocity == init_conds::tg_vortex){
                cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*elem_coords_x) + cos(2.0*PI*elem_coords_y) ) + 1.0;
                cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g-1.0));
-             }// end if
+             };// end if
                           
 
            }// end loop over cells in the element

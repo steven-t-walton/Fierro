@@ -10,7 +10,7 @@ using namespace utils;
 
 void rd_hydro(){
   
-  
+
 
   for (cycle = 1; cycle <= cycle_stop; cycle++){
         
@@ -111,30 +111,31 @@ void rd_hydro(){
         
         //std::cout << "calling prediction step" << std::endl;
        // prediction_step(sub_dt, pred_step);
-        
-        // energy update //
-        get_energy_rdh(correction_step, sub_dt);
- 
+         
         get_momentum_rd(cycle, correction_step);
         //std::cout << " updated momentum " << std::endl;
-        
-        boundary_rdh(correction_step);
-            
-        //std::cout << "Calculating Jacobian at gauss points" << std::endl;
-        get_gauss_pt_jacobian(mesh, ref_elem);
+       
+	// update velocity at boundary appropriately //
+       	boundary_rdh(correction_step);
 
-        //std::cout << "Before volume from Jacobian"  << std::endl;
-        get_vol_jacobi(mesh, ref_elem); 
+	// energy update //
+        get_energy_rdh( sub_dt );
         
         //std::cout << " calling get state " << std::endl;
-        get_state();
+	get_state(cycle, correction_step);
 
+	//std::cout << "Calculating Jacobian at gauss points" << std::endl;
+        get_gauss_pt_jacobian(mesh, ref_elem);
 
-     
+	//std::cout << "Calculating Jacobian at gauss points in cell" << std::endl;
+        get_gauss_cell_pt_jacobian(mesh, ref_elem);
+
+        //std::cout << "Before volume from Jacobian"  << std::endl;
+        get_vol_jacobi(mesh, ref_elem);      
       }//end correction steps
      
  
-     boundary_rdh(num_correction_steps); 
+
      
     }; // end time integration scope
     
