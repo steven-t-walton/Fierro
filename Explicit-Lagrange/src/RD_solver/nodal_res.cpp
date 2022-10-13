@@ -21,7 +21,7 @@ void get_nodal_res(real_t sub_dt, int t_step, real_t TIME){
   // Initialize nodal_res to zero //
 #pragma omp simd 
   for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
-    for (int cell_lid = 0; cell_lid < mesh.num_cells_in_node();  cell_lid++){
+    for (int cell_lid = 0; cell_lid < mesh.num_cells_in_node(node_gid);  cell_lid++){
       int cell_gid = mesh.cells_in_node(node_gid, cell_lid);
       for (int dim = 0; dim < num_dim; dim++){
         node.nodal_res(node_gid,cell_gid,dim) = 0.0;
