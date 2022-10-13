@@ -119,7 +119,7 @@ void rd_hydro(){
        	boundary_rdh(correction_step);
 
 	// energy update //
-        get_energy_rdh( sub_dt );
+//        get_energy_rdh( sub_dt );
         
         //std::cout << " calling get state " << std::endl;
 	get_state(cycle, correction_step);

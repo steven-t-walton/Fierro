@@ -54,27 +54,32 @@ void get_state(int cycle, int correction_step){
 
 
 // calculate the pressure and i.e.
-  real_t elem_coords_x = 0.0;
-  real_t elem_coords_y = 0.0;
-  real_t elem_coords_z = 0.0; 
+ // real_t elem_coords_x = 0.0;
+//  real_t elem_coords_y = 0.0;
+ // real_t elem_coords_z = 0.0; 
 #pragma omp simd
-  for ( int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-    for ( int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++ ){
-      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-      elem_coords_x += mesh.node_coords(node_gid, 0)/mesh.num_nodes_in_elem();
-      elem_coords_y += mesh.node_coords(node_gid, 1)/mesh.num_nodes_in_elem();
-      elem_coords_z += mesh.node_coords(node_gid, 2)/mesh.num_nodes_in_elem();
+  //for ( int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+  //  for ( int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++ ){
+  //    int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+  //    elem_coords_x += mesh.node_coords(node_gid, 0)/mesh.num_nodes_in_elem();
+  //    elem_coords_y += mesh.node_coords(node_gid, 1)/mesh.num_nodes_in_elem();
+  //    elem_coords_z += mesh.node_coords(node_gid, 2)/mesh.num_nodes_in_elem();
       
-      for ( int cell_lid = 0 ; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
-        int cell_gid = mesh.cells_in_elem(elem_gid, cell_lid);
-        // pressure //
-	cell_state.pressure(cell_gid) = 0.25*( cos(2.0*3.141592653589 * elem_coords_x ) ) + cos(2.0*3.141592653589 * elem_coords_y ) + 1.0;
-        // internal energy //
-	cell_state.ie(correction_step, cell_gid) = cell_state.ie(0,cell_gid) + 1.17809724509617*cos(3.0*3.141592653589 * elem_coords_x) * cos( 3.141592653589 * elem_coords_y)
+  ///    for ( int cell_lid = 0 ; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
+  //      int cell_gid = mesh.cells_in_elem(elem_gid, cell_lid);
+       
+  for( int cell_gid = 0; cell_gid  < mesh.num_cells(); cell_gid++){
+      real_t elem_coords_x = mesh.cell_coords(cell_gid,0);
+      real_t elem_coords_y = mesh.cell_coords(cell_gid,1);
+      // pressure //
+      cell_state.pressure(cell_gid) = 0.25*( cos(2.0*3.141592653589 * elem_coords_x ) ) + cos(2.0*3.141592653589 * elem_coords_y ) + 1.0;
+
+      // internal energy //
+      cell_state.ie(correction_step, cell_gid) = cell_state.ie(0,cell_gid) + 1.17809724509617*cos(3.0*3.141592653589 * elem_coords_x) * cos( 3.141592653589 * elem_coords_y)
                                                    * cos( 3.141592653589 * elem_coords_x ) * cos( 3.0*3.141592653589 * elem_coords_y )
 						   - cell_state.pressure(cell_gid) * 2*3.141592653589 * cos(3.141592653589 * elem_coords_x) * cos(3.141592653589 * elem_coords_y);	
-      }// end loop over cell_lid	      
-    }// end loop over node_lid
+     // }// end loop over cell_lid	      
+   // }// end loop over node_lid
   }// end loop over elem_gid
 
     // calculate the sound speed
