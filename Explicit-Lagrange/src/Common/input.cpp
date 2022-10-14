@@ -24,7 +24,7 @@ void input(){
 
     // ---- Method Choice ---- //
     CCH = false;
-    SGH = false;
+    SGH = false;//true;
     DGH = false;
     RDH = true;
 
