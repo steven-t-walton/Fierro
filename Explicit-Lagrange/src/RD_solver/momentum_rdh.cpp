@@ -12,11 +12,16 @@ using namespace utils;
 void get_momentum_rd(int cycle, int correction_step){
 
   num_dim = mesh.num_dim();
+
 #pragma omp simd
-      
   for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
   
-  
+    //initialize vel at n+1 //
+    for (int dim = 0; dim < num_dim; dim++){
+      node.vel(num_correction_steps, node_gid, dim) = 0.0;
+    }// end loop over dim
+
+
     // Create views of vel_r //
     auto vel_r = ViewCArray <real_t> (&node.vel(correction_step, node_gid, 0), num_dim);
 
