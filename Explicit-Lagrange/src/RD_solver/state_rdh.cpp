@@ -13,6 +13,7 @@ using namespace utils;
 // This function calculates the cell pressure, density, sound speed
 //------------------------------------------------------------------------------
 void get_state(int cycle, int correction_step){
+  int update = correction_step + 1;
 
   real_t det_J0_a[mesh.num_cells()];
   auto det_J0 = ViewCArray(&det_J0_a[0], mesh.num_cells());
@@ -23,8 +24,9 @@ void get_state(int cycle, int correction_step){
     det_J0( cell_gid ) = 0.0;
     rho_0( cell_gid ) = 0.0;
   }
+
 #pragma omp simd
-  if ( cycle == 1 and correction_step == 0){
+  if ( correction_step == 0){ //(cycle ==1 and correction_step == 0 ){
     for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
       for(int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
 	int cell_gid = mesh.cells_in_elem(elem_gid, cell_lid);
@@ -67,7 +69,7 @@ void get_state(int cycle, int correction_step){
       
   ///    for ( int cell_lid = 0 ; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
   //      int cell_gid = mesh.cells_in_elem(elem_gid, cell_lid);
-       
+  if ( update < num_correction_steps ){     
   for( int cell_gid = 0; cell_gid  < mesh.num_cells(); cell_gid++){
       real_t elem_coords_x = mesh.cell_coords(cell_gid,0);
       real_t elem_coords_y = mesh.cell_coords(cell_gid,1);
@@ -75,14 +77,16 @@ void get_state(int cycle, int correction_step){
       cell_state.pressure(cell_gid) = 0.25*( cos(2.0*3.141592653589 * elem_coords_x ) ) + cos(2.0*3.141592653589 * elem_coords_y ) + 1.0;
 
       // internal energy //
-      cell_state.ie(correction_step, cell_gid) = cell_state.ie(0,cell_gid) + 1.17809724509617*cos(3.0*3.141592653589 * elem_coords_x) * cos( 3.141592653589 * elem_coords_y)
+      cell_state.ie(update, cell_gid) = cell_state.ie( correction_step, cell_gid) + 1.17809724509617*cos(3.0*3.141592653589 * elem_coords_x) * cos( 3.141592653589 * elem_coords_y)
                                                    * cos( 3.141592653589 * elem_coords_x ) * cos( 3.0*3.141592653589 * elem_coords_y )
 						   - cell_state.pressure(cell_gid) * 2*3.141592653589 * cos(3.141592653589 * elem_coords_x) * cos(3.141592653589 * elem_coords_y);	
      // }// end loop over cell_lid	      
    // }// end loop over node_lid
-  }// end loop over elem_gid
+  //}// end loop over elem_gid
+  }// end loop over cell_gid
+  
 
-    // calculate the sound speed
+  // calculate the sound speed
 #pragma omp simd
   for (int cell_gid = 0; cell_gid < mesh.num_cells(); cell_gid++){
     cell_state.cs(cell_gid) =
@@ -90,9 +94,11 @@ void get_state(int cycle, int correction_step){
             sspd,
             cell_state.mat_id(cell_gid),
             cell_state.density(cell_gid),
-            cell_state.ie(correction_step, cell_gid)
+            cell_state.ie(update, cell_gid)
             );
   }
+  };// end if
+
 }
 
 

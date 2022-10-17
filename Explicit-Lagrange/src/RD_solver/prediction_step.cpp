@@ -7,7 +7,7 @@
 
 using namespace utils;
 
-void prediction_step(real_t sub_dt, int prediction_step){
+void prediction_step(real_t sub_dt, int pred_step){
 
   int num_dim = mesh.num_dim();
 
@@ -32,7 +32,7 @@ void prediction_step(real_t sub_dt, int prediction_step){
         }// end loop over cell_lid
         
 	// push initial correction to nodes
-        node.vel(prediction_step, node_gid, dim) = vel_n(dim) - sub_dt*sum_nodal_res;
+        node.vel(pred_step+1, node_gid, dim) = vel_n(dim) - sub_dt*sum_nodal_res;
 
       } // end loop over dims
 

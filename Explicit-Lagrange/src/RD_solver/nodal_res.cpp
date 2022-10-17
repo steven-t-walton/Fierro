@@ -9,11 +9,11 @@
 #include "state.h"
 #include "geometry.h"
 #include "variables.h"
-
+//#include "legendre_polynomials.h"
 
 using namespace utils;
 
-void get_nodal_res(real_t sub_dt, int t_step, real_t TIME){
+void get_nodal_res(real_t sub_dt, int t_step){//, real_t TIME){
    
   int num_basis = ref_elem.num_basis();
   int num_dim = mesh.num_dim();
@@ -53,18 +53,44 @@ void get_nodal_res(real_t sub_dt, int t_step, real_t TIME){
 
   real_t time_weights[num_correction_steps];
   for (int i = 0; i < num_correction_steps; i++) time_weights[i] = 0.0;
-  if (t_step == 0){
-    time_weights[0] = 0.5;
-    time_weights[1] = 0.5;
-  }
-  if (t_step == 1){
-    time_weights[0] = 0.33;
-    time_weights[1] = 1.33;
-  }
+  
+  real_t time_points[num_correction_steps];
+  for (int i = 0; i < num_correction_steps; i++) time_points[i] = 0.0;
 
-    int rid_a[ref_elem.num_basis()];
-  auto rid = ViewCArray <int> (&rid_a[0], ref_elem.num_basis());
-  for (int m=0; m < ref_elem.num_basis(); m++) rid(m) = 0;
+
+  if (num_correction_steps == 2){
+
+    time_weights[0] = 1;
+    time_weights[1] = 1;
+
+    time_points[0] = -0.5773502691896257;
+    time_points[1] = 0.5773502691896257;
+
+  }
+  else if (num_correction_steps == 3){
+
+    time_weights[0] = 0.5555555555555556;
+    time_weights[1] = 0.8888888888888888;
+    time_weights[2] = 0.5555555555555556;
+ 
+    time_points[0] = -0.7745966692414834;
+    time_points[1] = 0.0000000000000000;
+    time_points[2] = 0.7745966692414834; 
+  }
+  else if (num_correction_steps == 4){
+
+    time_weights[0] = 0.3478548451374538;    
+    time_weights[1] = 0.6521451548625461;
+    time_weights[2] = 0.6521451548625461;
+    time_weights[3] = 0.3478548451374538;
+
+    time_points[0] = -0.8611363115940526;
+    time_points[1] = -0.3399810435848563;
+    time_points[2] = 0.3399810435848563; 
+    time_points[3] = 0.8611363115940526;
+
+  };
+
 
 #pragma omp simd
   // Loop over elements //
@@ -79,33 +105,35 @@ void get_nodal_res(real_t sub_dt, int t_step, real_t TIME){
         auto vel = ViewCArray <real_t> (&node.vel(t_step, node_gid, 0), num_dim);
         auto vel_n = ViewCArray <real_t> (&node.vel(0,node_gid,0), num_dim);
 
-        // Initialize Q, sigma, vel_bar volume integral of "force" and time_integral//
+        // Initialize Q, sigma, vel_bar volume integral of "force" and time_integral //
 
-        for (int dim = 0; dim < num_dim; dim++){
-          for (int prev_times = 0; prev_times <=t_step; prev_times++){
+        for (int prev_times = 0; prev_times < t_step; prev_times++){
+          for (int dim = 0; dim < num_dim; dim++){
             Q(dim, prev_times) = 0.0;
             vel_bar(dim, prev_times) = 0.0;
             force_cell_volume(dim, prev_times) = 0.0;
             for (int i = 0; i < num_dim; i++){
               sigma(i,dim,prev_times) = 0.0;
             }// end loop over i
-          }// end loop over prev_times
-          time_integral(dim) = 0.0;
-        }// end loop over dim
+            time_integral(dim) = 0.0;
+	  }// end loop over dim
+        }// end loop over prev_times
 
 
         // Loop over node_lid (inside the previous loop) in cells to compute vel_bar //
-        for (int dim_j = 0; dim_j < num_dim; dim_j++){
-          for (int prev_times = 0; prev_times <= t_step; prev_times ++){
+          
+        for (int prev_times = 0; prev_times < t_step; prev_times ++){
+	  for (int dim_j = 0; dim_j < num_dim; dim_j++){
             // Loop over node_lid in cells to compute vel_bar //
             for (int node_lid_in_cell = 0; node_lid_in_cell < mesh.num_nodes_in_cell(); node_lid_in_cell++){
+              // Get node_gid for each node_lid in cell  //
               // Get node_gid for each node_lid in cell  //
               int node_gid_from_cell = mesh.nodes_in_cell(cell_gid, node_lid_in_cell);
               vel_bar(dim_j, prev_times) += node.vel(prev_times, node_gid_from_cell, dim_j);
               //std::cout << " vel_bar = " << vel_bar(dim_j, prev_times) << std::endl;   
-            }// end loop over dim_j for vel_bar
-          }// end loop over prev_times for vel_bar
-        }// end loop over nodes in cell
+            }// end loop over nodes in cell
+          }// end loop over dim_j for vel_bar
+        }// end loop over prev_times for vel_bar
         
 
 	 real_t mass = 0.0;
@@ -131,7 +159,7 @@ void get_nodal_res(real_t sub_dt, int t_step, real_t TIME){
 
 
         for (int dim_j=0; dim_j < num_dim; dim_j++){ 
-          for (int prev_times = 0; prev_times <= t_step; prev_times++){
+          for (int prev_times = 0; prev_times < t_step; prev_times++){
             real_t alpha_a[3];
             real_t speed = sqrt( node.vel(prev_times, node_gid, 0)*node.vel(prev_times, node_gid, 0) 
 			+ node.vel(prev_times, node_gid, 1)*node.vel(prev_times, node_gid, 1)
@@ -166,19 +194,17 @@ void get_nodal_res(real_t sub_dt, int t_step, real_t TIME){
          // get cell_gid //
          int cells_in_node_gid = mesh.cells_in_node(node_gid, cells_in_node_lid);
        
-       	 for (int dim_j=0; dim_j < num_dim; dim_j++){
-	   for (int dim_i = 0; dim_i < num_dim; dim_i++){
-             for (int prev_times = 0; prev_times <= t_step; prev_times++){
+         for (int prev_times = 0; prev_times < t_step; prev_times++){
+       	   for (int dim_j=0; dim_j < num_dim; dim_j++){
+	     for (int dim_i = 0; dim_i < num_dim; dim_i++){
                // Fill sigma //
                sigma(dim_i, dim_j, prev_times) = cell_state.stress(prev_times, cells_in_node_gid, dim_i, dim_j);
                //std::cout << " sigma at dim_i = "<< dim_i << " and dim_j = "<< dim_j <<" is equal to " << sigma(dim_i,dim_j,prev_times) << std::endl;
-
-             }// end prev_times sigma
+             }//  end dim_j sigma
            } // end dim_i sigma
-         } // end dim_j sigma
-        
+         } // end loop over prev_times        
          
-         for (int prev_times = 0; prev_times <= t_step; prev_times++){
+         for (int prev_times = 0; prev_times < t_step; prev_times++){
            for (int dim_k = 0; dim_k < num_dim; dim_k++){
              for (int dim_j=0; dim_j < num_dim; dim_j++){
                for (int dim_i = 0; dim_i < num_dim; dim_i++){ 
@@ -205,12 +231,17 @@ void get_nodal_res(real_t sub_dt, int t_step, real_t TIME){
            for (int prev_times = 0; prev_times <= t_step; prev_times++){    
              // Begin time integration of force_cell_volume and Q //
              // int^{t^m}_{t^n}(Q^{r,m}_p + \int_{V_h}(\grad\varphi\cdot\sigma)dV)dt
-             // real_t sub_time = prev_times*sub_dt+TIME; 
-             time_integral(dim_j) += sub_dt*time_weights[prev_times]*(force_cell_volume(dim_j,prev_times) + Q(dim_j,prev_times));
+             real_t point = ( time_points[prev_times] );//+ 1 ) * 0.5 * sub_dt;
+	     //std::cout << " point = " << point << std::endl;
+             time_integral(dim_j) += 0.5*sub_dt
+		                     *time_weights[prev_times]
+				     *std::legendre(t_step, point)
+				     *(force_cell_volume(dim_j,prev_times) + 0.0*Q(dim_j,prev_times));
+             sub_dt += sub_dt;
 
 //	     std::cout<< " force at time_step " << prev_times <<" and dim "<< dim_j  << " is = "<< force_cell_volume(dim_j,prev_times) << std::endl;	
 //	     std::cout<< " Q at time_step " << prev_times <<" and dim "<< dim_j  << " is = "<< Q(dim_j,prev_times) << std::endl;                    
-//             std::cout << "time integral is = " << time_integral(dim_j) << std::endl;
+//           std::cout << "time integral is = " << time_integral(dim_j) << std::endl;
            }// end loop over prev times for time_integral
          } //end loop over dim_j for time_integral
 

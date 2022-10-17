@@ -31,8 +31,8 @@ void setup_rdh(char *MESH){
 
   std::cout << "Allocate and Initialize"  << std::endl;
   // repurposes rk_storage to specify number of sub_time steps and corrections //
-  std::cout << "Number of correction steps = "<< num_correction_steps  << std::endl;
-  //std::cout << "Number of prediciton steps = "<< num_prediction_steps << std::endl;
+  std::cout << "Number of correction steps = "<< num_correction_steps << std::endl;
+  ////std::cout << "Number of prediction steps = "<< num_prediction_steps << std::endl;
   // --- allocate and initialize the defaults for the problem ---
   
   // Initialize reference element //
