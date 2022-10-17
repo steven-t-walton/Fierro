@@ -423,7 +423,7 @@ int main(int argc, char *argv[]){
                     sqrt(x*x + y*y + z*z),
                     cell_state.density(cell_gid),
                     cell_state.pressure(cell_gid),
-                    cell_state.ie(1, cell_gid),
+                    cell_state.ie(num_correction_steps-1, cell_gid),
                     mesh.cell_vol(cell_gid)
                     );
         }
@@ -434,7 +434,7 @@ int main(int argc, char *argv[]){
     if(CCH == true) track_cch(ke, ie);
     if(SGH == true) track_sgh(ke, ie);
     if(DGH == true) track_dgh(ke, ie);
-    if(RDH == true) track_rdh(ke, ie, num_correction_steps);
+    if(RDH == true) track_rdh(ke, ie, num_correction_steps-1);
 
     std::cout<<"Kinetic Energy at time = " << TIME << " is = " << ke <<std::endl;
     std::cout<<"Internal Energy at time = " << TIME << " is = " << ie <<std::endl;
