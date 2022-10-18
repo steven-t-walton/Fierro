@@ -1166,14 +1166,17 @@ void calc_average_specific_vol();
 // RD code
 void rd_hydro();
 void get_momentum_rd(int correction_step);
+void get_position_rdh();
 void get_nodal_res(real_t sub_dt, int t_step);
 void lumped_mass();
 void prediction_step(real_t sub_dt, int pred_step);
 void track_rdh(real_t &x, real_t &y, int t_step);
 void BV_inv();
-void get_state(int cycle, int correction_step);
+void get_control_coeffs();
+void get_state(int cycle);
 void get_energy_rdh(real_t sub_dt);
-void get_stress(int t_step);
+void get_stress();
+void update_coeffs();
 void setup_rdh(char *MESH);
 void boundary_rdh(int correction_step);
 

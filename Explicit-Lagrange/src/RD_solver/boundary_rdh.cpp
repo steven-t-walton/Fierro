@@ -8,7 +8,7 @@
 using namespace utils;
 
 void boundary_rdh(int correction_step){
-
+    
     // Loop over boundary sets
     for(int bdy_set = 0; bdy_set < mesh.num_bdy_sets(); bdy_set++){
 
@@ -24,9 +24,9 @@ void boundary_rdh(int correction_step){
             for(int node_lid = 0; node_lid < 4; node_lid++){
 
                 int node_gid = mesh.node_in_patch(patch_gid, node_lid);
-
+                auto vel = ViewCArray <real_t> ( &node.vel(correction_step, node_gid,0), mesh.num_dim() );
                 // Set nodal force to zero
-                node.vel(correction_step, node_gid, direction) = 0.0;
+                vel( direction ) = 0.0;
                 
 
             }

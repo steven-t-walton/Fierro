@@ -51,7 +51,7 @@ void input(){
     dt_max = 1.e-2;
     dt_start = 1.e-5;
     
-    cycle_stop = 1000000;
+    cycle_stop = 2; //1000000;
     rk_num_stages = 2;
 
     rk_storage = 2;
