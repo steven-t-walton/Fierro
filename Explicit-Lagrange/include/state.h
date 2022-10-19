@@ -767,12 +767,12 @@ public:
 
         velocity_ = new real_t[num_rk_*num_matpt_*num_dim_]();
      
-		//limiting values
-		//for velocity_limiter, copy velocity_
-		//for energy_limiter, copy specific_total_energy
+	//limiting values
+	//for velocity_limiter, copy velocity_
+	//for energy_limiter, copy specific_total_energy
    
-		energy_limiter_ = new real_t[num_rk_*num_matpt_]();
-		velocity_limiter_ = new real_t[num_rk_*num_matpt_]();
+	//energy_limiter_ = new real_t[num_rk_*num_matpt_]();
+	//velocity_limiter_ = new real_t[num_rk_*num_matpt_]();
 
         specific_total_energy_ = new real_t[num_rk_*num_matpt_]();
         specific_volume_ = new real_t[num_rk_*num_matpt_]();
@@ -807,15 +807,15 @@ public:
 	//velocity_limiter, _
 	//energy_limiter, copy specific_total_energy
 	
-	inline real_t& velocity_limiter(int rk_stage, int mat_pt_gid) const
-	{
-		return velocity_limiter_[rk_stage*num_matpt_*num_dim_ + mat_pt_gid];
-	}
+	//inline real_t& velocity_limiter(int rk_stage, int mat_pt_gid) const
+	//{
+	//	return velocity_limiter_[rk_stage*num_matpt_*num_dim_ + mat_pt_gid];
+	//}
 
-	inline real_t& energy_limiter(int rk_stage, int mat_pt_gid) const
-	{
-		return energy_limiter_[rk_stage*num_matpt_ + mat_pt_gid];
-	}
+	//inline real_t& energy_limiter(int rk_stage, int mat_pt_gid) const
+	//{
+	//	return energy_limiter_[rk_stage*num_matpt_ + mat_pt_gid];
+	//}
 
 	//-------end of adding new functions; rest is og---------	
 

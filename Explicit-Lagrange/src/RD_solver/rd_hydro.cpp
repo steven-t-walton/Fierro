@@ -34,9 +34,9 @@ void rd_hydro(){
     { // Time integration scope //
       
       update_coeffs();
-#pragma omp simd
        
 
+#pragma omp simd
       // DeC update //
       for (int correction_step = 1; correction_step < num_correction_steps; correction_step++){
 
@@ -66,13 +66,21 @@ void rd_hydro(){
 
       get_position_rdh();   
 
+      //std::cout << "Calculating Jacobian at gauss points" << std::endl;
+      get_gauss_pt_jacobian(mesh, ref_elem);
+    
+      //std::cout << "Calculating Jacobian at gauss points in cell" << std::endl;
+      get_gauss_cell_pt_jacobian(mesh, ref_elem);
+
+      //std::cout << "Before volume from Jacobian"  << std::endl;
+      get_vol_jacobi(mesh, ref_elem);
+
       //std::cout << " calling get state " << std::endl;
       get_state( cycle );
 
       get_stress(); // assign values to stress
       //std::cout << "called get stress" << std::endl;
-	
-
+      
     }; // end time integration scope
        
     // Increment time //

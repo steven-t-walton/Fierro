@@ -18,7 +18,7 @@ void get_nodal_res(real_t sub_dt, int t_step){
   int num_basis = ref_elem.num_basis();
   int num_dim = mesh.num_dim();
  
-/*  // Initialize nodal_res to zero //
+  // Initialize nodal_res to zero //
 #pragma omp simd 
   for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
     for (int cell_lid = 0; cell_lid < mesh.num_cells_in_node(node_gid);  cell_lid++){
@@ -28,27 +28,37 @@ void get_nodal_res(real_t sub_dt, int t_step){
       }
     }
   }
-*/
+
 
 
   // Create CArray for vel_bar used in artificial viscosity //
-  real_t vel_bar_a[num_dim*(t_step+1)];
+  real_t vel_bar_a[num_dim*t_step];
+  for (int i = 0; i < num_dim*t_step; i++) vel_bar_a[i] = 0.0;
+
   auto vel_bar = ViewCArray <real_t> (&vel_bar_a[0], num_dim, t_step);
   // set to zero //
   // Create CArray for Q //
-  real_t Q_a[num_dim*(t_step+1)];
+  real_t Q_a[num_dim*t_step];
+  for (int i = 0; i < num_dim*t_step; i++) Q_a[i] = 0.0;
+
   auto Q = ViewCArray <real_t> (&Q_a[0],num_dim, t_step);
 
   // Create CArray for sigma //
-  real_t sigma_a[num_dim*num_dim*(t_step+1)];
+  real_t sigma_a[num_dim*num_dim*t_step];
+  for (int i = 0; i < num_dim*num_dim*t_step; i++) sigma_a[i] = 0.0;
+  
   auto sigma = ViewCArray <real_t> (&sigma_a[0], num_dim, num_dim, t_step);
 
   // Create CArray to store volume integral over cell of force at each sub time //
-  real_t force_a[num_dim*(t_step+1)];
+  real_t force_a[num_dim*t_step];
+  for (int i = 0 ; i < num_dim*t_step; i++) force_a[i] = 0.0;
+
   auto force_cell_volume = ViewCArray <real_t> (&force_a[0], num_dim, t_step);
    
   // Create CArray to store time integral of force and artificial viscosity
   real_t time_int_a[num_dim];
+  for (int i = 0; i < num_dim; i++) time_int_a[i] = 0.0;
+
   auto time_integral = ViewCArray <real_t> (&time_int_a[0], num_dim);  
 
   real_t time_weights[num_correction_steps];
@@ -107,7 +117,7 @@ void get_nodal_res(real_t sub_dt, int t_step){
 
         // Initialize Q, sigma, vel_bar volume integral of "force" and time_integral //
 
-        for (int prev_times = 0; prev_times < t_step; prev_times++){
+        for (int prev_times = 0; prev_times <= t_step; prev_times++){
           for (int dim = 0; dim < num_dim; dim++){
             Q(dim, prev_times) = 0.0;
             vel_bar(dim, prev_times) = 0.0;
@@ -122,7 +132,7 @@ void get_nodal_res(real_t sub_dt, int t_step){
 
         // Loop over node_lid (inside the previous loop) in cells to compute vel_bar //
           
-        for (int prev_times = 0; prev_times < t_step; prev_times ++){
+        for (int prev_times = 0; prev_times <= t_step; prev_times ++){
 	  for (int dim_j = 0; dim_j < num_dim; dim_j++){
             // Loop over node_lid in cells to compute vel_bar //
             for (int node_lid_in_cell = 0; node_lid_in_cell < mesh.num_nodes_in_cell(); node_lid_in_cell++){
@@ -159,7 +169,7 @@ void get_nodal_res(real_t sub_dt, int t_step){
 
 
         for (int dim_j=0; dim_j < num_dim; dim_j++){ 
-          for (int prev_times = 0; prev_times < t_step; prev_times++){
+          for (int prev_times = 0; prev_times <= t_step; prev_times++){
             real_t alpha_a[3];
             real_t speed = sqrt( node.vel(prev_times, node_gid, 0)*node.vel(prev_times, node_gid, 0) 
 			+ node.vel(prev_times, node_gid, 1)*node.vel(prev_times, node_gid, 1)
@@ -194,7 +204,7 @@ void get_nodal_res(real_t sub_dt, int t_step){
          // get cell_gid //
          int cells_in_node_gid = mesh.cells_in_node(node_gid, cells_in_node_lid);
        
-         for (int prev_times = 0; prev_times < t_step; prev_times++){
+         for (int prev_times = 0; prev_times <= t_step; prev_times++){
        	   for (int dim_j=0; dim_j < num_dim; dim_j++){
 	     for (int dim_i = 0; dim_i < num_dim; dim_i++){
                // Fill sigma //
@@ -204,24 +214,24 @@ void get_nodal_res(real_t sub_dt, int t_step){
            } // end dim_i sigma
          } // end loop over prev_times        
          
-         for (int prev_times = 0; prev_times < t_step; prev_times++){
+         for (int prev_times = 0; prev_times <= t_step; prev_times++){
            for (int dim_k = 0; dim_k < num_dim; dim_k++){
              for (int dim_j=0; dim_j < num_dim; dim_j++){
                for (int dim_i = 0; dim_i < num_dim; dim_i++){ 
                  for (int gauss_cell_lid = 0; gauss_cell_lid < mesh.num_gauss_in_cell(); gauss_cell_lid++){
-               
-                   int gauss_gid = mesh.gauss_in_cell(cells_in_node_gid, gauss_cell_lid);
-		   /*std::cout << "jacobian inverse = " << mesh.gauss_cell_pt_jacobian_inverse(gauss_gid, dim_i, dim_j)
+                 
+                   //int gauss_gid = mesh.gauss_in_cell(cells_in_node_gid, gauss_cell_lid);
+/*		   std::cout << "jacobian inverse = " << mesh.gauss_cell_pt_jacobian_inverse(cell_gid, dim_i, dim_j)
                                                            << "; gradient = " << ref_elem.ref_cell_gradient(gauss_cell_lid, node_lid, dim_i)
                                                            <<"; sigma = " << sigma(dim_j, dim_k, prev_times)
                                                            <<"; g_weight = " <<ref_elem.ref_cell_g_weights(gauss_cell_lid)
-                                                           << "; det_j ="<<mesh.gauss_cell_pt_det_j(gauss_gid)<< std::endl;*/
-
-                   force_cell_volume(dim_k, prev_times) += mesh.gauss_cell_pt_jacobian_inverse(gauss_gid, dim_i, dim_j)
+                                                           << "; det_j ="<<mesh.gauss_cell_pt_det_j(cell_gid)<< std::endl;
+*/
+                   force_cell_volume(dim_k, prev_times) += mesh.gauss_cell_pt_jacobian_inverse(cell_gid, dim_i, dim_j)
                                                            *ref_elem.ref_cell_gradient(gauss_cell_lid, node_lid, dim_i)
                                                            *sigma(dim_j, dim_k, prev_times)
                                                            *ref_elem.ref_cell_g_weights(gauss_cell_lid)
-                                                           *mesh.gauss_cell_pt_det_j(gauss_gid);
+                                                           *mesh.gauss_cell_pt_det_j(cell_gid);
                    
                  }// end loop over gauss_cell_lid
                }// end dim_i for force_cell_volume
@@ -256,7 +266,6 @@ void get_nodal_res(real_t sub_dt, int t_step){
 
           
          // Store lo_res with node_gid and cell_gid //
-            
          for (int dim = 0; dim < num_dim; dim++){
            node.nodal_res(node_gid, cells_in_node_gid, dim) = mass*(vel(dim) - vel_n(dim)) + time_integral(dim);
            //std::cout << "nodal res value = " << node.nodal_res(node_gid, cells_in_node_gid, dim) << std::endl;

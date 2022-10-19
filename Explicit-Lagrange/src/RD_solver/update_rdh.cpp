@@ -15,8 +15,8 @@ void update_coeffs(){
     auto vel_n = ViewCArray <real_t> (&node.vel( 0, node_gid, 0), mesh.num_dim() );
 
     for (int dim = 0; dim < 3; dim++){
-      node.coords(0, node_gid, dim) = node.coords(1, node_gid, dim);
-      mesh.node_coords(node_gid, dim) = node.coords(1, node_gid, dim);
+      node.coords(0, node_gid, dim) = node.coords(update, node_gid, dim);	
+      mesh.node_coords(node_gid, dim) = node.coords(update, node_gid, dim);
 
       //std::cout<< "pos at time "<< TIME+dt <<" cycle "<< cycle << " node " << node_gid << " and dim " << dim <<" is "<< node.coords(0,node_gid,dim) << std::endl;
       // Update velocity

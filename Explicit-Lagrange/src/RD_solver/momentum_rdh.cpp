@@ -53,7 +53,7 @@ void get_momentum_rd(int correction_step){
     }//end loop over nodes
 
     boundary_rdh(update);
-
+ /*
 #pragma omp simd  
     for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     
@@ -88,7 +88,7 @@ void get_momentum_rd(int correction_step){
         }// end loop over dim
       } // end loop over gauss_lid
     }// end loop over elem_gid
-  
+  */  
 }// end get_momentum_rd()
 
 

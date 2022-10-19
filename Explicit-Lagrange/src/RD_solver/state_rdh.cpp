@@ -10,6 +10,11 @@
 using namespace utils;
 
 void get_state( int cycle ){
+/*
+  for( int cell_gid = 0; cell_gid < mesh.num_cells(); cell_gid++){
+    cell_properties(cell_gid);
+  }
+*/  
 
   real_t det_J0_a[mesh.num_cells()];
   auto det_J0 = ViewCArray(&det_J0_a[0], mesh.num_cells());
@@ -73,9 +78,7 @@ void get_state( int cycle ){
       cell_state.pressure(cell_gid) = 0.25*( cos(2.0*3.141592653589 * elem_coords_x ) ) + cos(2.0*3.141592653589 * elem_coords_y ) + 1.0;
 
       // internal energy //
-      cell_state.ie(1, cell_gid) = cell_state.ie( 0 , cell_gid) + 1.17809724509617*cos(3.0*3.141592653589 * elem_coords_x) * cos( 3.141592653589 * elem_coords_y)
-                                                   * cos( 3.141592653589 * elem_coords_x ) * cos( 3.0*3.141592653589 * elem_coords_y );
-						   //- cell_state.pressure(cell_gid) * 2*3.141592653589 * cos(3.141592653589 * elem_coords_x) * cos(3.141592653589 * elem_coords_y);	
+      cell_state.ie(1, cell_gid) = cell_state.ie( 0 , cell_gid) + 1.17809724509617*cos(3.0*3.141592653589 * elem_coords_x) * cos( 3.141592653589 * elem_coords_y) * cos( 3.141592653589 * elem_coords_x ) * cos( 3.0*3.141592653589 * elem_coords_y ) - cell_state.pressure(cell_gid) * 2*3.141592653589 * cos(3.141592653589 * elem_coords_x) * cos(3.141592653589 * elem_coords_y);	
      // }// end loop over cell_lid	      
    // }// end loop over node_lid
   //}// end loop over elem_gid

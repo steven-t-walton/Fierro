@@ -28,8 +28,8 @@ void ensight() {
     if(DGH == true) name_tmp = "Outputs_DGH";
     if(RDH == true) name_tmp = "Outputs_RDH";
 
-    char * name = new char [name_tmp.length()+1];
-    std::strcpy (name, name_tmp.c_str());
+    char *name = new char [name_tmp.length()+1];
+    std::strcpy(name, name_tmp.c_str());
 
 
 
@@ -112,7 +112,7 @@ void ensight() {
             
 	    cell_fields(cell_gid, 30) = elem_switch;
 
-            cell_fields(cell_gid, 31) = 0.0;  //elem_state.bad(elem_gid);
+            cell_fields(cell_gid, 31) = elem_state.bad(elem_gid); //0.0;
 
 
         } // end for k over cells
@@ -133,7 +133,8 @@ void ensight() {
         
         // velocity, var 1
         // create view into vertex velocity
-        auto vel   = ViewCArray <real_t> (&node.vel(1, node_gid, 0), 3);
+	int update = num_correction_steps - 1;
+        auto vel   = ViewCArray <real_t> (&node.vel(update, node_gid, 0), 3);
 
         vec_fields(node_gid, 1, 0) = vel(0);
         vec_fields(node_gid, 1, 1) = vel(1);

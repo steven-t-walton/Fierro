@@ -45,16 +45,16 @@ void setup_rdh(char *MESH){
 
 
   // ---- Cell state initialization --- ///
-  cell_state.init_cell_state( num_dim, mesh, num_correction_steps);
+  cell_state.init_cell_state( num_dim, mesh, rk_storage );
   std::cout << "Cell state allocated and initialized" << std::endl;
   std::cout << std::endl;
   
   // ---- Material point initialization ---- //
-  mat_pt.init_mat_pt_state(num_dim, mesh, num_correction_steps);
+  mat_pt.init_mat_pt_state(num_dim, mesh, rk_storage);
   std::cout << "Material point state allocated and initialized"  << std::endl;
   std::cout << std::endl;
 
-  elem_state.init_elem_state( num_dim, mesh, num_correction_steps, ref_elem);
+  elem_state.init_elem_state( num_dim, mesh, rk_storage, ref_elem);
   std::cout << "Element state allocated and initialized" << std::endl;  std::cout<< std::endl;
 
 
@@ -313,10 +313,8 @@ void setup_rdh(char *MESH){
        } // end for element loop
 
      } // end for fills
-     boundary_rdh(0);
   }// end loop over sub_tstep stages
 
-  
   // calculate the nodal masses by looping over all cells 
   real_t partition = 1.0/(8.0);
 

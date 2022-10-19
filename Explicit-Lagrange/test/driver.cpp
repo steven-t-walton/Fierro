@@ -387,11 +387,6 @@ int main(int argc, char *argv[]){
     }
     
     
-    fclose(out_energy);      // energy and partion as a function of time
-    fclose(out_cell_state);  // cell state values
-    fclose(out_matpt_state);
-    fclose(out_elem_state);
-
     // copied from SGH. -------  NEEDS TO BE FIXED ------//
     if (RDH==true){
        // print to file energy diagonostics
@@ -423,12 +418,17 @@ int main(int argc, char *argv[]){
                     sqrt(x*x + y*y + z*z),
                     cell_state.density(cell_gid),
                     cell_state.pressure(cell_gid),
-                    cell_state.ie(num_correction_steps-1, cell_gid),
+                    cell_state.ie(1, cell_gid),
                     mesh.cell_vol(cell_gid)
                     );
         }
 
-    }
+    };
+
+    fclose(out_energy);      // energy and partion as a function of time
+    fclose(out_cell_state);  // cell state values
+    fclose(out_matpt_state);
+    fclose(out_elem_state);
 
     // calculate the total energy at the end of the calculation
     if(CCH == true) track_cch(ke, ie);

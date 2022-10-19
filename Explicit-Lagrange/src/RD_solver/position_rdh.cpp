@@ -26,9 +26,10 @@ void get_position_rdh(){
 
 #pragma omp simd
               for (int dim = 0; dim < mesh.num_dim(); dim++){
-                node.coords(1, node_gid, dim) = node.coords(0, node_gid, dim) + dt * vel_update( dim );
+                node.coords(update, node_gid, dim) = node.coords(0, node_gid, dim) + dt * vel_update( dim );
               }// end loop over dim
 
+  	      /*
               real_t interp_pos[mesh.num_dim()];
               for(int i=0; i<mesh.num_dim(); i++) interp_pos[i] = 0.0;
 
@@ -51,7 +52,9 @@ void get_position_rdh(){
 //              std::cout<< "pos at time "<< TIME+dt <<" cycle "<< cycle <<" node " << node_gid << " and dim " << dim <<" is "<< node.coords(update,node_gid,dim) << std::endl;
 
 	      }// end loop over dim
-            }// end loop over gauss_lid
+	    */  
+
+	    }// end loop over gauss_lid
 	  }// end loop over elem_gid
 
         //std::cout << "Calculating Jacobian at gauss points" << std::endl;
