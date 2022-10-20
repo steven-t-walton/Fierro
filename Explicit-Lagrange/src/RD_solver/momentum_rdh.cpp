@@ -15,7 +15,7 @@ void get_momentum_rd(int correction_step){
 
   int update = correction_step;
   int prev = correction_step - 1;
-
+/*
   int rid_a[ref_elem.num_basis()];
   auto rid = ViewCArray <int> (&rid_a[0], ref_elem.num_basis());
   for (int m=0; m < ref_elem.num_basis(); m++) rid(m) = 0;
@@ -31,7 +31,7 @@ void get_momentum_rd(int correction_step){
       };// end loop over i
     };// end loop over j
   };// end loop over k
-
+*/
 #pragma omp simd
   
     for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
@@ -50,8 +50,8 @@ void get_momentum_rd(int correction_step){
 
 	  // Perform summation //
 	  //std::cout << " nodal_res at cell_gid " << cell_gid << " is "  << node.nodal_res(node_gid, cell_gid, dim ) << std::endl;
-          sum_res += node.nodal_res( node_gid, cell_gid, dim );
-          sum_res = sum_res/node.lumped_mass( node_gid, cell_gid ); 
+          sum_res += node.nodal_res( node_gid, cell_gid, dim )/node.lumped_mass( node_gid, cell_gid);
+         // sum_res = sum_res/node.lumped_mass( node_gid, cell_gid ); 
         }// end loop over cell_lid
 
        // std::cout << " sum of residuals around node " << node_gid << " in cycle "<< cycle <<" is " << sum_res << std::endl;
@@ -70,7 +70,7 @@ void get_momentum_rd(int correction_step){
     }//end loop over nodes
 
     boundary_rdh(update);
-
+/*
 #pragma omp simd  
     for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     
@@ -105,7 +105,7 @@ void get_momentum_rd(int correction_step){
         }// end loop over dim
       } // end loop over gauss_lid
     }// end loop over elem_gid
-    
+*/    
 }// end get_momentum_rd()
 
 

@@ -83,7 +83,6 @@ void lumped_mass(){
           int node_lid = elem.vert_node_map(basis_n);
           int node_gid = mesh.nodes_in_cell(cell_gid,node_lid);
           node.lumped_mass(node_gid,cell_gid) += mass_mat(basis_m,basis_n);
-          mass_mat(basis_m, basis_n)  = 0.0;
       //    std::cout << " lumped mass is " << node.lumped_mass(cell_gid, basis_n) << std::endl;
         }
       }

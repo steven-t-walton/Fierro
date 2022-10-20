@@ -10,7 +10,7 @@ using namespace utils;
 void get_position_rdh(int correction_step){
 
   int update = correction_step;//num_correction_steps;// - 1;
-
+/*
   int rid_a[ref_elem.num_basis()];
   auto rid = ViewCArray <int> (&rid_a[0], ref_elem.num_basis());
   for (int m=0; m < ref_elem.num_basis(); m++) rid(m) = 0;
@@ -26,7 +26,7 @@ void get_position_rdh(int correction_step){
       };// end loop over i
     };// end loop over j
   };// end loop over k
-
+*/
 
 // Update position with v(t^{n+1}) //
 #pragma omp simd  
@@ -47,7 +47,7 @@ void get_position_rdh(int correction_step){
                 node.coords(update, node_gid, dim) = node.coords(0, node_gid, dim) + 0.5*dt * ( vel_update( dim ) + vel_n(dim) );
               }// end loop over dim
 
-  	      
+  	 /*     
               real_t interp_pos[mesh.num_dim()];
               for(int i=0; i<mesh.num_dim(); i++) interp_pos[i] = 0.0;
 
@@ -72,7 +72,7 @@ void get_position_rdh(int correction_step){
 //              std::cout<< "pos at time "<< TIME+dt <<" cycle "<< cycle <<" node " << node_gid << " and dim " << dim <<" is "<< node.coords(update,node_gid,dim) << std::endl;
 
 	      }// end loop over dim
-	      
+	   */   
 
 	    }// end loop over gauss_lid
 	  }// end loop over elem_gid
