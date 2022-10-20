@@ -429,7 +429,7 @@ int main(int argc, char *argv[]){
     fclose(out_cell_state);  // cell state values
     fclose(out_matpt_state);
     fclose(out_elem_state);
-
+/*
     // calculate the total energy at the end of the calculation
     if(CCH == true) track_cch(ke, ie);
     if(SGH == true) track_sgh(ke, ie);
@@ -442,7 +442,7 @@ int main(int argc, char *argv[]){
     std::cout<<"Total energy at time = " << TIME << " is = "<< ke+ie <<std::endl;
 
     std::cout<<"Energy Error = "<< (te_0) - (ke+ie) <<std::endl;
-
+*/
     // get the wall clock time
     std::clock_t end_time = std::clock();
     std::cout << "Program Run Time = " << (end_time-start_time)/CLOCKS_PER_SEC << " sec " << std::endl;

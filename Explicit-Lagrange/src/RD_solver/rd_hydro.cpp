@@ -10,20 +10,24 @@ using namespace utils;
 
 void rd_hydro(){
   
+    real_t ke0 = 0.0;
+    real_t ie0 = 0.0;
+
   for (cycle = 1; cycle <= cycle_stop; cycle++){
         
-    //std::cout<<"cycle = "<<cycle<<std::endl;
+    std::cout<<"cycle = "<<cycle<<std::endl;
 
     if (stop_calc == 1) break;
     
-        
     if (cycle == 1){
       BV_inv();
       get_control_coeffs();      
-      track_rdh(ke, ie, 0);
-      te_0 = ie + ke;
+      track_rdh(ke0, ie0, 0);
+      te_0 = ie0 + ke0;
+      std::cout << " ke at t0 = " << ke0 << std::endl;
+      std::cout << " ie at t0 = " << ie0 << std::endl;
       std::cout << "E_tot at t0 = "<< te_0 << std::endl;
-      std::cout << " " << std::endl;
+      std::cout << std::endl;
     };// end if
 
     get_timestep();
@@ -38,7 +42,7 @@ void rd_hydro(){
 
 #pragma omp simd
       // DeC update //
-      for (int correction_step = 1; correction_step < num_correction_steps; correction_step++){
+      for (int correction_step = 1; correction_step <= num_correction_steps; correction_step++){
 
 	real_t sub_dt = dt/num_correction_steps;
         //real_t sub_time = TIME + sub_dt;          
@@ -53,6 +57,17 @@ void rd_hydro(){
 	get_momentum_rd(correction_step);
         //std::cout << " updated momentum " << std::endl;
        
+        get_position_rdh(correction_step);   
+
+        //std::cout << "Calculating Jacobian at gauss points" << std::endl;
+        get_gauss_pt_jacobian(mesh, ref_elem);
+    
+        //std::cout << "Calculating Jacobian at gauss points in cell" << std::endl;
+        get_gauss_cell_pt_jacobian(mesh, ref_elem);
+
+        //std::cout << "Before volume from Jacobian"  << std::endl;
+        get_vol_jacobi(mesh, ref_elem);
+
 	// update velocity at boundary appropriately //
        // (inside momentum)	boundary_rdh(correction_step+1);
 
@@ -63,17 +78,6 @@ void rd_hydro(){
 //        get_energy_rdh( sub_dt );
 
       }//end correction steps
-
-      get_position_rdh();   
-
-      //std::cout << "Calculating Jacobian at gauss points" << std::endl;
-      get_gauss_pt_jacobian(mesh, ref_elem);
-    
-      //std::cout << "Calculating Jacobian at gauss points in cell" << std::endl;
-      get_gauss_cell_pt_jacobian(mesh, ref_elem);
-
-      //std::cout << "Before volume from Jacobian"  << std::endl;
-      get_vol_jacobi(mesh, ref_elem);
 
       //std::cout << " calling get state " << std::endl;
       get_state( cycle );
@@ -92,7 +96,12 @@ void rd_hydro(){
 
 
   // final E_tot //
-  track_rdh( ke, ie, num_correction_steps-1);
+  track_rdh( ke, ie, num_correction_steps);
+
+  std::cout << " ke at t0 = " << ke0 << std::endl;
+  std::cout << " ie at t0 = " << ie0 << std::endl;
+  std::cout << " ke at t_final = " << ke << std::endl;
+  std::cout << " ie at t_final = " << ie << std::endl;
   std::cout << "E_tot final is "<< ke+ie << std::endl;
 
 }// end rd_hydro

@@ -9,85 +9,100 @@
 #include "slam.h"
 #include "variables.h"
 
-#include "bernstein_polynomials.cpp"
+#include "bernstein_polynomials.h"
 
 using namespace utils;
 
 
 void BV_inv(){
 
-  real_t B_a[ref_elem.num_basis()*ref_elem.num_basis()];
-  //real_t check_B_a[ref_elem.num_basis()*ref_elem.num_basis()];
+    real_t B_a[ref_elem.num_basis()*ref_elem.num_basis()];
+    //real_t check_B_a[ref_elem.num_basis()*ref_elem.num_basis()];
   
-  auto B = ViewCArray <real_t> (&B_a[0], ref_elem.num_basis(), ref_elem.num_basis());
-  //auto check_B = ViewCArray <real_t> (&check_B_a[0], ref_elem.num_basis(), ref_elem.num_basis());
+    auto B = ViewCArray <real_t> (&B_a[0], ref_elem.num_basis(), ref_elem.num_basis());
+    //auto check_B = ViewCArray <real_t> (&check_B_a[0], ref_elem.num_basis(), ref_elem.num_basis());
+
+    int rid_a[ref_elem.num_basis()];
+    auto rid = ViewCArray <int> (&rid_a[0], ref_elem.num_basis());
+    for (int m=0; m < ref_elem.num_basis(); m++) rid(m) = 0;
 
 #pragma omp simd
-  for (int j = 0; j < ref_elem.num_basis(); j++){
-    for (int i = 0; i < ref_elem.num_basis(); i++){
-      B(i, j) = 0.0;
-      //check_B(i,j) = 0.0;
-      elem_state.BV_mat_inv(i, j) = 0.0;
+    int ind = 0;
+    for (int k = 0; k <  cbrt(ref_elem.num_basis()); k++){
+      for (int j = 0; j < cbrt(ref_elem.num_basis()); j++){
+        for (int i = 0; i < cbrt(ref_elem.num_basis()); i++){
+          rid(ind) = ref_elem.node_rid(i,j,k);
+          //std::cout << "node_rid at i = " << i << " j = " << j << " k = " << k << " is " << rid(ind) << std::endl;
+          ind++;
+        };// end loop over i
+      };// end loop over j
+    };// end loop over k
+
+#pragma omp simd
+    for (int j = 0; j < ref_elem.num_basis(); j++){
+      for (int i = 0; i < ref_elem.num_basis(); i++){
+        B(i, j) = 0.0;
+        elem_state.BV_mat_inv( i, j ) = 0.0;
+      }
+    }  
+/* 
+    for (int basis_n = 0; basis_n < ref_elem.num_basis(); basis_n++){
+      for(int basis_m = 0; basis_m < ref_elem.num_basis(); basis_m++){
+        
+        B( basis_m, basis_n ) = ref_elem.ref_nodal_basis( rid(basis_m), basis_n );
+        std::cout << " BV entry " << basis_m << " , " << basis_n << "  is " << B(basis_m, basis_n) << std::endl;
+      }
     }
-  }  
+*/      
 
-
-  int rid_a[ref_elem.num_basis()];
-  auto rid = ViewCArray <int> (&rid_a[0], ref_elem.num_basis());
-  for (int m=0; m < ref_elem.num_basis(); m++) rid(m) = 0;
-
-#pragma omp simd
-  int ind = 0;
-  for (int k = 0; k <  cbrt(ref_elem.num_basis()); k++){
-    for (int j = 0; j < cbrt(ref_elem.num_basis()); j++){
-      for (int i = 0; i < cbrt(ref_elem.num_basis()); i++){
-        rid(ind) = ref_elem.node_rid(i,j,k);
-        //std::cout << "node_rid at i = " << i << " j = " << j << " k = " << k << " is " << rid(ind) << std::endl;
-        ind++;
-      };// end loop over i
-    };// end loop over j
-  };// end loop over k
-  
-//  int degree = 0;
-//  int dim = 0;
-  for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
-    for (int index = 0; index < ref_elem.num_basis(); index++){  
-      B(index,basis_id) = ref_elem.ref_nodal_basis( rid(index), basis_id );
-//      B(index,basis_id) = bernstein::eval(p_order, degree, ref_elem.ref_node_positions(rid(index),dim));
+//    int degree = 0;
+//    int dim = 0;
+    for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
+      for (int index = 0; index < ref_elem.num_basis(); index++){  
+        B(index,basis_id) = ref_elem.ref_nodal_basis(rid(index), basis_id );
+//        B(index,basis_id) = bernstein::eval( p_order, degree, ref_elem.ref_node_positions(rid(index),dim));
       //check_B(index,basis_id) = B(index,basis_id);
-      //std::cout << "B-V mat at row i = "<< index << " and column j = " << basis_id << " is " << B(index,basis_id) << std::endl;
-//      degree++;
-//      if ( degree == p_order+1){
-//        degree = 0;
-//        dim++;
-//      };
+//        std::cout << "B-V mat at row i = "<< index << " and column j = " << basis_id << " is " << B(index,basis_id) << std::endl;
+//        degree++;
+//        if ( degree == p_order+1){
+//          degree = 0;
+//          dim++;
+//        };
+      }
     }
-  }
- 
-      
 
-      
-  int lu_index_a[ref_elem.num_basis()];
-  auto lu_index = ViewCArray <int> (&lu_index_a[0], ref_elem.num_basis());
-  for(int i=0; i < ref_elem.num_basis(); i++){
-    lu_index(i) = 0;
-  };
-  int parity = 0;
+    int lu_index_a[ref_elem.num_basis()];
+    auto lu_index = ViewCArray <int> (&lu_index_a[0], ref_elem.num_basis());
+    for(int i=0; i < ref_elem.num_basis(); i++){
+      lu_index(i) = 0;
+    };
+    int parity = 0;
 
-  real_t col_a[ref_elem.num_basis()];
-  auto col = ViewCArray <real_t> (&col_a[0], ref_elem.num_basis());
-  for(int i=0; i < ref_elem.num_basis(); i++){
-    col(i) = 0;
-  };
+    real_t col_a[ref_elem.num_basis()];
+    auto col = ViewCArray <real_t> (&col_a[0], ref_elem.num_basis());
+    for(int i=0; i < ref_elem.num_basis(); i++){
+      col(i) = 0;
+    };
 
   
-  auto B_lu = ViewCArray(&B(0,0), ref_elem.num_basis(), ref_elem.num_basis());
+    auto B_lu = ViewCArray(&B(0,0), ref_elem.num_basis(), ref_elem.num_basis());
    
-  LU_decompos(B_lu, lu_index, parity, ref_elem.num_basis());
+    LU_decompos(B_lu, lu_index, parity, ref_elem.num_basis());
     
-  auto B_inv = ViewCArray <real_t> (&elem_state.BV_mat_inv(0,0), ref_elem.num_basis(), ref_elem.num_basis());
-  LU_invert(B, lu_index, B_inv, col, ref_elem.num_basis());
-  
+    auto B_inv = ViewCArray <real_t> ( &elem_state.BV_mat_inv( 0, 0 ), ref_elem.num_basis(), ref_elem.num_basis());
+    LU_invert( B, lu_index, B_inv, col, ref_elem.num_basis() );
+
+}// end BV inverse
+
+
+
+
+
+
+
+/*
+*/
+
   /*  
   real_t val1 = 0.0;
   real_t val2 = 0.0;
@@ -105,12 +120,4 @@ void BV_inv(){
     }// end loop over i
   }// end loop over j
   */
-
-}// end BV inverse
-
-
-
-
-
-
 

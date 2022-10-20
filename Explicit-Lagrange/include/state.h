@@ -644,6 +644,7 @@ class elem_state_t {
             return inverse_mass_matrix_[elem_gid*num_basis_*num_basis_ + basis_m * num_basis_ + basis_n];
         }
         
+	// RD
         inline real_t& BV_mat_inv(int basis_m, int basis_n) const
         {
             return BV_mat_inverse_[ basis_m*num_basis_ + basis_n];
@@ -1166,7 +1167,7 @@ void calc_average_specific_vol();
 // RD code
 void rd_hydro();
 void get_momentum_rd(int correction_step);
-void get_position_rdh();
+void get_position_rdh(int correction_step);
 void get_nodal_res(real_t sub_dt, int t_step);
 void lumped_mass();
 void prediction_step(real_t sub_dt, int pred_step);

@@ -7,7 +7,7 @@
 
 void update_coeffs(){
   
-  int update = num_correction_steps - 1;
+  int update = num_correction_steps;// - 1;
 
   for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++) {
       

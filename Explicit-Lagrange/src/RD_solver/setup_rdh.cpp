@@ -39,7 +39,7 @@ void setup_rdh(char *MESH){
   ref_elem.init(p_order, num_dim, elem);
 
   // ---- Node Initialization ---- //
-  node.init_node_state(num_dim, mesh, num_correction_steps);
+  node.init_node_state(num_dim, mesh, num_correction_steps+1);
   std::cout << "Node state allocated and initialized" << std::endl;
   std::cout << std::endl;
 
@@ -87,7 +87,7 @@ void setup_rdh(char *MESH){
   }// end loop over this_bdy
   
    
-  for(int t_step = 0; t_step < num_correction_steps; t_step++){
+  for(int t_step = 0; t_step <= num_correction_steps; t_step++){
   
     for(int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
       
@@ -113,7 +113,7 @@ void setup_rdh(char *MESH){
   // apply fill instruction over the elements //
   // for initialization, copy data to each substep //
   
-  for (int t_step = 0; t_step < num_correction_steps; t_step++){
+  for (int t_step = 0; t_step <= num_correction_steps; t_step++){
     for (int f_id = 0; f_id < NF; f_id++){
       for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){        
 	// coords and radius of element //
@@ -192,9 +192,12 @@ void setup_rdh(char *MESH){
              cell_state.mass(cell_gid) = cell_state.density(cell_gid)*mesh.cell_vol(cell_gid);
 
              // --- Internal energy ---
-             cell_state.ie(t_step, cell_gid) = mat_fill[f_id].ie;
-             cell_state.total_energy(t_step, cell_gid) = mat_fill[f_id].ie; // + initialization of kinetic energy later
-
+             cell_state.ie(0, cell_gid) = mat_fill[f_id].ie;
+             cell_state.total_energy(0, cell_gid) = mat_fill[f_id].ie; // + initialization of kinetic energy later
+             
+             cell_state.ie(1, cell_gid) = mat_fill[f_id].ie;
+             cell_state.total_energy(1, cell_gid) = mat_fill[f_id].ie; // + initialization of kinetic energy later
+             
 
 
              // --- Pressure ---
@@ -301,7 +304,8 @@ void setup_rdh(char *MESH){
 
              if(mat_fill[f_id].velocity == init_conds::tg_vortex){
                cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*elem_coords_x) + cos(2.0*PI*elem_coords_y) ) + 1.0;
-               cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g-1.0));
+               cell_state.ie(0, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g-1.0));
+               cell_state.ie(1, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g-1.0));
              };// end if
                           
 
