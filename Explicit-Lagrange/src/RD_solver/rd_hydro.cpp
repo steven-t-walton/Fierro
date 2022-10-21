@@ -20,9 +20,9 @@ void rd_hydro(){
     if (stop_calc == 1) break;
     
     if (cycle == 1){
-//      BV_inv();
-//      get_control_coeffs();
-      interp_vel(0);      
+      BV_inv();
+      get_control_coeffs();
+//      interp_vel(0);      
       track_rdh(ke0, ie0, 0);
       te_0 = ie0 + ke0;
       std::cout << " ke at t0 = " << ke0 << std::endl;
@@ -57,8 +57,12 @@ void rd_hydro(){
       	// updates velocity at vel(t^{n,m}) //
 	get_momentum_rd(correction_step);
         //std::cout << " updated momentum " << std::endl;
+        
+        interp_vel(correction_step);
        
         get_position_rdh(correction_step);   
+
+//        interp_pos(correction_step);
 
         //std::cout << "Calculating Jacobian at gauss points" << std::endl;
         get_gauss_pt_jacobian(mesh, ref_elem);
@@ -68,12 +72,6 @@ void rd_hydro(){
 
         //std::cout << "Before volume from Jacobian"  << std::endl;
         get_vol_jacobi(mesh, ref_elem);
-
-	// update velocity at boundary appropriately //
-       // (inside momentum)	boundary_rdh(correction_step+1);
-
-        //std::cout << "calling prediction step" << std::endl;
-       // prediction_step(sub_dt, correction_step);
 
 	// energy update //
 //        get_energy_rdh( sub_dt );

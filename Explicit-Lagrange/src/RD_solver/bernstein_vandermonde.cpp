@@ -17,10 +17,10 @@ using namespace utils;
 void BV_inv(){
 
     real_t B_a[ref_elem.num_basis()*ref_elem.num_basis()];
-    //real_t check_B_a[ref_elem.num_basis()*ref_elem.num_basis()];
+    real_t check_B_a[ref_elem.num_basis()*ref_elem.num_basis()];
   
     auto B = ViewCArray <real_t> (&B_a[0], ref_elem.num_basis(), ref_elem.num_basis());
-    //auto check_B = ViewCArray <real_t> (&check_B_a[0], ref_elem.num_basis(), ref_elem.num_basis());
+    auto check_B = ViewCArray <real_t> (&check_B_a[0], ref_elem.num_basis(), ref_elem.num_basis());
 
 
 #pragma omp simd
@@ -30,11 +30,13 @@ void BV_inv(){
         elem_state.BV_mat_inv( i, j ) = 0.0;
       }
     }  
-
-    for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
-      for (int index = 0; index < ref_elem.num_basis(); index++){  
-        B(index,basis_id) = mesh.gauss_pt_det_j() * ref_elem.ref_nodal_basis(index, basis_id );
-      //check_B(index,basis_id) = B(index,basis_id);
+    
+    for (int index = 0; index < ref_elem.num_basis(); index++){
+      for (int vert = 0; vert < ref_elem.num_basis(); vert++){
+        int node = ref_elem.vert_node_map(vert);  
+        B(vert, index) = ref_elem.ref_nodal_basis(node, index );
+      //  std::cout << " BV entry  i = " << vert << " j = " << index << " is " << B(vert,index) << std::endl;
+        check_B(vert, index) = B(vert, index);
       }
     }
 
@@ -68,9 +70,9 @@ void BV_inv(){
 
 
 /*
-*/
 
-  /*  
+*/
+/*
   real_t val1 = 0.0;
   real_t val2 = 0.0;
   
@@ -86,5 +88,8 @@ void BV_inv(){
       val2 = 0.0;
     }// end loop over i
   }// end loop over j
-  */
+*/
+/*  
+
+ */
 

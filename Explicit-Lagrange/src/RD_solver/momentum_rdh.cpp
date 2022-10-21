@@ -33,7 +33,7 @@ void get_momentum_rd(int correction_step){
 
 	  // Perform summation //
 	  //std::cout << " nodal_res at cell_gid " << cell_gid << " is "  << node.nodal_res(node_gid, cell_gid, dim ) << std::endl;
-          sum_res += node.nodal_res( node_gid, cell_gid, dim )/node.lumped_mass( node_gid, cell_gid);
+          sum_res += node.nodal_res( node_gid, cell_gid, dim );//node.lumped_mass( node_gid, cell_gid);
          // sum_res = sum_res/node.lumped_mass( node_gid, cell_gid ); 
         }// end loop over cell_lid
 
@@ -46,15 +46,18 @@ void get_momentum_rd(int correction_step){
 
         node.vel(update, node_gid, dim) = vel_r(dim) - dt*sum_res;
 	
-//	std::cout << " vel before interpolation at " << node_gid << " and dim " << dim << " is " << node.vel(update, node_gid, dim) << std::endl;
-//	std::cout << " " << std::endl;
+	std::cout << " vel before interpolation at " << node_gid << " and dim " << dim << " is " << node.vel(update, node_gid, dim) << std::endl;
+	std::cout << std::endl;
 
       }// end loop over dim
     }//end loop over nodes
 
     boundary_rdh(update);
 
- 
+}// end get_momentum_rd()
+
+
+/* 
     for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
       for (int node_lid = 0; node_lid <mesh.num_nodes_in_elem(); node_lid++){
 
@@ -84,7 +87,4 @@ void get_momentum_rd(int correction_step){
 
       }// end loop over node_lid
     }// end loop over elem_gid
-
-}// end get_momentum_rd()
-
-
+*/

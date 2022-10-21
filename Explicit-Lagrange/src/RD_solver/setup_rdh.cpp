@@ -320,6 +320,7 @@ void setup_rdh(char *MESH){
        } // end for element loop
 
      } // end for fills
+    boundary_rdh(t_step);
   }// end loop over sub_tstep stages
 
   // calculate the nodal masses by looping over all cells 
