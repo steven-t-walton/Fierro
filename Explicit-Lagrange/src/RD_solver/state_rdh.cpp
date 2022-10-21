@@ -10,12 +10,12 @@
 using namespace utils;
 
 void get_state( int cycle ){
-/*
+///*
   for( int cell_gid = 0; cell_gid < mesh.num_cells(); cell_gid++){
     cell_properties(cell_gid);
   }
-*/  
-
+//*/  
+/*
   real_t det_J0_a[mesh.num_cells()];
   auto det_J0 = ViewCArray(&det_J0_a[0], mesh.num_cells());
   
@@ -96,7 +96,7 @@ void get_state( int cycle ){
             cell_state.ie(1, cell_gid)
             );
   }
-  
+  */
 
 }
 
