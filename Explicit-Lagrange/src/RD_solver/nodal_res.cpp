@@ -9,7 +9,7 @@
 #include "state.h"
 #include "geometry.h"
 #include "variables.h"
-//#include "legendre_polynomials.h"
+#include "legendre_polynomials.h"  // <-- can throw an error " namespace legendre conflicts with other namespace ". this means the compiler can see std::legendre().  Comment this line out and uncomment std::legendre in time integral evaluation.
 
 using namespace utils;
 
@@ -183,7 +183,7 @@ void get_nodal_res(real_t sub_dt, int t_step){
 
 	    for (int i = 0; i < 3; i++){
 	      real_t temp1 = alpha_a[0] > alpha_a[1] ? alpha_a[0] : alpha_a[1];
-	      alpha = alpha_a[3] > temp1 ? alpha_a[3] : temp1;          	  
+	      alpha = alpha_a[2] > temp1 ? alpha_a[2] : temp1;          	  
             }
         
            // std::cout << "a0 = " << alpha_a[0] << ", a1 = " << alpha_a[1] << ", a2 = " << alpha_a[2] << std::endl;
@@ -253,7 +253,7 @@ void get_nodal_res(real_t sub_dt, int t_step){
 	     //std::cout << " point = " << point << std::endl;
              time_integral(dim_j) += 0.0*0.5*temp_dt
 		                     *time_weights[prev_times]
-				     *std::legendre(t_step, point)
+				     *legendre::eval(t_step,point) //*std::legendre(t_step, point) <-- depending on the compiler, legendre namespace conflicts with std::legendre
 				     *(force_cell_volume(dim_j,prev_times) + 0.0*Q(dim_j,prev_times));
              temp_dt += temp_dt;
              

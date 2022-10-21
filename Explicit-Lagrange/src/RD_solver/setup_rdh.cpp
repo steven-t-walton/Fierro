@@ -85,7 +85,10 @@ void setup_rdh(char *MESH){
     std::cout << std::endl;
 
   }// end loop over this_bdy
-  
+
+  mesh.init_gauss_pts();
+  mesh.init_gauss_patch_pts();
+  mesh.init_gauss_cell_pts();  
    
   for(int t_step = 0; t_step <= num_correction_steps; t_step++){
   

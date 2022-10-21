@@ -21,7 +21,8 @@ void rd_hydro(){
     
     if (cycle == 1){
 //      BV_inv();
-//      get_control_coeffs();      
+//      get_control_coeffs();
+      interp_vel(0);      
       track_rdh(ke0, ie0, 0);
       te_0 = ie0 + ke0;
       std::cout << " ke at t0 = " << ke0 << std::endl;

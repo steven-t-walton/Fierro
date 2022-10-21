@@ -1,4 +1,5 @@
 // computes lumped mass and stores at nodes //
+// Computes volume of convex hull defined by corners around a node //
 
 #include "utilities.h"
 #include "state.h"
@@ -11,6 +12,34 @@ using namespace utils;
 
 void lumped_mass(){
 
+  for( int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+    
+    for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
+    
+      int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
+
+        for (int corner_lid = 0; corner_lid < mesh.num_corners_in_node(node_gid); corner_lid++){
+        
+          
+        
+        }// end loop over corner_lid
+    
+    }// end loop over nodes
+    
+  }// end loop over elem_gid
+
+
+
+
+}// end lumped mass
+
+
+
+
+
+
+
+/*
   int num_basis = ref_elem.num_basis();
 
   real_t diag_a[mesh.num_cells_in_elem()*num_basis];
@@ -89,6 +118,4 @@ void lumped_mass(){
     }// end loop over cell_lid
 		
   } // end loop over elem_gid
-
-}
-
+*/

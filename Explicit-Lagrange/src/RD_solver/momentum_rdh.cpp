@@ -15,23 +15,6 @@ void get_momentum_rd(int correction_step){
 
   int update = correction_step;
   int prev = correction_step - 1;
-/*
-  int rid_a[ref_elem.num_basis()];
-  auto rid = ViewCArray <int> (&rid_a[0], ref_elem.num_basis());
-  for (int m=0; m < ref_elem.num_basis(); m++) rid(m) = 0;
-
-#pragma omp simd
-  int ind = 0;
-  for (int k = 0; k <  cbrt(ref_elem.num_basis()); k++){
-    for (int j = 0; j < cbrt(ref_elem.num_basis()); j++){
-      for (int i = 0; i < cbrt(ref_elem.num_basis()); i++){
-        rid(ind) = ref_elem.node_rid(i,j,k);
-          //std::cout << "node_rid at i = " << i << " j = " << j << " k = " << k << " is " << rid(ind) << std::endl;
-        ind++;
-      };// end loop over i
-    };// end loop over j
-  };// end loop over k
-*/
 #pragma omp simd
   
     for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
@@ -70,11 +53,10 @@ void get_momentum_rd(int correction_step){
     }//end loop over nodes
 
     boundary_rdh(update);
-/*
-#pragma omp simd  
+
+ 
     for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-    
-      for (int node_lid = 0; node_lid <mesh.num_nodes_in_elem(); node_lid++){//for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+      for (int node_lid = 0; node_lid <mesh.num_nodes_in_elem(); node_lid++){
 
         int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
@@ -84,28 +66,25 @@ void get_momentum_rd(int correction_step){
         }
       
         for (int dim = 0; dim < mesh.num_dim(); dim++){
-          for (int basis_n = 0; basis_n < ref_elem.num_basis(); basis_n++){
-            for(int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
+          for(int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
           
-              int node_basis_id = ref_elem.vert_node_map( basis_id );
-              int interp_gid = mesh.nodes_in_elem( elem_gid, node_basis_id );
+            int node_basis_id = elem.vert_node_map( basis_id );
+            int interp_gid = mesh.nodes_in_elem( elem_gid, node_basis_id );
 
-	      auto vel_update = ViewCArray <real_t> (&node.vel(update, interp_gid, 0), num_dim);
+            interp_vel[dim] += node.vel( update, interp_gid, dim ) * ref_elem.ref_nodal_basis( node_lid, basis_id );
 
-              interp_vel[dim] += vel_update( dim ) * ref_elem.ref_nodal_basis( rid(basis_id), basis_n);
             }// end loop over basis id
-	  }// end loop over basis_n
   //        std::cout << " interpolated vel at dim " << dim << " is " << interp_vel[dim] << std::endl;     
 	}// end loop over dim
      
         // Save interpolated velocity back to gauss point
         for (int dim = 0; dim < mesh.num_dim(); dim++){
           node.vel(update, node_gid, dim) = interp_vel[dim];
-          interp_vel[dim] = 0.0;	  
         }// end loop over dim
-      } // end loop over gauss_lid
+
+      }// end loop over node_lid
     }// end loop over elem_gid
-*/    
+
 }// end get_momentum_rd()
 
 
