@@ -16,42 +16,19 @@ void get_position_rdh(int correction_step){
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
 
     for( int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){ 
-              int node_gid = mesh.nodes_in_elem(elem_gid, node_lid );
+      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid );
+
+//    for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
+//      int node_lid = ref_elem.vert_node_map(vertex);
+//     int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
       auto vel_update = ViewCArray <real_t> ( &node.vel( update, node_gid, 0), mesh.num_dim() );
-      auto vel_n = ViewCArray <real_t> ( &node.vel(0, node_gid, 0 ), mesh.num_dim() );
+      //auto vel_n = ViewCArray <real_t> ( &node.vel(0, node_gid, 0 ), mesh.num_dim() );
 
       for (int dim = 0; dim < mesh.num_dim(); dim++){
-        node.coords(update, node_gid, dim) = node.coords(0, node_gid, dim) + 0.5*dt * ( vel_update( dim ) + vel_n(dim) );
+        node.coords(update, node_gid, dim) = node.coords(0, node_gid, dim) + dt*vel_update(dim);//0.5*dt * ( vel_update( dim ) + vel_n(dim) );
       }// end loop over dim
 
     }// end loop over node_lid
   }// end loop over elem_gid
-/*
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-    for(int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
-      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-
-      real_t interp_pos[mesh.num_dim()];
-      for(int i=0; i<mesh.num_dim(); i++) interp_pos[i] = 0.0;
-
-        for (int dim = 0; dim < mesh.num_dim(); dim++){
-          for(int basis_id = 0; basis_id < elem.num_basis(); basis_id++){
-
-            int node_basis_id = elem.vert_node_map(basis_id);
-            int interp_gid = mesh.nodes_in_elem(elem_gid, node_basis_id);
-
-            interp_pos[dim] += node.coords(update, interp_gid, dim) * ref_elem.ref_nodal_basis(node_lid, basis_id );
-
-          } // end loop over the basis
-        } // end loop over dimension
-
-        for (int dim = 0; dim < mesh.num_dim(); dim++){
-          node.coords(update, node_gid, dim) = interp_pos[dim];
-        }
-
-    }// end loop over node_lid
-
-  }// end loop over elem_gid
-*/    
 }// end get_position_rdh()

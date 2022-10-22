@@ -34,18 +34,10 @@ void get_control_coeffs(){
 
 	int node_id = ref_elem.vert_node_map( vert_id );
         int node_gid_for_control_coeff = mesh.nodes_in_elem( elem_gid, node_id );
-        
-        //auto vel = ViewCArray <real_t> (&node.vel(0, node_gid_for_control_coeff, 0), mesh.num_dim() );
-       /* 
-	std::cout << std::endl;
-        std::cout << " vel before coeff assignment " << node.vel(0, node_gid_for_control_coeff, dim) << std::endl;
-      */
-	node.vel(0, node_gid_for_control_coeff, dim ) = BV_coeffs( vert_id, dim );
-      /*
-	std::cout << " vel from BV_coeffs is " << node.vel(0, node_gid_for_control_coeff, dim ) << " at dim " << dim << std::endl;
-        std::cout << std::endl;
-      */ 	
-	for (int t_step = 1; t_step <= num_correction_steps; t_step++){
+	
+        node.vel(0, node_gid_for_control_coeff, dim ) = BV_coeffs( vert_id, dim );
+	
+        for (int t_step = 1; t_step <= num_correction_steps; t_step++){
 	  node.vel(t_step, node_gid_for_control_coeff, dim) = node.vel( 0, node_gid_for_control_coeff, dim );
 	}
         

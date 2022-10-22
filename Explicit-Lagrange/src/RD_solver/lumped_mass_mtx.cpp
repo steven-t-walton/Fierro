@@ -12,34 +12,7 @@ using namespace utils;
 
 void lumped_mass(){
 
-  for( int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-    
-    for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
-    
-      int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
 
-        for (int corner_lid = 0; corner_lid < mesh.num_corners_in_node(node_gid); corner_lid++){
-        
-          
-        
-        }// end loop over corner_lid
-    
-    }// end loop over nodes
-    
-  }// end loop over elem_gid
-
-
-
-
-}// end lumped mass
-
-
-
-
-
-
-
-/*
   int num_basis = ref_elem.num_basis();
 
   real_t diag_a[mesh.num_cells_in_elem()*num_basis];
@@ -47,22 +20,6 @@ void lumped_mass(){
   
   real_t mass_mat_a[num_basis*num_basis];
   auto mass_mat = ViewCArray <real_t> (mass_mat_a, num_basis, num_basis);
-  int rid_a[ref_elem.num_basis()];
-  auto rid = ViewCArray <int> (&rid_a[0], ref_elem.num_basis());
-  for (int m=0; m < ref_elem.num_basis(); m++) rid(m) = 0;
-
-//#pragma omp simd
-    int ind = 0;
-    for (int k = 0; k <  cbrt(ref_elem.num_basis()); k++){
-      for (int j = 0; j < cbrt(ref_elem.num_basis()); j++){
-        for (int i = 0; i < cbrt(ref_elem.num_basis()); i++){
-          rid(ind) = ref_elem.node_rid(i,j,k);
-          //std::cout << "node_rid at i = " << i << " j = " << j << " k = " << k << " is " << rid(ind) << std::endl;
-          ind++;
-        };// end loop over i
-      };// end loop over j
-    };// end loop over k
-
 
 #pragma omp simd 
   for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
@@ -72,8 +29,8 @@ void lumped_mass(){
       int cell_gid = mesh.cells_in_elem(elem_gid, cell_lid);
       for (int node_lid = 0; node_lid < mesh.num_nodes_in_cell(); node_lid++){
         int node_gid = mesh.nodes_in_cell(cell_gid, node_lid);
-	//std::cout << " # corners around node is " << mesh.num_corners_in_node(node_gid) << std::endl;
         node.lumped_mass(node_gid,cell_gid) = 0.0;
+	//std::cout << " # corners around node is " << mesh.num_corners_in_node(node_gid) << std::endl;
       }
     }
      
@@ -118,4 +75,36 @@ void lumped_mass(){
     }// end loop over cell_lid
 		
   } // end loop over elem_gid
+
+
+
+}// end lumped mass
+
+
+
+
+
+
+
+/*
+
+
+
+  for( int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+    
+    for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
+    
+      int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
+
+        for (int corner_lid = 0; corner_lid < mesh.num_corners_in_node(node_gid); corner_lid++){
+        
+          
+        
+        }// end loop over corner_lid
+    
+    }// end loop over nodes
+    
+  }// end loop over elem_gid
+
+
 */

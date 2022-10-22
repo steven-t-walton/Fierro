@@ -29,14 +29,13 @@ void track_rdh(real_t &x, real_t &y, int t_step){
 
     // loop over all points to find total kinetic energy 
     for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++) {
-       
             // create view into vertex velocity
             auto vel = ViewCArray <real_t> (&node.vel( t_step, node_gid, 0 ), num_dim);
 
             ke += 0.5*(vel(0)*vel(0) + vel(1)*vel(1) + vel(2)*vel(2)) * node.mass(node_gid);              
 
             mass1 += node.mass(node_gid);
-        
+      
     }
 
     x = ke;
