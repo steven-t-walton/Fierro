@@ -571,7 +571,7 @@ class elem_state_t {
 
         int num_dim_;
         int num_rk_;
-
+        int num_corrections_;
         int num_basis_;
 
         // **** Element State **** //
@@ -606,6 +606,7 @@ class elem_state_t {
 
             num_dim_   = num_dim;
             num_rk_    = num_rk;
+	    num_corrections_ = num_rk;
 
             // element state
             num_elem_ = mesh.num_elems();
@@ -628,8 +629,8 @@ class elem_state_t {
 
 	    // RD
             BV_mat_inverse_ = new real_t[num_elem_*num_basis_*num_basis_]();
-            B_vel_coeffs_ = new real_t[num_elem_*num_basis_*num_dim_]();
-	    B_pos_coeffs_ = new real_t[num_elem_*num_basis_*num_dim_]();
+            B_vel_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
+	    B_pos_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
         }
 
  
@@ -656,14 +657,14 @@ class elem_state_t {
             return BV_mat_inverse_[ elem_gid*num_basis_*num_basis_ +  basis_m*num_basis_ + basis_n];
         }
         
-	inline real_t& BV_vel_coeffs(int elem_gid, int basis_m, int dim) const
+	inline real_t& BV_vel_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const
 	{
-	    return B_vel_coeffs_[ elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
+	    return B_vel_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
 	}
     
-	inline real_t& BV_pos_coeffs(int elem_gid, int basis_m, int dim) const
+	inline real_t& BV_pos_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const
 	{
-	    return B_pos_coeffs_[ elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
+	    return B_pos_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
 	}
         // end RD allocation
 	

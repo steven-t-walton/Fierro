@@ -39,7 +39,7 @@ void setup_rdh(char *MESH){
   ref_elem.init(p_order, num_dim, elem);
 
   // ---- Node Initialization ---- //
-  node.init_node_state(num_dim, mesh, num_correction_steps+1);
+  node.init_node_state(num_dim, mesh, rk_storage);
   std::cout << "Node state allocated and initialized" << std::endl;
   std::cout << std::endl;
 
@@ -54,7 +54,7 @@ void setup_rdh(char *MESH){
   std::cout << "Material point state allocated and initialized"  << std::endl;
   std::cout << std::endl;
 
-  elem_state.init_elem_state( num_dim, mesh, rk_storage, ref_elem);
+  elem_state.init_elem_state( num_dim, mesh, num_correction_steps+1, ref_elem);
   std::cout << "Element state allocated and initialized" << std::endl;  std::cout<< std::endl;
 
 

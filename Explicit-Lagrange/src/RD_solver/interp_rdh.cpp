@@ -13,7 +13,7 @@ void interp_vel(int update){
       // interpolate //
       for (int dim = 0; dim < mesh.num_dim(); dim++){
         for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
-          node.vel(update, node_gid, dim) = elem_state.BV_vel_coeffs(elem_gid, vertex, dim) * ref_elem.ref_nodal_basis( node_lid, vertex );
+          node.vel(1, node_gid, dim) = elem_state.BV_vel_coeffs(update, elem_gid, vertex, dim) * ref_elem.ref_nodal_basis( node_lid, vertex );
         }// end loop over vertex
       }// end loop over dim
 
@@ -31,7 +31,7 @@ void interp_pos(int update){
       // interpolate //
       for (int dim = 0; dim < mesh.num_dim(); dim++){
         for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
-          node.coords(update, node_gid, dim) = elem_state.BV_pos_coeffs( elem_gid, vertex, dim ) * ref_elem.ref_nodal_basis( node_lid, vertex );
+          node.coords(1, node_gid, dim) = elem_state.BV_pos_coeffs(update, elem_gid, vertex, dim ) * ref_elem.ref_nodal_basis( node_lid, vertex );
         }// end loop over vertex
       }// end loop over dim
 

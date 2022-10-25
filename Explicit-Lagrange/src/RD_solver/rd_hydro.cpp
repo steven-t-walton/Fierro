@@ -54,29 +54,33 @@ void rd_hydro(){
 	//std::cout << "calling get_nodal_res" << std::endl;
         get_nodal_res(sub_dt, correction_step);
 
-      	// updates velocity at vel(t^{n,m}) //
+      	// updates velocity coeffs //
 	get_momentum_rd(correction_step);
         //std::cout << " updated momentum " << std::endl;
         
-        interp_vel(correction_step);
-       
+       // update position coeffs //
         get_position_rdh(correction_step);   
-
-//        interp_pos(correction_step);
-
-        //std::cout << "Calculating Jacobian at gauss points" << std::endl;
-        get_gauss_pt_jacobian(mesh, ref_elem);
-    
-        //std::cout << "Calculating Jacobian at gauss points in cell" << std::endl;
-        get_gauss_cell_pt_jacobian(mesh, ref_elem);
-
-        //std::cout << "Before volume from Jacobian"  << std::endl;
-        get_vol_jacobi(mesh, ref_elem);
 
 	// energy update //
 //        get_energy_rdh( sub_dt );
 
       }//end correction steps
+
+      // intepolate the velocity with evolved coeffs and save to nodes  //
+      interp_vel(num_correction_steps);
+ 
+      // interpolate the position with evolved coeffs and save to nodes //
+      interp_pos(num_correction_steps);
+      
+
+      //std::cout << "Calculating Jacobian at gauss points" << std::endl;
+      get_gauss_pt_jacobian(mesh, ref_elem);
+    
+      //std::cout << "Calculating Jacobian at gauss points in cell" << std::endl;
+      get_gauss_cell_pt_jacobian(mesh, ref_elem);
+
+      //std::cout << "Before volume from Jacobian"  << std::endl;
+      get_vol_jacobi(mesh, ref_elem);
 
       //std::cout << " calling get state " << std::endl;
       get_state( cycle );
