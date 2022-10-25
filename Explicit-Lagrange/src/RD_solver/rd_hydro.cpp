@@ -48,12 +48,12 @@ void rd_hydro(){
 	real_t sub_dt = dt/num_correction_steps;
         //real_t sub_time = TIME + sub_dt;          
  
-	//std::cout << "calling get_nodal_res" << std::endl;
-        get_nodal_res(sub_dt, correction_step);
-
         //std::cout << "calling lumped_mass " << std::endl;
         lumped_mass();// used in momentum
        
+	//std::cout << "calling get_nodal_res" << std::endl;
+        get_nodal_res(sub_dt, correction_step);
+
       	// updates velocity at vel(t^{n,m}) //
 	get_momentum_rd(correction_step);
         //std::cout << " updated momentum " << std::endl;

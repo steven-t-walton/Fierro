@@ -28,7 +28,7 @@ void prediction_step(real_t sub_dt, int pred_step){
         for (int cell_lid = 0; cell_lid < mesh.num_cells_in_node(node_gid); cell_lid++){
           int cell_gid = mesh.cells_in_node(node_gid, cell_lid);
           sum_nodal_res += node.nodal_res(node_gid, cell_gid, dim);
-          sum_nodal_res = sum_nodal_res/node.lumped_mass(node_gid,cell_gid);
+          sum_nodal_res = sum_nodal_res/node.lumped_mass(node_gid);
         }// end loop over cell_lid
         
 	// push initial correction to nodes

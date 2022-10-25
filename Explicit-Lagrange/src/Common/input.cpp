@@ -76,7 +76,7 @@ void input(){
     material[0].eos_func = ideal_gas; // EOS model
     material[0].cv       = 1.0;       // specific heat
     material[0].csmin    = 1.0E-14;       // minimum sound speed
-    material[0].g        = 1.6667; //1.4;       // gamma value
+    material[0].g        = 1.4;       // gamma value
     material[0].b1       = 1.3333;    // linear slope of UsUp for Riemann solver
 
 

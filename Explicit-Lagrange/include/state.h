@@ -77,7 +77,7 @@ public:
         
         node_nodal_res_ = new real_t[num_nodes_*num_dim_*num_cells_]();
         
-        node_lumped_mass_ = new real_t[num_nodes_*num_cells_]();
+        node_lumped_mass_ = new real_t[num_nodes_]();
         
     }
 
@@ -124,9 +124,9 @@ public:
         return node_nodal_res_[node_gid*num_cells_*num_dim_ + cell_gid*num_dim_ + this_dim];//num_nodes_*num_dim_ + num_cells_*num_dim_ + node_gid*num_dim_ + cell_gid*num_dim_ + this_dim];
     }
 
-    inline real_t& lumped_mass(int node_gid, int cell_gid) const
+    inline real_t& lumped_mass(int node_gid) const //, int cell_gid) const
     {
-        return node_lumped_mass_[num_nodes_ + num_cells_];
+        return node_lumped_mass_[num_nodes_];// + num_cells_];
     }
     
     // deconstructor
@@ -594,7 +594,10 @@ class elem_state_t {
         real_t *avg_density_ = NULL;
         real_t *avg_specific_volume_ = NULL;
         
+	// RD
         real_t *BV_mat_inverse_ = NULL;
+        real_t *B_vel_coeffs_ = NULL;
+	real_t *B_pos_coeffs_ = NULL;
 
     public:
     
@@ -622,8 +625,11 @@ class elem_state_t {
             avg_specific_total_energy_ = new real_t[num_elem_]();
             avg_density_ = new real_t[num_elem_]();
             avg_specific_volume_ = new real_t[num_elem_]();
-            BV_mat_inverse_ = new real_t[num_basis_*num_basis_]();
-        
+
+	    // RD
+            BV_mat_inverse_ = new real_t[num_elem_*num_basis_*num_basis_]();
+            B_vel_coeffs_ = new real_t[num_elem_*num_basis_*num_dim_]();
+	    B_pos_coeffs_ = new real_t[num_elem_*num_basis_*num_dim_]();
         }
 
  
@@ -644,13 +650,23 @@ class elem_state_t {
             return inverse_mass_matrix_[elem_gid*num_basis_*num_basis_ + basis_m * num_basis_ + basis_n];
         }
         
-	// RD
-        inline real_t& BV_mat_inv(int basis_m, int basis_n) const
+	// RD allocation
+        inline real_t& BV_mat_inv(int elem_gid, int basis_m, int basis_n) const
         {
-            return BV_mat_inverse_[ basis_m*num_basis_ + basis_n];
+            return BV_mat_inverse_[ elem_gid*num_basis_*num_basis_ +  basis_m*num_basis_ + basis_n];
         }
-
+        
+	inline real_t& BV_vel_coeffs(int elem_gid, int basis_m, int dim) const
+	{
+	    return B_vel_coeffs_[ elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
+	}
     
+	inline real_t& BV_pos_coeffs(int elem_gid, int basis_m, int dim) const
+	{
+	    return B_pos_coeffs_[ elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
+	}
+        // end RD allocation
+	
         // were are the dims?
         inline real_t& velocity(int rk_stage, int elem_gid, int this_basis, int dim) const
         {
@@ -701,7 +717,8 @@ class elem_state_t {
             delete[] avg_specific_volume_;
             delete[] bad_;
             delete[] BV_mat_inverse_;
-
+	    delete[] B_vel_coeffs_;
+            delete[] B_pos_coeffs_;
         }
 };
 

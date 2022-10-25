@@ -105,9 +105,9 @@ void update_energy_sgh(real_t rk_alpha){
             cell_state.ke(1,cell_gid) = ke;
 
 
-            cell_state.total_energy(1,cell_gid) = ke + cell_state.ie(1, cell_gid);
+            cell_state.total_energy(1,cell_gid) = ke + cell_state.ie(1, cell_gid) + source;
 
-            cell_state.total_energy(1,cell_gid) = source;
+            //cell_state.total_energy(1,cell_gid) = source;
 
             // cell_state.ie(1, cell_gid) = cell_state.total_energy(1,cell_gid) - ke;
 

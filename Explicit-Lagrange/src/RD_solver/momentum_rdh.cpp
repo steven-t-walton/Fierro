@@ -39,12 +39,12 @@ void get_momentum_rd(int correction_step){
           int cell_gid = mesh.cells_in_node(node_gid, cell_lid);
 
 	  // Perform summation //
-          sum_res += node.nodal_res( node_gid, cell_gid, dim );// /node.lumped_mass( node_gid, cell_gid);
+          sum_res += node.nodal_res( node_gid, cell_gid, dim );
         }// end loop over cell_lid
 
-       // Update momentum //
+        // Update momentum //
 
-        node.vel(update, node_gid, dim) = vel_r(dim) - dt*sum_res;
+        node.vel(update, node_gid, dim) = vel_r(dim) - dt*sum_res/node.lumped_mass( node_gid );
 	
       }// end loop over dim
 

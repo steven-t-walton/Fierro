@@ -23,10 +23,10 @@ void get_position_rdh(int correction_step){
 //     int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
       auto vel_update = ViewCArray <real_t> ( &node.vel( update, node_gid, 0), mesh.num_dim() );
-      //auto vel_n = ViewCArray <real_t> ( &node.vel(0, node_gid, 0 ), mesh.num_dim() );
+      auto vel_n = ViewCArray <real_t> ( &node.vel(0, node_gid, 0 ), mesh.num_dim() );
 
       for (int dim = 0; dim < mesh.num_dim(); dim++){
-        node.coords(update, node_gid, dim) = node.coords(0, node_gid, dim) + dt*vel_update(dim);//0.5*dt * ( vel_update( dim ) + vel_n(dim) );
+        node.coords(update, node_gid, dim) = node.coords(0, node_gid, dim) + 0.5*dt * ( vel_update( dim ) + vel_n(dim) );
       }// end loop over dim
 
     }// end loop over node_lid

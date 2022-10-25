@@ -9,7 +9,7 @@
 #include "state.h"
 #include "geometry.h"
 #include "variables.h"
-#include "legendre_polynomials.h"  // <-- can throw an error " namespace legendre conflicts with other namespace ". this means the compiler can see std::legendre().  Comment this line out and uncomment std::legendre in time integral evaluation.
+//#include "legendre_polynomials.h"  // <-- can throw an error " namespace legendre conflicts with other namespace ". this means the compiler can see std::legendre().  Comment this line out and uncomment std::legendre in time integral evaluation.
 
 using namespace utils;
 
@@ -17,7 +17,8 @@ void get_nodal_res(real_t sub_dt, int t_step){
    
   int num_basis = ref_elem.num_basis();
   int num_dim = mesh.num_dim();
- 
+
+/* 
   // Initialize nodal_res to zero //
 #pragma omp simd 
   for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
@@ -28,7 +29,7 @@ void get_nodal_res(real_t sub_dt, int t_step){
       }
     }
   }
-
+*/
 
 
   // Create CArray for vel_bar used in artificial viscosity //
@@ -108,7 +109,9 @@ void get_nodal_res(real_t sub_dt, int t_step){
    
     for(int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
       int cell_gid = mesh.cells_in_elem(elem_gid, cell_lid);
-      for(int node_lid = 0; node_lid < mesh.num_nodes_in_cell(); node_lid++){
+      //for(int node_lid = 0; node_lid < mesh.num_nodes_in_cell(); node_lid++){
+      for ( int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
+	int node_lid = ref_elem.vert_node_map(vertex);
         int node_gid = mesh.nodes_in_cell(cell_gid, node_lid);
 
         // Create a view of vel and vel_n //
@@ -135,8 +138,9 @@ void get_nodal_res(real_t sub_dt, int t_step){
         for (int prev_times = 0; prev_times <= current; prev_times ++){
 	  for (int dim_j = 0; dim_j < num_dim; dim_j++){
             // Loop over node_lid in cells to compute vel_bar //
-            for (int node_lid_in_cell = 0; node_lid_in_cell < mesh.num_nodes_in_cell(); node_lid_in_cell++){
-              // Get node_gid for each node_lid in cell  //
+            //for (int node_lid_in_cell = 0; node_lid_in_cell < mesh.num_nodes_in_cell(); node_lid_in_cell++){
+	    for (int vert = 0; vert <  ref_elem.num_basis(); vert++){
+	      int node_lid_in_cell = ref_elem.vert_node_map(vert);
               // Get node_gid for each node_lid in cell  //
               int node_gid_from_cell = mesh.nodes_in_cell(cell_gid, node_lid_in_cell);
               vel_bar(dim_j, prev_times) += node.vel(prev_times, node_gid_from_cell, dim_j);
@@ -158,11 +162,11 @@ void get_nodal_res(real_t sub_dt, int t_step){
              int gauss_gid = mesh.gauss_in_elem(elem_gid,gauss_lid);//cell(cells_in_node_gid, gauss_lid);
              mass_vec(basis_m) += cell_state.density(cell_gid)//cells_in_node_gid)
                                   *ref_elem.ref_nodal_basis(gauss_lid,basis_m)//cell_basis(gauss_lid, basis_m)
-                                  *ref_elem.ref_nodal_basis(gauss_lid, node_lid)//cell_basis(gauss_lid, node_lid)
+                                  *ref_elem.ref_nodal_basis(gauss_lid, vertex)//cell_basis(gauss_lid, node_lid)
                                   *mesh.gauss_pt_det_j(gauss_gid)//cell_pt_det_j(gauss_gid)
                                   *ref_elem.ref_node_g_weights(gauss_lid);//cell_g_weights(gauss_lid);
            } // end loop over gauss in element
-           mass += 0.0*mass_vec(basis_m);
+           mass += mass_vec(basis_m);
          } // end loop over basis_m
 
 
@@ -217,19 +221,20 @@ void get_nodal_res(real_t sub_dt, int t_step){
          for (int prev_times = 0; prev_times <= current; prev_times++){
            for (int dim_k = 0; dim_k < num_dim; dim_k++){
              for (int dim_j=0; dim_j < num_dim; dim_j++){
-               for (int dim_i = 0; dim_i < num_dim; dim_i++){ 
+               for (int dim_i = 0; dim_i < num_dim; dim_i++){
                  for (int gauss_cell_lid = 0; gauss_cell_lid < mesh.num_gauss_in_cell(); gauss_cell_lid++){
                  
                    //int gauss_gid = mesh.gauss_in_cell(cells_in_node_gid, gauss_cell_lid);
-/*		   std::cout << "jacobian inverse = " << mesh.gauss_cell_pt_jacobian_inverse(cell_gid, dim_i, dim_j)
-                                                           << "; gradient = " << ref_elem.ref_cell_gradient(gauss_cell_lid, node_lid, dim_i)
+ /*
+		   std::cout << "jacobian inverse = " << mesh.gauss_cell_pt_jacobian_inverse(cell_gid, dim_i, dim_j)
+                                                           << "; gradient = " << ref_elem.ref_cell_gradient(gauss_cell_lid, vertex, dim_i)
                                                            <<"; sigma = " << sigma(dim_j, dim_k, prev_times)
                                                            <<"; g_weight = " <<ref_elem.ref_cell_g_weights(gauss_cell_lid)
                                                            << "; det_j ="<<mesh.gauss_cell_pt_det_j(cell_gid)<< std::endl;
-*/
+ */
                    force_cell_volume(dim_k, prev_times) += mesh.gauss_cell_pt_jacobian_inverse(cell_gid, dim_i, dim_j)
-                                                           *ref_elem.ref_cell_gradient(gauss_cell_lid, node_lid, dim_i)
                                                            *sigma(dim_j, dim_k, prev_times)
+			                                   *ref_elem.ref_cell_gradient(gauss_cell_lid, vertex, dim_k)
                                                            *ref_elem.ref_cell_g_weights(gauss_cell_lid)
                                                            *mesh.gauss_cell_pt_det_j(cell_gid);
                    
@@ -251,9 +256,9 @@ void get_nodal_res(real_t sub_dt, int t_step){
              // int^{t^m}_{t^n}(Q^{r,m}_p + \int_{V_h}(\grad\varphi\cdot\sigma)dV)dt
              real_t point = ( time_points[prev_times] );//+ 1 ) * 0.5 * sub_dt;
 	     //std::cout << " point = " << point << std::endl;
-             time_integral(dim_j) += 0.0*0.5*temp_dt
+             time_integral(dim_j) += 0.5*temp_dt
 		                     *time_weights[prev_times]
-				     *legendre::eval(t_step,point) //*std::legendre(t_step, point) <-- depending on the compiler, legendre namespace conflicts with std::legendre
+				     *std::legendre(t_step, point) // *legendre::eval(t_step,point)<-- depending on the compiler, legendre namespace conflicts with std::legendre
 				     *(force_cell_volume(dim_j,prev_times) + 0.0*Q(dim_j,prev_times));
              temp_dt += temp_dt;
              
