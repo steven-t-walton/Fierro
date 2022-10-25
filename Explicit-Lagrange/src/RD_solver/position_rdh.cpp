@@ -15,18 +15,18 @@ void get_position_rdh(int correction_step){
 #pragma omp simd  
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
 
-    for( int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){ 
-      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid );
+    for (int vert = 0; vert < ref_elem.num_basis(); vert++){
+      
+      // View of vel coeffs //
+      auto vel_update = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( update, elem_gid, vert, 0), mesh.num_dim() );
+      auto vel_n = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( 0, elem_gid, vert, 0), mesh.num_dim() );
 
-//    for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
-//      int node_lid = ref_elem.vert_node_map(vertex);
-//     int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-
-      auto vel_update = ViewCArray <real_t> ( &node.vel( update, node_gid, 0), mesh.num_dim() );
-      auto vel_n = ViewCArray <real_t> ( &node.vel(0, node_gid, 0 ), mesh.num_dim() );
-
+      // View of pos coeffs //
+      auto pos_update = ViewCArray <real_t> ( &elem_state.BV_pos_coeffs( update, elem_gid, vert, 0), mesh.num_dim() );
+      auto pos_n = ViewCArray <real_t> ( &elem_state.BV_pos_coeffs( 0, elem_gid, vert, 0), mesh.num_dim() );
+      
       for (int dim = 0; dim < mesh.num_dim(); dim++){
-        node.coords(update, node_gid, dim) = node.coords(0, node_gid, dim) + 0.5*dt * ( vel_update( dim ) + vel_n(dim) );
+        pos_update( dim) = pos_n(dim) + 0.5*dt * ( vel_update( dim ) + vel_n(dim) );
       }// end loop over dim
 
     }// end loop over node_lid

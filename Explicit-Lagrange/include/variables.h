@@ -56,7 +56,7 @@ extern double dt_cfl;
 extern int rk_num_stages;  	// number of rk stages, 1,2,3,4
 extern int rk_storage;      // number of bins for rk storage
 //extern int rk_stage;		// current rk stage in calculation
-extern int num_prediction_steps;  // number of sub time stages in RD
+extern int correction_storage;  // number of bins for correction step storage
 extern int num_correction_steps;  // number of correction stages for RD
 
 extern int cycle;          // the time cycle number

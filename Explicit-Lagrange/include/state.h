@@ -1197,7 +1197,7 @@ void get_energy_rdh(real_t sub_dt);
 void get_stress();
 void update_coeffs();
 void setup_rdh(char *MESH);
-void boundary_rdh(int correction_step);
+void boundary_rdh();
 void interp_vel(int correction_step);
 void interp_pos(int correction_step);
 void interp_ie(int correction_step);

@@ -10,12 +10,15 @@ using namespace utils;
 void get_control_coeffs(){
   
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-    auto BV_vel_coeffs = ViewCArray <real_t> (&elem_state.BV_vel_coeffs(0,elem_gid,0,0), ref_elem.num_basis(), mesh.num_dim());
-    auto BV_pos_coeffs = ViewCArray <real_t> (&elem_state.BV_pos_coeffs(0,elem_gid,0,0), ref_elem.num_basis(), mesh.num_dim());
+    // Views of coeffs // 
+    auto BV_vel_coeffs = ViewCArray <real_t> (&elem_state.BV_vel_coeffs( 0, elem_gid, 0, 0 ), ref_elem.num_basis(), mesh.num_dim() );
+    auto BV_pos_coeffs = ViewCArray <real_t> (&elem_state.BV_pos_coeffs( 0, elem_gid, 0, 0 ), ref_elem.num_basis(), mesh.num_dim() );
 
-#pragma omp simd      
+    // View of BV_inv //
+    auto inverse = ViewCArray <real_t> (&elem_state.BV_mat_inv( elem_gid, 0, 0 ), ref_elem.num_basis(), mesh.num_nodes_in_elem() );
     
     // initialize control coeffs to zero //
+#pragma omp simd      
     for( int k = 0; k < mesh.num_dim(); k ++){
       for (int j = 0; j < ref_elem.num_basis(); j++){
         BV_vel_coeffs(j,k) = 0.0;
@@ -23,17 +26,20 @@ void get_control_coeffs(){
       }// end loop over j
     }// end loop over k
 
+#pragma omp simd      
     for (int dim = 0; dim < mesh.num_dim(); dim++){
-      for (int basis = 0; basis < ref_elem.num_basis(); basis++){
-        for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid){
-	  int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
-          BV_vel_coeffs(basis, dim) += elem_state.BV_mat_inv(elem_gid, basis, node_lid ) * node.vel( 0, node_gid, dim); 
-          BV_pos_coeffs(basis, dim) += elem_state.BV_mat_inv(elem_gid, basis, node_lid ) * node.coords( 0, node_gid, dim); 
-	}// end loop over node_lid
+      for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
+      	for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
+          int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
+    	  BV_vel_coeffs(basis_id, dim) += inverse( basis_id, node_lid ) * node.vel( 0, node_gid, dim); 
+          BV_pos_coeffs(basis_id, dim) += inverse( basis_id, node_lid ) * node.coords( 0, node_gid, dim); 
+        }// end loop over node_lid
       }// end loop over basis
     }// end loop over dim 
-
+    
     // push values to all time storage //
+
+#pragma omp simd      
     for (int dim = 0; dim < mesh.num_dim(); dim++){
       for (int basis = 0; basis < ref_elem.num_basis(); basis++){
         for (int t_step = 1; t_step <= num_correction_steps; t_step++){

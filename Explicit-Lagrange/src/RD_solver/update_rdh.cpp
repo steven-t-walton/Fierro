@@ -24,7 +24,7 @@ void update_coeffs(){
       vel_n( dim ) = vel( dim );
 
       // update velocity at boundary appropriately //
-      boundary_rdh(0);
+      //boundary_rdh(0);
 
 //      std::cout << " " << std::endl;
 //      std::cout<< "vel at time "<< TIME+dt <<" cycle "<< cycle << " node " << node_gid << " and dim " << dim <<" is "<< vel_n(dim) << std::endl;

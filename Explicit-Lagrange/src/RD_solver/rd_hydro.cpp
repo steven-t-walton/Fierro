@@ -22,7 +22,6 @@ void rd_hydro(){
     if (cycle == 1){
       BV_inv();
       get_control_coeffs();
-//      interp_vel(0);      
       track_rdh(ke0, ie0, 0);
       te_0 = ie0 + ke0;
       std::cout << " ke at t0 = " << ke0 << std::endl;
@@ -68,7 +67,10 @@ void rd_hydro(){
 
       // intepolate the velocity with evolved coeffs and save to nodes  //
       interp_vel(num_correction_steps);
- 
+      
+      // update boundary vel vals //
+      boundary_rdh();
+
       // interpolate the position with evolved coeffs and save to nodes //
       interp_pos(num_correction_steps);
       

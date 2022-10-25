@@ -80,8 +80,8 @@ real_t dt_start = 1.0e-8;
 int rk_num_stages = 1;
 int rk_storage = 2;
 //int rk_stage = 0;
-int num_prediction_steps = 1; // RD
 int num_correction_steps = 2; // RD
+int correction_storage = 3; //RD
 
 int cycle = 0;
 int cycle_stop = 1000000000;

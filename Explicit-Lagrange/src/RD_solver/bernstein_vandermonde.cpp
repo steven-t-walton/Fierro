@@ -36,23 +36,27 @@ void BV_inv(){
       }// end loop over i
     }// end loop over j  
     
+#pragma omp simd
     for (int index = 0; index < ref_elem.num_basis(); index++){
-      for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
+      for (int node_lid = 0; node_lid < mesh.num_gauss_in_elem(); node_lid++){
         //int node = ref_elem.vert_node_map(vert);  
         B(node_lid, index) = ref_elem.ref_nodal_basis(node_lid, index );
-        //std::cout << " BV entry  i = " << vert << " j = " << index << " is " << B(vert,index) << std::endl;
+        //std::cout << " BV entry  i = " << node_lid << " j = " << index << " is " << B(node_lid,index) << std::endl;
         //check_B(node_lid, index) = B(node_lid, index);
       }
     }
     // Create B^T.B //
     real_t BTB_a[ref_elem.num_basis() * ref_elem.num_basis()];
     auto BTB = ViewCArray <real_t> (&BTB_a[0], ref_elem.num_basis(), ref_elem.num_basis() );
+
+#pragma omp simd
     for (int i = 0; i < ref_elem.num_basis(); i++){
       for(int j = 0; j < ref_elem.num_basis(); j++){
         BTB(j,i) = 0.0;// in R^{num_basis x num_basis}
       }// end loop over j
     }//end loop over i
 
+#pragma omp simd
     for (int j =0; j<ref_elem.num_basis(); j++){
       for (int i = 0; i < ref_elem.num_basis(); i++){
         for (int k = 0; k < ref_elem.num_basis(); k++){
@@ -78,12 +82,13 @@ void BV_inv(){
     auto BTB_lu = ViewCArray(&BTB(0,0), ref_elem.num_basis(), ref_elem.num_basis());
    
     LU_decompos(BTB_lu, lu_index, parity, ref_elem.num_basis());
-    
+
     // get inverse of BTB //
     real_t BTB_inv_a[ref_elem.num_basis() * ref_elem.num_basis() ];
     auto BTB_inv = ViewCArray <real_t> (&BTB_inv_a[0],  ref_elem.num_basis(), ref_elem.num_basis());
     LU_invert( BTB, lu_index, BTB_inv, col, ref_elem.num_basis() );
-    
+
+#pragma omp simd
     // get B^+ = (B^T.B)^(-1).B^T
     for (int dim_j = 0; dim_j < mesh.num_nodes_in_elem(); dim_j++){
       for (int dim_i = 0; dim_i < ref_elem.num_basis(); dim_i++){
@@ -94,6 +99,7 @@ void BV_inv(){
     }// end loop over dim_j
 
   }// end loop over elem_gid
+  //std::cout << "finished BV_inv()" << std::endl;
 }// end BV inverse
 
 
