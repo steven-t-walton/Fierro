@@ -47,10 +47,10 @@ private:
     real_t *corner_norm_sum_ = NULL;
 
     // nodal_res at nodes
-    real_t *node_nodal_res_ = NULL;
+    //real_t *node_nodal_res_ = NULL;
     
     // lumped mass at nodes
-    real_t *node_lumped_mass_ = NULL;
+    //real_t *node_lumped_mass_ = NULL;
 
 public:
 
@@ -75,9 +75,9 @@ public:
         node_mass_ = new real_t[num_nodes_]();
         corner_norm_sum_  = new real_t[num_nodes_*num_dim_]();
         
-        node_nodal_res_ = new real_t[num_nodes_*num_dim_*num_cells_]();
+       // node_nodal_res_ = new real_t[num_nodes_*num_dim_*num_cells_]();
         
-        node_lumped_mass_ = new real_t[num_nodes_]();
+       // node_lumped_mass_ = new real_t[num_nodes_]();
         
     }
 
@@ -117,7 +117,7 @@ public:
     {
         return node_mass_[node_gid];
     }
-    
+    /*
     inline real_t& nodal_res(int node_gid, int cell_gid, int this_dim) const
     {
         //---- CHECK THIS ----//
@@ -128,7 +128,7 @@ public:
     {
         return node_lumped_mass_[num_nodes_];// + num_cells_];
     }
-    
+    */
     // deconstructor
     ~node_t ( ) {
 
@@ -138,8 +138,8 @@ public:
         delete[] corner_norm_sum_;
         delete[] node_force_;
         delete[] node_mass_;
-        delete[] node_nodal_res_;
-        delete[] node_lumped_mass_;
+      //  delete[] node_nodal_res_;
+      //  delete[] node_lumped_mass_;
     }
 
 };
@@ -573,6 +573,7 @@ class elem_state_t {
         int num_rk_;
         int num_corrections_;
         int num_basis_;
+	int num_cells_;
 
         // **** Element State **** //
         int num_elem_;
@@ -594,11 +595,12 @@ class elem_state_t {
         real_t *avg_density_ = NULL;
         real_t *avg_specific_volume_ = NULL;
         
-	// RD
+	// *** RD *** //
         real_t *BV_mat_inverse_ = NULL;
         real_t *B_vel_coeffs_ = NULL;
 	real_t *B_pos_coeffs_ = NULL;
-
+        real_t *nodal_res_ = NULL;
+	// *** end RD *** //
     public:
     
         void init_elem_state (int num_dim, swage::mesh_t& mesh, int num_rk, elements::ref_element& ref_elem)
@@ -611,6 +613,7 @@ class elem_state_t {
             // element state
             num_elem_ = mesh.num_elems();
             num_basis_ = ref_elem.num_basis();  // this num_basis is only needed for modal DG.
+            num_cells_ = mesh.num_cells();
 
             mat_id_ = new int[num_elem_]();
             bad_ = new int[num_elem_]();
@@ -627,10 +630,12 @@ class elem_state_t {
             avg_density_ = new real_t[num_elem_]();
             avg_specific_volume_ = new real_t[num_elem_]();
 
-	    // RD
-            BV_mat_inverse_ = new real_t[num_elem_*num_basis_*num_basis_]();
+	    // *** RD *** //
+            BV_mat_inverse_ = new real_t[num_basis_*num_basis_]();
             B_vel_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
 	    B_pos_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
+	    nodal_res_ = new real_t[num_elem_*num_basis_*num_cells_*num_dim_]();
+	    // *** end RD *** //
         }
 
  
@@ -651,10 +656,10 @@ class elem_state_t {
             return inverse_mass_matrix_[elem_gid*num_basis_*num_basis_ + basis_m * num_basis_ + basis_n];
         }
         
-	// RD allocation
-        inline real_t& BV_mat_inv(int elem_gid, int basis_m, int basis_n) const
+	  // **** RD allocation **** //
+        inline real_t& BV_mat_inv(int basis_m, int basis_n) const
         {
-            return BV_mat_inverse_[ elem_gid*num_basis_*num_basis_ +  basis_m*num_basis_ + basis_n];
+            return BV_mat_inverse_[basis_m*num_basis_ + basis_n];
         }
         
 	inline real_t& BV_vel_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const
@@ -666,7 +671,12 @@ class elem_state_t {
 	{
 	    return B_pos_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
 	}
-        // end RD allocation
+
+        inline real_t& nodal_res(int elem_gid, int vertex, int cell_gid, int this_dim) const
+        {
+            return nodal_res_[elem_gid*num_basis_*num_cells_*num_dim_ + vertex*num_cells_*num_dim_ + cell_gid*num_dim_ + this_dim];
+        }
+          // **** end RD allocation **** //
 	
         // were are the dims?
         inline real_t& velocity(int rk_stage, int elem_gid, int this_basis, int dim) const
@@ -720,6 +730,7 @@ class elem_state_t {
             delete[] BV_mat_inverse_;
 	    delete[] B_vel_coeffs_;
             delete[] B_pos_coeffs_;
+	    delete[] nodal_res_;
         }
 };
 
@@ -1187,9 +1198,9 @@ void rd_hydro();
 void get_momentum_rd(int correction_step);
 void get_position_rdh(int correction_step);
 void get_nodal_res(real_t sub_dt, int t_step);
-void lumped_mass();
-void prediction_step(real_t sub_dt, int pred_step);
-void track_rdh(real_t &x, real_t &y, int t_step);
+//void lumped_mass();
+//void prediction_step(real_t sub_dt, int pred_step);
+void track_rdh(real_t &x, real_t &y);
 void BV_inv();
 void get_control_coeffs();
 void get_state(int cycle);

@@ -170,7 +170,7 @@ int main(int argc, char *argv[]){
     if(CCH == true) track_cch(ke, ie);
     if(SGH == true) track_sgh(ke, ie);
     if(DGH == true) track_dgh(ke, ie);
-    if(RDH == true) track_rdh(ke, ie, 0);
+    if(RDH == true) track_rdh(ke, ie);
 
     // Save total energy at time=0
     te_0 = ke + ie;
@@ -434,7 +434,7 @@ int main(int argc, char *argv[]){
     if(CCH == true) track_cch(ke, ie);
     if(SGH == true) track_sgh(ke, ie);
     if(DGH == true) track_dgh(ke, ie);
-    if(RDH == true) track_rdh(ke, ie, num_correction_steps-1);
+    if(RDH == true) track_rdh(ke, ie);
 
     std::cout<<"Kinetic Energy at time = " << TIME << " is = " << ke <<std::endl;
     std::cout<<"Internal Energy at time = " << TIME << " is = " << ie <<std::endl;

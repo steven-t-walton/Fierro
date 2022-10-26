@@ -22,7 +22,8 @@ void rd_hydro(){
     if (cycle == 1){
       BV_inv();
       get_control_coeffs();
-      track_rdh(ke0, ie0, 0);
+      //interp_vel(0);
+      track_rdh(ke0, ie0);
       te_0 = ie0 + ke0;
       std::cout << " ke at t0 = " << ke0 << std::endl;
       std::cout << " ie at t0 = " << ie0 << std::endl;
@@ -48,7 +49,7 @@ void rd_hydro(){
         //real_t sub_time = TIME + sub_dt;          
  
         //std::cout << "calling lumped_mass " << std::endl;
-        lumped_mass();// used in momentum
+        //lumped_mass();// now inside momentum
        
 	//std::cout << "calling get_nodal_res" << std::endl;
         get_nodal_res(sub_dt, correction_step);
@@ -101,7 +102,7 @@ void rd_hydro(){
 
 
   // final E_tot //
-  track_rdh( ke, ie, num_correction_steps);
+  track_rdh( ke, ie );
 
   std::cout << " ke at t0 = " << ke0 << std::endl;
   std::cout << " ie at t0 = " << ie0 << std::endl;

@@ -10,13 +10,13 @@ void interp_vel(int update){
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
       int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-      // interpolate //
+
       for (int dim = 0; dim < mesh.num_dim(); dim++){
         for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
-          node.vel(1, node_gid, dim) = elem_state.BV_vel_coeffs(update, elem_gid, vertex, dim) * ref_elem.ref_nodal_basis( node_lid, vertex );
-        }// end loop over vertex
+          node.vel( 1, node_gid, dim ) += elem_state.BV_vel_coeffs( update, elem_gid, vertex, dim ) * ref_elem.ref_nodal_basis( node_lid, vertex );
+  	}// end loop over vertex
       }// end loop over dim
-
+      
     }// end loop over node_lid
   }// end loop over elem_gid
 
@@ -31,7 +31,7 @@ void interp_pos(int update){
       // interpolate //
       for (int dim = 0; dim < mesh.num_dim(); dim++){
         for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
-          node.coords(1, node_gid, dim) = elem_state.BV_pos_coeffs(update, elem_gid, vertex, dim ) * ref_elem.ref_nodal_basis( node_lid, vertex );
+          node.coords( 1, node_gid, dim) += elem_state.BV_pos_coeffs( update, elem_gid, vertex, dim ) * ref_elem.ref_nodal_basis( node_lid, vertex );
         }// end loop over vertex
       }// end loop over dim
 

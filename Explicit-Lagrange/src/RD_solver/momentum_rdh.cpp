@@ -31,22 +31,40 @@ void get_momentum_rd(int correction_step){
       // Create view of vel_{r+1} and vel_r coeffs //
       auto vel_r = ViewCArray <real_t> (&elem_state.BV_vel_coeffs( prev, elem_gid, vertex, 0), num_dim );
       auto vel = ViewCArray <real_t> (&elem_state.BV_vel_coeffs(update, elem_gid, vertex, 0), num_dim );
+      
+      // Get lumped mass //
+      real_t lumped_mass = 0.0;
+      real_t temp_sum = 0.0;
 
-      // Update each dim of vel_{r+1} //
+      for (int cell_lid = 0; cell_lid < mesh.num_cells_in_node(node_gid); cell_lid++){
+        int cell_gid = mesh.cells_in_node(node_gid, cell_lid);
+        real_t temp = 0.0;
+        for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
+          temp += ref_elem.ref_cell_basis(gauss_lid, vertex)
+                      * mesh.gauss_cell_pt_det_j(cell_gid)
+                      * ref_elem.ref_cell_g_weights(gauss_lid);
+        }// end loop over gauss_lid
+        temp_sum += temp;
+      }// end loop over cells
+      
+      lumped_mass = temp_sum;
+
+
       for (int dim = 0; dim < num_dim; dim++){
-        // Sum res in cells around node //
+
+      	// Sum res in cells around node //
         for (int cell_lid = 0; cell_lid < mesh.num_cells_in_node(node_gid); cell_lid++){
 
           // Get cell_gid //
           int cell_gid = mesh.cells_in_node(node_gid, cell_lid);
 
 	  // Perform summation //
-          sum_res += node.nodal_res( node_gid, cell_gid, dim );
+          sum_res += elem_state.nodal_res( elem_gid, vertex, cell_gid, dim );
         }// end loop over cell_lid
 
-        // Update momentum //
+	// Update momentum //
 
-        vel( dim ) = vel_r(dim) - dt*sum_res/node.lumped_mass( node_gid );
+        vel( dim ) = vel_r(dim) - dt*sum_res/lumped_mass;//node.lumped_mass( node_gid );
 	
       }// end loop over dim
 

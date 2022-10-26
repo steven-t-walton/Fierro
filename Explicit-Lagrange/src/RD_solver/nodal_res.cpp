@@ -272,7 +272,7 @@ void get_nodal_res(real_t sub_dt, int t_step){
           
          // Store lo_res with node_gid and cell_gid //
          for (int dim = 0; dim < num_dim; dim++){
-           node.nodal_res(node_gid, cells_in_node_gid, dim) = mass*(vel(dim) - vel_n(dim)) + time_integral(dim);
+           elem_state.nodal_res( elem_gid, vertex, cells_in_node_gid, dim) = mass*(vel(dim) - vel_n(dim)) + time_integral(dim);
            //std::cout << "nodal res value = " << node.nodal_res(node_gid, cells_in_node_gid, dim) << std::endl;
          }// end loop over dim  
 
