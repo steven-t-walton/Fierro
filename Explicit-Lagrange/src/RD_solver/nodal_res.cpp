@@ -166,7 +166,7 @@ void get_nodal_res(real_t sub_dt, int t_step){
                                   *mesh.gauss_pt_det_j(gauss_gid)//cell_pt_det_j(gauss_gid)
                                   *ref_elem.ref_node_g_weights(gauss_lid);//cell_g_weights(gauss_lid);
            } // end loop over gauss in element
-           mass += mass_vec(basis_m);
+           mass += 0.0*mass_vec(basis_m);
          } // end loop over basis_m
 
 

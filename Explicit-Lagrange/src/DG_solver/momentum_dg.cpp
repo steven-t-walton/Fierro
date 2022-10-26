@@ -37,35 +37,6 @@ void momentum_dg(real_t rk_alpha, int cycle){
 	// FILE *out_alpha;
 	// out_alpha = fopen("vel_alpha_end", "w");
 	// fprintf(out_alpha, "elem_gid, gauss_gid, r, alpha, r, ke, r, avg_ke\n");
-    /*if( cycle == 1 ){
-      for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-        for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
-
-            int node_gid = mesh.nodes_in_elem(elem_gid, gauss_lid);
-
-            // get the global id of the gauss point
-            int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);     
- 
-            real_t interp_vel_naught[mesh.num_dim()];
-            for(int i=0; i<mesh.num_dim(); i++) interp_vel_naught[i] = 0.0;
-
-            // Sum over the basis times the velocity defined at the basis vertex position
-            for (int dim = 0; dim < mesh.num_dim(); dim++){
-              for(int basis_id = 0; basis_id < elem.num_basis(); basis_id++){
-
-                int node_basis_id = elem.vert_node_map(basis_id);
-                int interp_gid = mesh.gauss_in_elem(elem_gid, node_basis_id);
-                interp_vel_naught[dim] += mat_pt.velocity(0, interp_gid, dim) * ref_elem.ref_nodal_basis(gauss_lid, basis_id);
-              }
-            }
-            // Save interpolated velocity back to gauss point
-            for (int dim = 0; dim < mesh.num_dim(); dim++){
-              mat_pt.velocity(0, gauss_gid, dim) =  interp_vel_naught[dim];
-            }
-        }
-      }
-    }
-    */
     
     // conservation check
     real_t RHS_momentum_check[mesh.num_dim()];

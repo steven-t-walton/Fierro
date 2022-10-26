@@ -58,9 +58,6 @@ void rd_hydro(){
 	get_momentum_rd(correction_step);
         //std::cout << " updated momentum " << std::endl;
         
-       // update position coeffs //
-        get_position_rdh(correction_step);   
-
 	// energy update //
 //        get_energy_rdh( sub_dt );
 
@@ -72,9 +69,11 @@ void rd_hydro(){
       // update boundary vel vals //
       boundary_rdh();
 
+      // update position coeffs //
+      get_position_rdh();   
+
       // interpolate the position with evolved coeffs and save to nodes //
-      interp_pos(num_correction_steps);
-      
+      //interp_pos(num_correction_steps);
 
       //std::cout << "Calculating Jacobian at gauss points" << std::endl;
       get_gauss_pt_jacobian(mesh, ref_elem);

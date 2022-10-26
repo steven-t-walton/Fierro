@@ -64,7 +64,7 @@ void get_momentum_rd(int correction_step){
 
 	// Update momentum //
 
-        vel( dim ) = vel_r(dim) - dt*sum_res/lumped_mass;//node.lumped_mass( node_gid );
+        vel(dim) = vel_r(dim) - dt*sum_res/lumped_mass;
 	
       }// end loop over dim
 
