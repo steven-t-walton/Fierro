@@ -19,12 +19,12 @@ void get_momentum_rd(int correction_step){
   
 //    for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
 
-  for (int elem_gid = 0; elem_gid < mesh.num_nodes(); elem_gid++){
+  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
       
     for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
       
-     int node_lid = ref_elem.vert_node_map(vertex);
-     int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+      int node_lid = elem.vert_node_map(vertex);
+      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
       
       real_t sum_res = 0.0;
 

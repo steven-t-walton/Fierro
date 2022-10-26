@@ -256,7 +256,7 @@ void get_nodal_res(real_t sub_dt, int t_step){
              // int^{t^m}_{t^n}(Q^{r,m}_p + \int_{V_h}(\grad\varphi\cdot\sigma)dV)dt
              real_t point = ( time_points[prev_times] );//+ 1 ) * 0.5 * sub_dt;
 	     //std::cout << " point = " << point << std::endl;
-             time_integral(dim_j) += 0.5*temp_dt
+             time_integral(dim_j) += 0.0*0.5*temp_dt
 		                     *time_weights[prev_times]
 				     *std::legendre(t_step, point) // *legendre::eval(t_step,point)<-- depending on the compiler, legendre namespace conflicts with std::legendre
 				     *(force_cell_volume(dim_j,prev_times) + 0.0*Q(dim_j,prev_times));

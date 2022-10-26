@@ -26,11 +26,11 @@ void BV_inv(){
     for (int j = 0; j < ref_elem.num_basis(); j++){
       for (int i = 0; i < mesh.num_nodes_in_elem(); i++){
         B(i, j) = 0.0; // in R^{num_nodes x num_basis}
-        elem_state.BV_mat_inv( j, i ) = 0.0; // in R^{num_basis x num_nodes}
+        //elem_state.BV_mat_inv( j, i ) = 0.0; // in R^{num_basis x num_nodes}
        // check_B(i, j) = 0.0;
       }// end loop over i
     }// end loop over j  
-
+  
 #pragma omp simd
     for ( int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
       for (int k = 0; k < ref_elem.num_basis(); k++){
