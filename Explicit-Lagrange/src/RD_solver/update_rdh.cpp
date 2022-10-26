@@ -53,7 +53,7 @@ void update_coeffs(){
       for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
         for (int t_step = 0; t_step < num_correction_steps; t_step++){
           elem_state.BV_vel_coeffs(t_step, elem_gid, basis, dim ) = elem_state.BV_vel_coeffs(update, elem_gid, basis, dim);
-          elem_state.BV_pos_coeffs(t_step, elem_gid, basis, dim ) = elem_state.BV_pos_coeffs(update, elem_gid, basis, dim);
+          //elem_state.BV_pos_coeffs(t_step, elem_gid, basis, dim ) = elem_state.BV_pos_coeffs(update, elem_gid, basis, dim);
         }// end loop over t_step
       }// end loop over elem_gid
     }// end loop over basis

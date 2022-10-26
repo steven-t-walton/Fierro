@@ -16,7 +16,7 @@ void get_control_coeffs(){
     for( int k = 0; k < mesh.num_dim(); k ++){
       for (int j = 0; j < ref_elem.num_basis(); j++){
         elem_state.BV_vel_coeffs(0, elem_gid, j, k) = 0.0;
-	elem_state.BV_pos_coeffs(0, elem_gid, j, k) = 0.0;   
+	//elem_state.BV_pos_coeffs(0, elem_gid, j, k) = 0.0;   
       }// end loop over j
     }// end loop over k
 
@@ -27,7 +27,7 @@ void get_control_coeffs(){
 	  int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
     	  elem_state.BV_vel_coeffs(0, elem_gid, basis_id, dim) += elem_state.BV_mat_inv( basis_id, node_lid ) * node.vel( 0, node_gid, dim);
 	  //std::cout << " vel control coeffs = " << elem_state.BV_vel_coeffs(0, elem_gid, basis_id, dim) << std::endl; 
-          elem_state.BV_pos_coeffs(0, elem_gid, basis_id, dim) += elem_state.BV_mat_inv( basis_id, node_lid ) * node.coords( 0, node_gid, dim); 
+          //elem_state.BV_pos_coeffs(0, elem_gid, basis_id, dim) += elem_state.BV_mat_inv( basis_id, node_lid ) * node.coords( 0, node_gid, dim); 
         }// end loop over node_lid
       }// end loop over basis
     }// end loop over dim 
@@ -39,7 +39,7 @@ void get_control_coeffs(){
       for (int basis = 0; basis < ref_elem.num_basis(); basis++){
         for (int t_step = 1; t_step <= num_correction_steps; t_step++){
           elem_state.BV_vel_coeffs(t_step, elem_gid, basis, dim) = elem_state.BV_vel_coeffs( 0, elem_gid, basis, dim);
-	  elem_state.BV_pos_coeffs(t_step, elem_gid, basis, dim) = elem_state.BV_pos_coeffs( 0, elem_gid, basis, dim);
+	  //elem_state.BV_pos_coeffs(t_step, elem_gid, basis, dim) = elem_state.BV_pos_coeffs( 0, elem_gid, basis, dim);
         }// end loop over t_step
       }// end loop over basis
     }// end loop over dim

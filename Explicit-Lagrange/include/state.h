@@ -599,7 +599,7 @@ class elem_state_t {
 	// *** RD *** //
         real_t *BV_mat_inverse_ = NULL;
         real_t *B_vel_coeffs_ = NULL;
-	real_t *B_pos_coeffs_ = NULL;
+	//real_t *B_pos_coeffs_ = NULL;
         real_t *nodal_res_ = NULL;
 	// *** end RD *** //
     public:
@@ -635,7 +635,7 @@ class elem_state_t {
 	    // *** RD *** //
             BV_mat_inverse_ = new real_t[num_basis_*num_nodes_in_elem_]();
             B_vel_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
-	    B_pos_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
+	   // B_pos_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
 	    nodal_res_ = new real_t[num_elem_*num_basis_*num_cells_*num_dim_]();
 	    // *** end RD *** //
         }
@@ -669,10 +669,10 @@ class elem_state_t {
 	    return B_vel_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
 	}
     
-	inline real_t& BV_pos_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const
-	{
-	    return B_pos_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
-	}
+	//inline real_t& BV_pos_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const
+	//{
+	//    return B_pos_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
+	//}
 
         inline real_t& nodal_res(int elem_gid, int vertex, int cell_gid, int this_dim) const
         {
@@ -731,7 +731,7 @@ class elem_state_t {
             delete[] bad_;
             delete[] BV_mat_inverse_;
 	    delete[] B_vel_coeffs_;
-            delete[] B_pos_coeffs_;
+           // delete[] B_pos_coeffs_;
 	    delete[] nodal_res_;
         }
 };
