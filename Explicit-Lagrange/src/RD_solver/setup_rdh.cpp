@@ -37,39 +37,50 @@ void setup_rdh(char *MESH){
   // Initialize reference element //
   ref_elem.init(p_order, num_dim, elem);
 
+
   // ---- Node Initialization ---- //
   node.init_node_state( num_dim, mesh, rk_storage );
   std::cout << "Node state allocated and initialized" << std::endl;
   std::cout << std::endl;
 
 
+  mesh.init_gauss_pts();
+  
+  corner.init_corner_state(num_dim, mesh, rk_storage);
+  std::cout << "Corner state allocated and initialized"  << std::endl;
+  std::cout << std::endl;
+
   // ---- Cell state initialization --- ///
   cell_state.init_cell_state( num_dim, mesh, rk_storage );
   std::cout << "Cell state allocated and initialized" << std::endl;
   std::cout << std::endl;
   
+  mesh.init_gauss_cell_pts();  
   // ---- Material point initialization ---- //
   mat_pt.init_mat_pt_state(num_dim, mesh, rk_storage);
   std::cout << "Material point state allocated and initialized"  << std::endl;
   std::cout << std::endl;
 
+
   elem_state.init_elem_state( num_dim, mesh, correction_storage, ref_elem );
   std::cout << "Element state allocated and initialized" << std::endl;  std::cout<< std::endl;
-
 
   std::cout << "number of patches = " << mesh.num_patches() << std::endl;
 
 
+   
   // build boundary mesh patches
   mesh.build_bdy_patches();
   std::cout << "number of bdy patches = " << mesh.num_bdy_patches() << std::endl;
 
+  mesh.init_gauss_patch_pts();
   int num_bdy_sets = NB;
 
   mesh.init_bdy_sets(num_bdy_sets);
 
   std::cout << "Number of Boundaries = "<< NB << std::endl;
   for(int this_bdy = 0; this_bdy < NB; this_bdy++){
+
 
 
     int bc_tag = boundary[this_bdy].surface;
@@ -85,10 +96,7 @@ void setup_rdh(char *MESH){
 
   }// end loop over this_bdy
 
-  mesh.init_gauss_pts();
-  mesh.init_gauss_patch_pts();
-  mesh.init_gauss_cell_pts();  
-   
+
   for(int t_step = 0; t_step < rk_storage; t_step++){
   
     for(int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){

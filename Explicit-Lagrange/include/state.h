@@ -573,7 +573,7 @@ class elem_state_t {
         int num_rk_;
         int num_corrections_;
         int num_basis_;
-	int num_cells_;
+	//int num_cells_;
 	int num_nodes_in_elem_;
 
         // **** Element State **** //
@@ -614,7 +614,7 @@ class elem_state_t {
             // element state
             num_elem_ = mesh.num_elems();
             num_basis_ = ref_elem.num_basis();  // this num_basis is only needed for modal DG.
-            num_cells_ = mesh.num_cells();
+            //num_cells_ = mesh.num_cells();
             num_nodes_in_elem_ = mesh.num_nodes_in_elem();
 
             mat_id_ = new int[num_elem_]();
@@ -636,7 +636,7 @@ class elem_state_t {
             BV_mat_inverse_ = new real_t[num_basis_*num_nodes_in_elem_]();
             B_vel_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
 	   // B_pos_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
-	    nodal_res_ = new real_t[num_elem_*num_basis_*num_cells_*num_dim_]();
+	    nodal_res_ = new real_t[num_elem_*num_basis_*num_dim_]();
 	    // *** end RD *** //
         }
 
@@ -674,9 +674,9 @@ class elem_state_t {
 	//    return B_pos_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
 	//}
 
-        inline real_t& nodal_res(int elem_gid, int vertex, int cell_gid, int this_dim) const
+        inline real_t& nodal_res(int elem_gid, int vertex, int this_dim) const
         {
-            return nodal_res_[elem_gid*num_basis_*num_cells_*num_dim_ + vertex*num_cells_*num_dim_ + cell_gid*num_dim_ + this_dim];
+            return nodal_res_[elem_gid*num_basis_*num_dim_ + vertex*num_dim_ + this_dim];
         }
           // **** end RD allocation **** //
 	

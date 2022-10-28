@@ -11,10 +11,60 @@ using namespace utils;
 
 void get_momentum_rd(int correction_step){
 
-  num_dim = mesh.num_dim();
+  int num_basis = ref_elem.num_basis();
+  int num_dim = mesh.num_dim();
 
   int update = correction_step;
   int prev = correction_step - 1;
+
+  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+    
+    auto vel_update = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( update, elem_gid, 0, 0 ), num_basis, num_dim );
+    auto vel_r = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( prev, elem_gid, 0, 0 ), num_basis, num_dim );
+
+    for (int vertex = 0; vertex < num_basis; vertex++){
+      int node_lid = elem.vert_node_map( vertex );
+      int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
+      
+      real_t mass_a[num_basis];
+      for (int i = 0; i < num_basis; i++) mass_a[i] = 0.0;
+      auto lumped_mass = ViewCArray <real_t> ( &mass_a[0], num_basis );
+      
+      for (int elem_node = 0; elem_node < mesh.num_elems_in_node(node_gid); elem_node++){
+        int elem_node_gid = mesh.elems_in_node(node_gid, elem_node);
+        real_t temp = 0.0;
+	for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+	  int gauss_gid = mesh.gauss_in_elem(elem_node_gid, gauss_lid);
+	  temp += ref_elem.ref_nodal_basis(gauss_lid, vertex)
+		            * ref_elem.ref_node_g_weights(gauss_lid)
+			    * mesh.gauss_pt_det_j(gauss_gid);
+	}// end loop over gauss_lid
+	lumped_mass( vertex ) += temp;
+      }// end loop over elem_node
+
+      for (int dim = 0; dim < num_dim; dim ++){
+        real_t sum = 0.0;	      
+        for (int elem_node = 0; elem_node < mesh.num_elems_in_node(node_gid); elem_node++){
+          int elem_node_gid = mesh.elems_in_node(node_gid, elem_node);
+          sum += elem_state.nodal_res(elem_node_gid, node_gid, dim);
+	}// end loop over elem_node
+        
+	vel_update(vertex, dim) = vel_r(vertex, dim) - dt/lumped_mass(vertex) * sum;
+      }// end loop over dim
+
+    }// end loop over vertex
+    
+
+
+  }// end loop over elem_gid
+
+}// end get_momentum_rd()
+
+
+
+/*
+ 
+
 #pragma omp simd
   
 //    for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
@@ -36,8 +86,8 @@ void get_momentum_rd(int correction_step){
       real_t lumped_mass = 0.0;
       real_t temp_sum = 0.0;
 
-      for (int cell_lid = 0; cell_lid < mesh.num_cells_in_node(node_gid); cell_lid++){
-        int cell_gid = mesh.cells_in_node(node_gid, cell_lid);
+      for (int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
+        int cell_gid = mesh.cells_in_elem(node_gid, cell_lid);
         real_t temp = 0.0;
         for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
           temp += ref_elem.ref_cell_basis(gauss_lid, vertex)
@@ -71,4 +121,5 @@ void get_momentum_rd(int correction_step){
     }// end loop over vertex 
   }// end loop over elem_gid
 
-}// end get_momentum_rd()
+
+ */
