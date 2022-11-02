@@ -633,7 +633,7 @@ class elem_state_t {
             avg_specific_volume_ = new real_t[num_elem_]();
 
 	    // *** RD *** //
-            BV_mat_inverse_ = new real_t[num_basis_*num_nodes_in_elem_]();
+            BV_mat_inverse_ = new real_t[num_basis_*num_basis_](); //num_nodes_in_elem_]();
             B_vel_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
 	   // B_pos_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
 	    nodal_res_ = new real_t[num_elem_*num_basis_*num_dim_]();
@@ -659,9 +659,9 @@ class elem_state_t {
         }
         
 	  // **** RD allocation **** //
-        inline real_t& BV_mat_inv(int basis_m, int node_lid) const
+        inline real_t& BV_mat_inv(int basis_m, int basis_n) const
         {
-            return BV_mat_inverse_[basis_m*num_nodes_in_elem_ + node_lid];
+            return BV_mat_inverse_[basis_m*num_basis_ + basis_n];
         }
         
 	inline real_t& BV_vel_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const

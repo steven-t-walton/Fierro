@@ -13,7 +13,91 @@ using namespace utils;
 
 void BV_inv(){
 
+  
+    real_t B_a[ref_elem.num_basis() * ref_elem.num_basis()];
+    real_t check_B_a[ref_elem.num_basis() * ref_elem.num_basis()];
+  
+    auto B = ViewCArray <real_t> ( &B_a[0], ref_elem.num_basis(), ref_elem.num_basis() );
+    auto check_B = ViewCArray <real_t> ( &check_B_a[0], ref_elem.num_basis(), ref_elem.num_basis() );
 
+
+#pragma omp simd
+    
+    for (int j = 0; j < ref_elem.num_basis(); j++){
+      for (int i = 0; i < ref_elem.num_basis(); i++){
+        B(i, j) = 0.0;
+        elem_state.BV_mat_inv( i, j ) = 0.0;
+        check_B(i, j) = 0.0;
+      }// end loop over i
+    }// end loop over j  
+  
+#pragma omp simd
+    for ( int index = 0; index < ref_elem.num_basis(); index++){
+      for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
+	int node_lid = ref_elem.vert_node_map(vertex);
+        B( vertex, index) = ref_elem.ref_nodal_basis(node_lid, index );
+        check_B( vertex, index) = B( vertex, index );
+      }
+    }
+    
+/*
+      std::cout << "---- B transpose ----" << std::endl;  
+      for (int index = 0; index < ref_elem.num_basis(); index++){
+        for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
+      	 std::cout << B( vertex, index)<< ", ";
+      }
+      std::cout<<std::endl;
+    } 
+*/
+    int lu_index_a[ref_elem.num_basis()];
+    auto lu_index = ViewCArray <int> (&lu_index_a[0], ref_elem.num_basis());
+    for(int i=0; i < ref_elem.num_basis(); i++){
+      lu_index(i) = 0;
+    };
+    int parity = 0;
+
+    real_t col_a[ref_elem.num_basis()];
+    auto col = ViewCArray <real_t> (&col_a[0], ref_elem.num_basis());
+    for(int i=0; i < ref_elem.num_basis(); i++){
+      col(i) = 0;
+    };
+
+  
+    auto B_lu = ViewCArray <real_t> (&B(0,0), ref_elem.num_basis(), ref_elem.num_basis());
+   
+    LU_decompos(B_lu, lu_index, parity, ref_elem.num_basis());
+    
+    auto B_inv = ViewCArray <real_t> ( &elem_state.BV_mat_inv( 0, 0 ),  ref_elem.num_basis(), ref_elem.num_basis());
+    LU_invert( B_lu, lu_index, B_inv, col, ref_elem.num_basis() );
+    
+ /* 
+    real_t val1 = 0.0;
+    real_t val2 = 0.0;
+    for (int j = 0; j < ref_elem.num_basis(); j++ ){
+      for (int i = 0; i <  ref_elem.num_basis(); i++ ){
+        for (int k = 0; k < ref_elem.num_basis(); k++ ){ 
+          val1 += check_B(j,k)*elem_state.BV_mat_inv( k,i);
+          val2 += elem_state.BV_mat_inv(j,k)*check_B(k,i);
+        }// end loop over k
+        std::cout << " B*Binv with i =  "<< i << " and j ="<< j << " is = " << val1 << std::endl;       
+        std::cout << " Binv*B with i =  "<< i << " and j ="<< j << " is = " << val2 << std::endl;
+        val1 = 0.0;
+        val2 = 0.0;
+      }// end loop over i
+    }// end loop over j  
+*/
+
+}// end BV inverse
+
+
+
+
+           //////////////////////////////////////////
+          //--------------------------------------//
+          ////// ----- pseudo-inverse ----- //////
+          //-----------------------------------//
+         /////////////////////////////////////////
+/*
     real_t B_a[ref_elem.num_basis() * mesh.num_nodes_in_elem()];
     //real_t check_B_a[ref_elem.num_basis() * mesh.num_nodes_in_elem()];
   
@@ -26,7 +110,7 @@ void BV_inv(){
     for (int j = 0; j < ref_elem.num_basis(); j++){
       for (int i = 0; i < mesh.num_nodes_in_elem(); i++){
         B(i, j) = 0.0; // in R^{num_nodes x num_basis}
-        //elem_state.BV_mat_inv( j, i ) = 0.0; // in R^{num_basis x num_nodes}
+        elem_state.BV_mat_inv( j, i ) = 0.0; // in R^{num_basis x num_nodes}
        // check_B(i, j) = 0.0;
       }// end loop over i
     }// end loop over j  
@@ -124,24 +208,5 @@ void BV_inv(){
       }// end loop over dim_i
     //  std::cout << std::endl;
     }// end loop over dim_j
-  
-  
-/*  
-  //real_t val1 = 0.0;
-  real_t val2 = 0.0;
-    for (int i = 0; i < ref_elem.num_basis(); i++){
-      for (int j = 0; j <  ref_elem.num_basis(); j++){
-        for (int k = 0; k < mesh.num_nodes_in_elem(); k++){
-          //val1 += check_B(j,k)*elem_state.BV_mat_inv( k,i);
-          val2 += elem_state.BV_mat_inv(j,k)*check_B(k,i);
-        }// end loop over k
-        //std::cout << " B*Binv with j =  "<< j << " and i ="<< i << " is = " << val1 << std::endl;       
-        std::cout << " Binv*B with j =  "<< j << " and i ="<< i << " is = " << val2 << std::endl;
-        //val1 = 0.0;
-        val2 = 0.0;
-      }// end loop over i
-    }// end loop over j
+
 */  
-
-
-}// end BV inverse

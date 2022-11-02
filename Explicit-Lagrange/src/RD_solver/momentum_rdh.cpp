@@ -25,31 +25,40 @@ void get_momentum_rd(int correction_step){
     for (int vertex = 0; vertex < num_basis; vertex++){
       int node_lid = elem.vert_node_map( vertex );
       int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
-      
-      real_t mass_a[num_basis];
-      for (int i = 0; i < num_basis; i++) mass_a[i] = 0.0;
-      auto lumped_mass = ViewCArray <real_t> ( &mass_a[0], num_basis );
-      
+     
+      real_t global_lumped_mass = 0.0;
+/*
       for (int elem_node = 0; elem_node < mesh.num_elems_in_node(node_gid); elem_node++){
         int elem_node_gid = mesh.elems_in_node(node_gid, elem_node);
-        real_t temp = 0.0;
+        real_t elem_lumped_mass = 0.0;
 	for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
 	  int gauss_gid = mesh.gauss_in_elem(elem_node_gid, gauss_lid);
-	  temp += ref_elem.ref_nodal_basis(gauss_lid, vertex)
-		            * ref_elem.ref_node_g_weights(gauss_lid)
-			    * mesh.gauss_pt_det_j(gauss_gid);
+	  elem_lumped_mass += ref_elem.ref_nodal_basis( gauss_lid, vertex )
+		              * ref_elem.ref_node_g_weights( gauss_lid )
+		              * mesh.gauss_pt_det_j( gauss_gid );
 	}// end loop over gauss_lid
-	lumped_mass( vertex ) += temp;
+	global_lumped_mass += elem_lumped_mass;
       }// end loop over elem_node
-
+*/
+      for (int cell_lid = 0; cell_lid < mesh.num_cells_in_node(node_gid); cell_lid++){
+        int cell_gid = mesh.cells_in_node(node_gid, cell_lid);
+	real_t cell_mass = 0.0;
+	for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
+	  cell_mass += ref_elem.ref_cell_basis(gauss_lid, vertex)
+		       * ref_elem.ref_cell_g_weights( gauss_lid )
+		       * mesh.gauss_cell_pt_det_j(cell_gid);
+	}
+	global_lumped_mass += cell_mass;
+      }
+       
       for (int dim = 0; dim < num_dim; dim ++){
         real_t sum = 0.0;	      
         for (int elem_node = 0; elem_node < mesh.num_elems_in_node(node_gid); elem_node++){
           int elem_node_gid = mesh.elems_in_node(node_gid, elem_node);
-          sum += elem_state.nodal_res(elem_node_gid, node_gid, dim);
+          sum += elem_state.nodal_res(elem_node_gid, vertex, dim);
 	}// end loop over elem_node
         
-	vel_update(vertex, dim) = vel_r(vertex, dim) - dt/lumped_mass(vertex) * sum;
+	vel_update(vertex, dim) = vel_r(vertex, dim) - dt/global_lumped_mass * sum;
       }// end loop over dim
 
     }// end loop over vertex

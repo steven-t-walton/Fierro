@@ -116,7 +116,7 @@ void get_nodal_res(real_t sub_dt, int t_step){
 
     for (int vertex = 0; vertex < num_basis; vertex++){
       int node_lid = ref_elem.vert_node_map(vertex);
-      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+     // int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
       
       for (int index = 0; index < num_basis; index++){
         for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
@@ -156,21 +156,26 @@ void get_nodal_res(real_t sub_dt, int t_step){
 	}// end loop over cell_lid
       }// end loop over prev_step
 
+      
       // get volume integral over elem of force
       for (int prev_step = 0; prev_step <= current; prev_step++){
         for (int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
-	  int cell_gid = mesh.cells_in_elem( elem_gid, cell_lid );
+          real_t temp_force[num_dim];
+	  for (int i = 0; i < num_dim; i++) temp_force[i] = 0.0;
+
+      	  int cell_gid = mesh.cells_in_elem( elem_gid, cell_lid );
 	  for (int dim_j = 0; dim_j < num_dim; dim_j++){
             for (int dim_i = 0; dim_i < num_dim; dim_i++){
 	      for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
                 int gauss_gid = mesh.gauss_in_cell( cell_gid, gauss_lid ); 
-                force(dim_j, prev_step) += sigma(dim_j, dim_i, cell_lid, prev_step)
+                temp_force[dim_j] += sigma(dim_j, dim_i, cell_lid, prev_step)
 				           * ref_elem.ref_cell_gradient(gauss_lid, vertex, dim_i)
 				           * cell_state.density(cell_gid)
 		                           * mesh.gauss_cell_pt_det_j(cell_gid)
 				           * ref_elem.ref_cell_g_weights(gauss_lid);
 	      }// end loop over gauss_lid			  
-            }// end loop over dim_i	    
+            }// end loop over dim_i
+            force(dim_j, prev_step) += temp_force[dim_j];	    
 	  }// end loop over dim_j
 	}// end loop over cell_lid
       }// end loop over prev_step
@@ -182,8 +187,8 @@ void get_nodal_res(real_t sub_dt, int t_step){
         for (int prev_times = 0; prev_times <= current; prev_times++){    
           real_t point = ( time_points[prev_times]* 0.5 * temp_dt + 0.5*temp_dt );
           time_integral( dim ) += 0.5 *temp_dt * time_weights[prev_times]
-              		           *( force( dim, prev_times ) )
-				   *std::legendre( current, point ); // *legendre::eval(t_step,point)<-- depending on the compiler, legendre namespace conflicts with std::legendre
+              		           *( force( dim, prev_times ) );
+				   //*std::legendre( current, point ); // *legendre::eval(t_step,point)<-- depending on the compiler, legendre namespace conflicts with std::legendre
 				     
           temp_dt += temp_dt;
         }// end loop over prev_times
@@ -197,7 +202,7 @@ void get_nodal_res(real_t sub_dt, int t_step){
 
       for (int dim = 0; dim < num_dim; dim++){
 	// Assign values to nodal res
-        elem_state.nodal_res( elem_gid, node_gid, dim ) = Mv(dim) + time_integral(dim);
+        elem_state.nodal_res( elem_gid, vertex, dim ) = Mv(dim) + time_integral(dim);
       }// end loop over dim
 
     }// end loop over vertex
