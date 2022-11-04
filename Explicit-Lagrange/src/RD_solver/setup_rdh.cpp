@@ -188,6 +188,35 @@ void setup_rdh(char *MESH){
 	 // fill all material quantities in the gauss points and cells in the element
 	 
 	 if (fill_this == 1){
+           for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+
+                        int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+
+
+                        // --- Density and specific volume ---
+                        mat_pt.density(gauss_gid)  = mat_fill[f_id].r;
+
+                        mat_pt.mass(gauss_gid) = mat_pt.density(gauss_gid)
+                                                * (mesh.gauss_pt_det_j(gauss_gid) * mat_pt.weight(gauss_gid));
+
+                        mat_pt.mat_id(gauss_gid) = mat_fill[f_id].mat_id;
+
+                        elem_state.mat_id(elem_gid) =  mat_fill[f_id].mat_id;
+
+                        mat_pt.specific_volume(t_step, gauss_gid) = 1.0/mat_pt.density(gauss_gid);
+
+
+                        // --- Internal energy ---
+                        mat_pt.specific_total_energy(t_step, gauss_gid) = mat_fill[f_id].ie;  // kinetic energy is added later
+                        mat_pt.ie(gauss_gid) = mat_fill[f_id].ie;
+
+                        // elem_state.total_energy(rk_stage, elem_gid) = mat_fill[f_id].ie; // + initialization of kinetic energy
+
+
+                        // --- Pressure ---
+                        gauss_properties(gauss_gid);
+
+           }// end loop over gauss
 
            // Fill Cell Properties using gauss point properties
            for(int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
@@ -213,6 +242,7 @@ void setup_rdh(char *MESH){
              for (int node_lid = 0; node_lid < mesh.num_nodes_in_cell(); node_lid++){
 
                int node_gid = mesh.nodes_in_cell(cell_gid, node_lid);
+               int gauss_gid  = mesh.gauss_in_cell(cell_gid, node_lid);
 
                // --- Velocity ---//
 	       switch(mat_fill[f_id].velocity)
@@ -300,18 +330,27 @@ void setup_rdh(char *MESH){
 
 		   node.vel(t_step, node_gid, 2) = 0.0; 
                   
-                   break;
+                   cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*elem_coords_x) + cos(2.0*PI*elem_coords_y) ) + 1.0;
+                   cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g-1.0));
+                   
+		   mat_pt.pressure(gauss_gid) = 0.25*( cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;
+
+                   // save the internal energy contribution to the total energy
+                   mat_pt.ie(gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((7.0/5.0) - 1.0)) );
+
+                   mat_pt.specific_total_energy(t_step, gauss_gid) = mat_pt.ie(gauss_gid);
+		   break;
                  }
                } // end of switch
 
 
              } // end for loop over nodes in cell
-
+/*
              if(mat_fill[f_id].velocity == init_conds::tg_vortex){
                cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*elem_coords_x) + cos(2.0*PI*elem_coords_y) ) + 1.0;
                cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g-1.0));
              };// end if
-                          
+*/                          
 
            }// end loop over cells in the element
 

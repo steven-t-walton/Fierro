@@ -13,6 +13,9 @@ using namespace utils;
 
 void BV_inv(){
 
+ //-------------------/////////////////////////////////////////////-------------------------
+ //----///////////------- control points only at vertices ----------///////////////---------
+ //-----------------/////////////////////////////////////////////---------------------------
   
     real_t B_a[ref_elem.num_basis() * ref_elem.num_basis()];
     real_t check_B_a[ref_elem.num_basis() * ref_elem.num_basis()];
@@ -70,7 +73,7 @@ void BV_inv(){
     auto B_inv = ViewCArray <real_t> ( &elem_state.BV_mat_inv( 0, 0 ),  ref_elem.num_basis(), ref_elem.num_basis());
     LU_invert( B_lu, lu_index, B_inv, col, ref_elem.num_basis() );
     
- /* 
+/*  
     real_t val1 = 0.0;
     real_t val2 = 0.0;
     for (int j = 0; j < ref_elem.num_basis(); j++ ){
@@ -90,6 +93,8 @@ void BV_inv(){
 }// end BV inverse
 
 
+/*
+
 
 
            //////////////////////////////////////////
@@ -97,7 +102,7 @@ void BV_inv(){
           ////// ----- pseudo-inverse ----- //////
           //-----------------------------------//
          /////////////////////////////////////////
-/*
+	 
     real_t B_a[ref_elem.num_basis() * mesh.num_nodes_in_elem()];
     //real_t check_B_a[ref_elem.num_basis() * mesh.num_nodes_in_elem()];
   
@@ -186,7 +191,7 @@ void BV_inv(){
     };
 
   
-    auto BTB_lu = ViewCArray(&BTB(0,0), ref_elem.num_basis(), ref_elem.num_basis());
+    auto BTB_lu = ViewCArray <real_t> (&BTB(0,0), ref_elem.num_basis(), ref_elem.num_basis());
    
     LU_decompos(BTB_lu, lu_index, parity, ref_elem.num_basis());
     
@@ -209,4 +214,11 @@ void BV_inv(){
     //  std::cout << std::endl;
     }// end loop over dim_j
 
-*/  
+
+*/
+
+
+
+/*
+
+*/

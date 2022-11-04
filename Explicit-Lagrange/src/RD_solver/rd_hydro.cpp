@@ -22,7 +22,7 @@ void rd_hydro(){
     if (cycle == 1){
       BV_inv();
       get_control_coeffs();
-      //interp_vel(0);
+      interp_vel(0);
       track_rdh(ke0, ie0);
       te_0 = ie0 + ke0;
       std::cout << " ke at t0 = " << ke0 << std::endl;
@@ -40,56 +40,56 @@ void rd_hydro(){
       
       update_coeffs();
        
-
 #pragma omp simd
       // DeC update //
-      for (int correction_step = 1; correction_step <= num_correction_steps; correction_step++){
+      for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
 
-	real_t sub_dt = dt/num_correction_steps;
+	//real_t sub_dt = correction_step*dt/num_correction_steps;
         //real_t sub_time = TIME + sub_dt;          
  
-        //std::cout << "calling lumped_mass " << std::endl;
-        //lumped_mass();// now inside momentum
-       
 	//std::cout << "calling get_nodal_res" << std::endl;
-        get_nodal_res(sub_dt, correction_step);
-
-      	// updates velocity coeffs //
-	get_momentum_rd(correction_step);
-        //std::cout << " updated momentum " << std::endl;
+        get_nodal_res( correction_step );
         
+	get_total_res();
+
+	get_betas();
+
+	get_limited_res();
+        
+      	// updates velocity coeffs //
+	get_momentum_rd( correction_step );
+        //std::cout << " updated momentum " << std::endl;
+	
 	// energy update //
-//        get_energy_rdh( sub_dt );
+        //get_energy_rdh( sub_dt );
 
       }//end correction steps
-
+      
       // intepolate the velocity with evolved coeffs and save to nodes  //
-      interp_vel(num_correction_steps);
+      interp_vel( num_correction_steps );
       
       // update boundary vel vals //
       boundary_rdh();
-
-      // update position coeffs //
-      get_position_rdh();   
+        
+      // update position //
+      get_position_rdh( num_correction_steps );   
 
       // interpolate the position with evolved coeffs and save to nodes //
-      //interp_pos(num_correction_steps);
+      //interp_pos( num_correction_steps );
 
-      //std::cout << "Calculating Jacobian at gauss points" << std::endl;
       get_gauss_pt_jacobian(mesh, ref_elem);
     
-      //std::cout << "Calculating Jacobian at gauss points in cell" << std::endl;
       get_gauss_cell_pt_jacobian(mesh, ref_elem);
 
-      //std::cout << "Before volume from Jacobian"  << std::endl;
       get_vol_jacobi(mesh, ref_elem);
 
-      //std::cout << " calling get state " << std::endl;
-      get_state( cycle );
+      get_state();
 
-      get_stress(); // assign values to stress
-      //std::cout << "called get stress" << std::endl;
-      
+      get_stress(); 
+
+      for(int gauss_gid=0; gauss_gid<mesh.num_gauss_pts(); gauss_gid++){
+        gauss_properties(gauss_gid);
+      }// end loop over gauss_gid
     }; // end time integration scope
        
     // Increment time //

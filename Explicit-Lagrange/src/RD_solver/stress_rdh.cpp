@@ -8,6 +8,7 @@
 using namespace utils;
 
 void get_stress(){
+
 #pragma omp simd
   auto pressure = ViewCArray <real_t> (&cell_state.pressure(0), mesh.num_cells() );
   for ( int cell_gid = 0; cell_gid < mesh.num_cells(); cell_gid++){

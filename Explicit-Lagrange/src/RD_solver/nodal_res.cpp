@@ -9,92 +9,15 @@
 #include "state.h"
 #include "geometry.h"
 #include "variables.h"
-//#include "legendre_polynomials.h"  // <-- can throw an error " namespace legendre conflicts with other namespace ". this means the compiler can see std::legendre().  Comment this line out and uncomment std::legendre in time integral evaluation.
 
 using namespace utils;
 
-void get_nodal_res(real_t sub_dt, int t_step){
+void get_nodal_res(int t_step){
    
   int num_basis = ref_elem.num_basis();
   int num_dim = mesh.num_dim();
 
-  int current = t_step - 1;
-
-
-  real_t res_mass_a[num_basis];
-  for (int i = 0; i < num_basis; i++) res_mass_a[i] = 0.0;
-  auto res_mass = ViewCArray <real_t> ( &res_mass_a[0], num_basis );
-
-  // Create variable for \sum_{q} M_{pq} \delta u^r_q //      
-  real_t Mv_a[num_dim];
-  for (int i = 0; i < num_dim; i++) Mv_a[i] = 0.0;
-  auto Mv = ViewCArray <real_t> ( &Mv_a[0], num_dim );
-        
-  // Create CArray for vel_bar used in artificial viscosity //
-  real_t vel_bar_a[num_dim*t_step];
-  for (int i = 0; i < num_dim*t_step; i++) vel_bar_a[i] = 0.0;
-  auto vel_bar = ViewCArray <real_t> (&vel_bar_a[0], num_dim, t_step);
-
-  // Create CArray for Q //
-  real_t Q_a[num_dim*t_step];
-  for (int i = 0; i < num_dim*t_step; i++) Q_a[i] = 0.0;
-  auto Q = ViewCArray <real_t> ( &Q_a[0], num_dim, t_step);
-
-  // Create CArray to store volume integral over cells in elem of force at each sub time //
-  real_t force_a[ num_dim*t_step ];
-  for (int i = 0 ; i < num_dim*t_step; i++) force_a[i] = 0.0;
-  auto force = ViewCArray <real_t> (&force_a[0], num_dim, t_step);
-      
-  // Create CArray to store time integral of force and artificial viscosity
-  real_t time_int_a[num_dim];
-  for (int i = 0; i < num_dim; i++) time_int_a[i] = 0.0;
-  auto time_integral = ViewCArray <real_t> (&time_int_a[0], num_dim);  
-
-  real_t time_weights[num_correction_steps];
-  for (int i = 0; i < num_correction_steps; i++) time_weights[i] = 0.0;
-  
-  real_t time_points[num_correction_steps];
-  for (int i = 0; i < num_correction_steps; i++) time_points[i] = 0.0;
-
-  if (current == 0){
-
-    time_weights[0] = 0.5;
-
-    time_points[0] = 0;
-
-  }
-  else if (current == 1){
-
-    time_weights[0] = 1;
-    time_weights[1] = 1;
-
-    time_points[0] = -0.5773502691896257;
-    time_points[1] = 0.5773502691896257;
-
-  }
-  else if (current == 2){
-
-    time_weights[0] = 0.5555555555555556;
-    time_weights[1] = 0.8888888888888888;
-    time_weights[2] = 0.5555555555555556;
- 
-    time_points[0] = -0.7745966692414834;
-    time_points[1] = 0.0000000000000000;
-    time_points[2] = 0.7745966692414834; 
-  }
-  else if (t_step == 3){
-
-    time_weights[0] = 0.3478548451374538;    
-    time_weights[1] = 0.6521451548625461;
-    time_weights[2] = 0.6521451548625461;
-    time_weights[3] = 0.3478548451374538;
-
-    time_points[0] = -0.8611363115940526;
-    time_points[1] = -0.3399810435848563;
-    time_points[2] = 0.3399810435848563; 
-    time_points[3] = 0.8611363115940526;
-
-  };
+  int current = t_step;
 
 #pragma omp simd
   // Loop over elements //
@@ -103,21 +26,29 @@ void get_nodal_res(real_t sub_dt, int t_step){
     // Create mtx with columns vel_r - vel coeffs \in R^{num_basis x num_dim}
     auto vel_r = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( current, elem_gid, 0, 0 ), num_basis, num_dim );
     auto vel = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( 0, elem_gid, 0, 0 ), num_basis, num_dim );
-
-    real_t vel_diff_a[num_basis*num_dim];
-    for (int i = 0; i < num_basis*num_dim; i++) vel_diff_a[i] = 0.0;
-    auto vel_diff = ViewCArray <real_t> ( &vel_diff_a[0], num_basis, num_dim );
-   
-    for (int dim = 0; dim < num_dim; dim++){
-      for (int basis_id = 0; basis_id < num_basis; basis_id++){
-        vel_diff(basis_id, dim) = vel_r(basis_id,dim) - vel(basis_id, dim);
-      }// end loop over basis_id
-    }// end loop over dim 
-
+    
     for (int vertex = 0; vertex < num_basis; vertex++){
       int node_lid = ref_elem.vert_node_map(vertex);
-     // int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-      
+      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+
+      real_t res_mass_a[num_basis];
+      auto res_mass = ViewCArray <real_t> ( &res_mass_a[0], num_basis );
+      for (int i = 0; i < num_basis; i++) res_mass(i) = 0.0;
+  
+      // Create variable for \sum_{q} M_{pq} \delta u^r_q //      
+      real_t Mv_a[num_dim];
+      auto Mv = ViewCArray <real_t> ( &Mv_a[0], num_dim );
+      for (int i = 0; i < num_dim; i++) Mv(i) = 0.0;
+
+      // Create CArray to store volume integral over cells in elem of force at each sub time //
+      real_t force_a[ num_dim*num_correction_steps ];
+      auto force = ViewCArray <real_t> (&force_a[0], num_dim, num_correction_steps);
+      for (int step = 0; step < num_correction_steps; step++){	 
+        for (int i = 0 ; i < num_dim; i++){
+    	  force(i,step) = 0.0;
+        }// end loop over step
+      }// end loop over i
+
       for (int index = 0; index < num_basis; index++){
         for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
 	  int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
@@ -128,81 +59,57 @@ void get_nodal_res(real_t sub_dt, int t_step){
 	}// end loop over gauss_lid
       }// end loop over index
 
-      /*
-      for (int index = 0; index < num_basis; index++){
-        std::cout <<"elem_gid = "<< elem_gid << " ; "<< res_mass( index ) << std::endl;
-      }
-      */
+/*     
+     for (int dim = 0; dim < num_dim; dim++){     
+       for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+         int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+         
+         real_t J_inv_dot_grad_phi = 0.0;
+         for (int k = 0; k < num_dim; k++){
+	   J_inv_dot_grad_phi += mesh.gauss_pt_jacobian_inverse(gauss_gid, dim, k) * ref_elem.ref_nodal_gradient(gauss_lid, vertex, k);
+	 }// end loop over k
+         
+	 force( dim, current ) -= mat_pt.pressure(gauss_gid)
+		                  * J_inv_dot_grad_phi
+				  * mesh.gauss_pt_det_j(gauss_gid)
+				  * ref_elem.ref_node_g_weights(gauss_lid);
 
-      // Create CArray for sigma //
-      real_t sigma_a[num_dim*num_dim*t_step*mesh.num_cells_in_elem()];
-      for (int i = 0; i < num_dim*num_dim*t_step*mesh.num_cells_in_elem(); i++) sigma_a[i] = 0.0;
-  
-      auto sigma = ViewCArray <real_t> (&sigma_a[0], num_dim, num_dim, mesh.num_cells_in_elem(), t_step);
-
-      // Compute J^{-1}.sigma for each t_step and all cells in elem //
-      for (int prev_step = 0; prev_step <= current; prev_step++){
-        for (int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
-	  int cell_gid = mesh.cells_in_elem(elem_gid, cell_lid);
-	  for (int dim_j = 0; dim_j < num_dim; dim_j++){
-	    for(int dim_i = 0; dim_i < num_dim; dim_i++){
-	      for (int dim_k = 0; dim_k < num_dim; dim_k++){
-	        sigma(dim_i, dim_j, cell_lid, prev_step) += mesh.gauss_cell_pt_jacobian_inverse(cell_gid, dim_i, dim_k)
-		                                            * cell_state.stress(0, cell_gid, dim_k, dim_j); //  works for now, will need to change when energy equation is written (i.e. 0 -> prev-step )
-
-	      }// end loop over dim_k
-	    }// end loop over_dim_i
-	  }// end loop over dim_j
-	}// end loop over cell_lid
-      }// end loop over prev_step
-
-      
-      // get volume integral over elem of force
-      for (int prev_step = 0; prev_step <= current; prev_step++){
-        for (int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
-          real_t temp_force[num_dim];
-	  for (int i = 0; i < num_dim; i++) temp_force[i] = 0.0;
-
-      	  int cell_gid = mesh.cells_in_elem( elem_gid, cell_lid );
-	  for (int dim_j = 0; dim_j < num_dim; dim_j++){
-            for (int dim_i = 0; dim_i < num_dim; dim_i++){
-	      for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
-                int gauss_gid = mesh.gauss_in_cell( cell_gid, gauss_lid ); 
-                temp_force[dim_j] += sigma(dim_j, dim_i, cell_lid, prev_step)
-				           * ref_elem.ref_cell_gradient(gauss_lid, vertex, dim_i)
-				           * cell_state.density(cell_gid)
-		                           * mesh.gauss_cell_pt_det_j(cell_gid)
-				           * ref_elem.ref_cell_g_weights(gauss_lid);
-	      }// end loop over gauss_lid			  
-            }// end loop over dim_i
-            force(dim_j, prev_step) += temp_force[dim_j];	    
-	  }// end loop over dim_j
-	}// end loop over cell_lid
-      }// end loop over prev_step
-    
-      for (int dim = 0; dim < num_dim; dim++){
-
-        real_t temp_dt = sub_dt;
-
-        for (int prev_times = 0; prev_times <= current; prev_times++){    
-          real_t point = ( time_points[prev_times]* 0.5 * temp_dt + 0.5*temp_dt );
-          time_integral( dim ) += 0.5 *temp_dt * time_weights[prev_times]
-              		           *( force( dim, prev_times ) );
-				   //*std::legendre( current, point ); // *legendre::eval(t_step,point)<-- depending on the compiler, legendre namespace conflicts with std::legendre
-				     
-          temp_dt += temp_dt;
-        }// end loop over prev_times
+       }// end loop over gauss_lid 
       }// end loop over dim
-    
+
+*/
+
+
+      for (int dim = 0; dim < num_dim; dim++){
+        for (int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
+      	  int cell_gid = mesh.cells_in_elem(elem_gid, cell_lid);
+          auto J_inv = ViewCArray <real_t> ( &mesh.gauss_cell_pt_jacobian_inverse( cell_gid, dim, 0), num_dim );
+	  for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
+	    real_t J_inv_dot_grad_phi = 0.0;
+	    for (int k = 0; k < num_dim; k++){
+	      J_inv_dot_grad_phi += J_inv( k )*ref_elem.ref_nodal_gradient(gauss_lid, vertex, k);
+	    }// end loop over k
+	    force(dim, current) -= mat_pt.pressure(cell_gid)
+		                   * J_inv_dot_grad_phi
+				   * mesh.gauss_cell_pt_det_j(cell_gid)
+				   * ref_elem.ref_cell_g_weights(gauss_lid);
+	  }// end loop over gauss_lid
+	}// end loop over cell_lid
+      }// end loop over dim      
+
+      //std::cout << force(0,current) << std::endl;
+
       for (int dim = 0; dim < num_dim; dim++){
         for (int index = 0; index < num_basis; index++){
-	  Mv(dim) += res_mass( index ) * vel_diff( index, dim );
+	  Mv(dim) += res_mass( index ) * ( vel_r( index, dim )-vel( index, dim ) );
         }// end loop over index
       }// end loop over dim
-
+      
       for (int dim = 0; dim < num_dim; dim++){
 	// Assign values to nodal res
-        elem_state.nodal_res( elem_gid, vertex, dim ) = Mv(dim) + time_integral(dim);
+	//real_t temp = 0.0;
+        //temp = Mv(dim) + dt*0.5*( force( dim, 0 ) + force( dim, current) );
+        elem_state.nodal_res( elem_gid, vertex, dim ) = Mv(dim)/dt + 0.5*( force( dim, 0 ) + force( dim, current) );//temp*dt;
       }// end loop over dim
 
     }// end loop over vertex
@@ -211,38 +118,43 @@ void get_nodal_res(real_t sub_dt, int t_step){
 }// end get_nodal_res
 
 
-// elem_state.nodal_res(dim, node_gid, elem_gid) //
+
+  /*    
+  // Create CArray to store time integral of force and artificial viscosity
+  real_t time_int_a[num_dim];
+  for (int i = 0; i < num_dim; i++) time_int_a[i] = 0.0;
+  auto time_integral = ViewCArray <real_t> (&time_int_a[0], num_dim);  
+  */
+   
+   /*    	
+      for (int dim = 0; dim < num_dim; dim++){
+
+        real_t temp_dt = sub_dt;
+
+       for (int prev_times = 0; prev_times <= current; prev_times++){    
+         real_t point = ( (time_points[prev_times] + 1)* 0.5 * temp_dt );// <-- scale quadrature point
+
+	  time_integral( dim ) = 0.5*temp_dt // <-- scale weights
+		                  * time_weights[prev_times]
+              		          *( force( dim, prev_times ) );
+				     
+          temp_dt += temp_dt;
+        }// end loop over prev_times
+      }// end loop over dim
+   */
 
 
+/*        
+  // Create CArray for vel_bar used in artificial viscosity //
+  real_t vel_bar_a[num_dim*t_step];
+  for (int i = 0; i < num_dim*t_step; i++) vel_bar_a[i] = 0.0;
+  auto vel_bar = ViewCArray <real_t> (&vel_bar_a[0], num_dim, t_step);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  // Create CArray for Q //
+  real_t Q_a[num_dim*t_step];
+  for (int i = 0; i < num_dim*t_step; i++) Q_a[i] = 0.0;
+  auto Q = ViewCArray <real_t> ( &Q_a[0], num_dim, t_step);
+*/
   /* 
     //for(int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
     //  int cell_gid = mesh.cells_in_elem(elem_gid, cell_lid);
@@ -439,5 +351,51 @@ void get_nodal_res(real_t sub_dt, int t_step){
       }// end loop over cell_lid
     }// end loop over vertex
   }// end loop over elem_gid
+
+  real_t time_weights[num_correction_steps];
+  for (int i = 0; i < num_correction_steps; i++) time_weights[i] = 0.0;
+  
+  real_t time_points[num_correction_steps];
+  for (int i = 0; i < num_correction_steps; i++) time_points[i] = 0.0;
+
+  if (current == 0){
+
+    time_weights[0] = 0.5;
+
+    time_points[0] = 0;
+
+  }
+  else if (current == 1){
+
+    time_weights[0] = 1;
+    time_weights[1] = 1;
+
+    time_points[0] = -0.5773502691896257;
+    time_points[1] = 0.5773502691896257;
+
+  }
+  else if (current == 2){
+
+    time_weights[0] = 0.5555555555555556;
+    time_weights[1] = 0.8888888888888888;
+    time_weights[2] = 0.5555555555555556;
+ 
+    time_points[0] = -0.7745966692414834;
+    time_points[1] = 0.0000000000000000;
+    time_points[2] = 0.7745966692414834; 
+  }
+  else if (t_step == 3){
+
+    time_weights[0] = 0.3478548451374538;    
+    time_weights[1] = 0.6521451548625461;
+    time_weights[2] = 0.6521451548625461;
+    time_weights[3] = 0.3478548451374538;
+
+    time_points[0] = -0.8611363115940526;
+    time_points[1] = -0.3399810435848563;
+    time_points[2] = 0.3399810435848563; 
+    time_points[3] = 0.8611363115940526;
+
+  };
 
 */
