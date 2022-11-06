@@ -59,26 +59,10 @@ void get_nodal_res(int t_step){
 	}// end loop over gauss_lid
       }// end loop over index
 
-/*     
-     for (int dim = 0; dim < num_dim; dim++){     
-       for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
-         int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
-         
-         real_t J_inv_dot_grad_phi = 0.0;
-         for (int k = 0; k < num_dim; k++){
-	   J_inv_dot_grad_phi += mesh.gauss_pt_jacobian_inverse(gauss_gid, dim, k) * ref_elem.ref_nodal_gradient(gauss_lid, vertex, k);
-	 }// end loop over k
-         
-	 force( dim, current ) -= mat_pt.pressure(gauss_gid)
-		                  * J_inv_dot_grad_phi
-				  * mesh.gauss_pt_det_j(gauss_gid)
-				  * ref_elem.ref_node_g_weights(gauss_lid);
-
-       }// end loop over gauss_lid 
-      }// end loop over dim
-
-*/
-
+      real_t volume_int_a[ num_dim ];
+      auto volume_int = ViewCArray <real_t> (&volume_int_a[0], num_dim);
+      for (int i = 0; i < num_dim; i++) volume_int(i) = 0.0;
+      
      // Volume integral //
       for (int dim = 0; dim < num_dim; dim++){
         for (int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
@@ -89,37 +73,42 @@ void get_nodal_res(int t_step){
 	    for (int k = 0; k < num_dim; k++){
 	      J_inv_dot_grad_phi += J_inv( k )*ref_elem.ref_nodal_gradient(gauss_lid, vertex, k);
 	    }// end loop over k
-	    force(dim, current) -= cell_state.pressure(cell_gid)
+	    volume_int(dim) -= cell_state.pressure(cell_gid)
 		                   * J_inv_dot_grad_phi
 				   * mesh.gauss_cell_pt_det_j(cell_gid)
 				   * ref_elem.ref_cell_g_weights(gauss_lid);
 	  }// end loop over gauss_lid
 	}// end loop over cell_lid
       }// end loop over dim 
-
-     // Surface integral //
-     for (int dim = 0; dim < num_dim; dim++){
-       for (int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
-         int cell_gid = mesh.cells_in_elem(elem_gid,cell_lid);
-	 for(int gauss_lid= 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
-           int gauss_gid = mesh.gauss_in_cell(cell_gid, node_lid);
-           int corner_lid = gauss_lid;
-           int corner_gid = mesh.corners_in_cell(cell_gid, corner_lid);
-	   //int node_rid = ref_elem.cell_nodes_in_elem(cell_lid, node_lid);
-	   real_t J_inv_dot_n = 0.0;
-           for (int k = 0; k < num_dim; k++){
-             J_inv_dot_n = mesh.gauss_cell_pt_jacobian_inverse(cell_gid, dim, k)
-		           * corner.normal(corner_gid, k);
-           }// end loop over i
-	     force(dim, current) += ref_elem.ref_nodal_basis(gauss_lid, vertex)
-		                  * J_inv_dot_n
-				  * cell_state.pressure(cell_gid)
-				  * ref_elem.ref_cell_g_weights(gauss_lid)
-				  * mesh.gauss_cell_pt_det_j(cell_gid);
-         }// end loop over node_lid
-       }// end loop over cell_lid
-     }// end loop over dim     
-
+      
+      real_t surface_int_a[ num_dim ];
+      auto surface_int = ViewCArray <real_t> (&surface_int_a[0], num_dim);
+      for (int i = 0; i < num_dim; i++) surface_int(i) = 0.0;
+      
+      // Surface Integral //
+      for (int dim = 0; dim < num_dim; dim++){
+        for (int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
+	  int cell_gid =  mesh.cells_in_elem(elem_gid, cell_lid);
+	  for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
+	    int gauss_gid = mesh.gauss_in_cell(cell_gid, gauss_lid);
+	    int corner_gid = mesh.corners_in_cell(cell_gid, gauss_lid);
+            real_t J_inv_dot_n = 0.0;
+	    for (int k = 0; k < num_dim; k++){
+	      J_inv_dot_n = mesh.gauss_cell_pt_jacobian_inverse(cell_gid, dim, k)
+		            * corner.normal(corner_gid, k);
+	    }// end loop over k
+            surface_int(dim) += ref_elem.ref_nodal_basis(gauss_lid, vertex)
+		                   *J_inv_dot_n
+				   *cell_state.pressure(cell_gid)
+				   *mesh.gauss_cell_pt_det_j(cell_gid)
+				   *ref_elem.ref_cell_g_weights(gauss_lid);
+	  }// end loop over patch_lid
+	}// end loop over cell_lid
+      }// end loop over dim
+      
+      for (int dim = 0; dim < num_dim; dim++){
+        force(dim, current) = volume_int(dim) + surface_int(dim);
+      }
       //std::cout << force(0,current) << std::endl;
 
       for (int dim = 0; dim < num_dim; dim++){
