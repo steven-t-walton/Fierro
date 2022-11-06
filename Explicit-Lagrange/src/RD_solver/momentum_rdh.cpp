@@ -46,7 +46,10 @@ void get_momentum_rd(int correction_step){
         real_t sum = 0.0;	      
         for (int elem_node = 0; elem_node < mesh.num_elems_in_node(node_gid); elem_node++){
           int elem_node_gid = mesh.elems_in_node(node_gid, elem_node);
-          sum += elem_state.limited_res(elem_node_gid, vertex, dim);
+	  // low order residual //
+          sum += elem_state.nodal_res(elem_node_gid, vertex, dim);
+	  // limited residual //
+	  // sum += elem_state.limited_res(elem_node_gid, vertex, dim);
 	}// end loop over elem_node
         
 	vel_update(dim) = vel_r(dim) - dt/global_lumped_mass * sum;
