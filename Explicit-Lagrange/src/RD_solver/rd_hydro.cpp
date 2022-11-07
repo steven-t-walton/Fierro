@@ -38,8 +38,6 @@ void rd_hydro(){
     
     { // Time integration scope //
       
-      update_coeffs();
-       
 #pragma omp simd
       // DeC update //
       for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
@@ -58,7 +56,6 @@ void rd_hydro(){
         
       	// updates velocity coeffs //
 	get_momentum_rd( correction_step );
-        //std::cout << " updated momentum " << std::endl;
 	
 	// energy update //
         //get_energy_rdh( sub_dt );
@@ -70,7 +67,7 @@ void rd_hydro(){
       
       // update boundary vel vals //
       boundary_rdh();
-        
+
       // update position //
       get_position_rdh( num_correction_steps );   
 
@@ -90,7 +87,10 @@ void rd_hydro(){
       for(int gauss_gid=0; gauss_gid<mesh.num_gauss_pts(); gauss_gid++){
         gauss_properties(gauss_gid);
       }// end loop over gauss_gid
-    }; // end time integration scope
+
+      update_coeffs();
+       
+    }// end time integration scope
        
     // Increment time //
     TIME += dt;

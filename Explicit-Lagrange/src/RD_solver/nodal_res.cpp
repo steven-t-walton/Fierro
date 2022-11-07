@@ -43,8 +43,8 @@ void get_nodal_res(int t_step){
       // Create CArray to store volume integral over cells in elem of force at each sub time //
       real_t force_a[ num_dim*num_correction_steps ];
       auto force = ViewCArray <real_t> (&force_a[0], num_dim, num_correction_steps);
-      for (int step = 0; step < num_correction_steps; step++){	 
-        for (int i = 0 ; i < num_dim; i++){
+      for (int i = 0 ; i < num_dim; i++){
+        for (int step = 0; step < num_correction_steps; step++){	 
     	  force(i,step) = 0.0;
         }// end loop over step
       }// end loop over i
@@ -58,6 +58,12 @@ void get_nodal_res(int t_step){
 		             * mesh.gauss_pt_det_j(gauss_gid);
 	}// end loop over gauss_lid
       }// end loop over index
+     
+      /* 
+      for (int index = 0; index < num_basis; index++){
+        std::cout << " mass vec in res at j = " << index << " is " << res_mass(index) << std::endl;
+      }
+      */
 
       real_t volume_int_a[ num_dim ];
       auto volume_int = ViewCArray <real_t> (&volume_int_a[0], num_dim);
@@ -74,9 +80,9 @@ void get_nodal_res(int t_step){
 	      J_inv_dot_grad_phi += J_inv( k )*ref_elem.ref_nodal_gradient(gauss_lid, vertex, k);
 	    }// end loop over k
 	    volume_int(dim) -= cell_state.pressure(cell_gid)
-		                   * J_inv_dot_grad_phi
-				   * mesh.gauss_cell_pt_det_j(cell_gid)
-				   * ref_elem.ref_cell_g_weights(gauss_lid);
+		               * J_inv_dot_grad_phi
+			       * mesh.gauss_cell_pt_det_j(cell_gid)
+			       * ref_elem.ref_cell_g_weights(gauss_lid);
 	  }// end loop over gauss_lid
 	}// end loop over cell_lid
       }// end loop over dim 
@@ -98,10 +104,10 @@ void get_nodal_res(int t_step){
 		            * corner.normal(corner_gid, k);
 	    }// end loop over k
             surface_int(dim) += ref_elem.ref_nodal_basis(gauss_lid, vertex)
-		                   *J_inv_dot_n
-				   *cell_state.pressure(cell_gid)
-				   *mesh.gauss_cell_pt_det_j(cell_gid)
-				   *ref_elem.ref_cell_g_weights(gauss_lid);
+		                * J_inv_dot_n
+				* cell_state.pressure(cell_gid)
+				* mesh.gauss_cell_pt_det_j(cell_gid)
+				* ref_elem.ref_cell_g_weights(gauss_lid);
 	  }// end loop over patch_lid
 	}// end loop over cell_lid
       }// end loop over dim
@@ -116,12 +122,17 @@ void get_nodal_res(int t_step){
 	  Mv(dim) += res_mass( index ) * ( vel_r( index, dim )-vel( index, dim ) );
         }// end loop over index
       }// end loop over dim
-      
+
+      /*
+      for (int dim = 0; dim < num_dim; dim++){
+        std::cout<< "Mv at dim " << dim << " and correction_step " << t_step << " is " << Mv(dim) << std::endl;
+	std::cout << "force at dim " << dim << " is  " << force(dim,current) << std::endl;
+      }
+      */
+
       for (int dim = 0; dim < num_dim; dim++){
 	// Assign values to nodal res
-	//real_t temp = 0.0;
-        //temp = Mv(dim) + dt*0.5*( force( dim, 0 ) + force( dim, current) );
-        elem_state.nodal_res( elem_gid, vertex, dim ) = Mv(dim)/dt + 0.5*( force( dim, 0 ) + force( dim, current) );//temp*dt;
+        elem_state.nodal_res( elem_gid, vertex, dim ) = Mv(dim)/dt + 0.5*( force( dim, 0 ) + force( dim, current) );
       }// end loop over dim
 
     }// end loop over vertex

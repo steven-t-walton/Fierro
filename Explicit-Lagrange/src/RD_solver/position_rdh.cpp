@@ -8,32 +8,32 @@
 using namespace utils;
 
 void get_position_rdh(int correction_step){
-
-  int update = correction_step+1;
+  
+  real_t dt_scale = 1.0/((real_t)num_correction_steps - (real_t)correction_step);
+  int update = correction_step + 1;
   int current = correction_step;
-
 #pragma omp simd  
   //for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
   for (int node_gid = 0; node_gid <mesh.num_nodes(); node_gid++){
     //for (int vert = 0; vert < ref_elem.num_basis(); vert++){
 
       // View of vel coeffs //
-      //auto vel_update = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( 2, elem_gid, vert, 0), mesh.num_dim() );
+      //auto vel_update = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( update, elem_gid, vert, 0), mesh.num_dim() );
       //auto vel_prev = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( 1, elem_gid, vert, 0), mesh.num_dim() );
       //auto vel_n = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( 0, elem_gid, vert, 0), mesh.num_dim() );
       auto vel_update = ViewCArray <real_t> ( &node.vel( 1, node_gid, 0 ), mesh.num_dim() );
       auto vel_n = ViewCArray <real_t> ( &node.vel( 0, node_gid, 0 ), mesh.num_dim() );
 
       // View of pos coeffs //
-      //auto pos_update = ViewCArray <real_t> ( &elem_state.BV_pos_coeffs( current, elem_gid, vert, 0), mesh.num_dim() );
-      //auto pos_n = ViewCArray <real_t> ( &elem_state.BV_pos_coeffs( 0, elem_gid, vert, 0), mesh.num_dim() );
+      //auto pos_update = ViewCArray <real_t> ( &elem_state.BV_pos_coeffs( update, elem_gid, vert, 0), mesh.num_dim() );
+      //auto pos_n = ViewCArray <real_t> ( &elem_state.BV_pos_coeffs( current, elem_gid, vert, 0), mesh.num_dim() );
       auto pos_update = ViewCArray <real_t> ( &node.coords( 1, node_gid, 0 ), mesh.num_dim() );
       auto pos_n = ViewCArray <real_t> ( &node.coords( 0, node_gid,0 ), mesh.num_dim() );
 
       for (int dim = 0; dim < mesh.num_dim(); dim++){
-        pos_update( dim ) = pos_n( dim ) + 0.5 * dt * ( vel_update( dim ) + vel_n( dim ) );//vel_prev( dim ) + vel_update( dim ) + vel_prev( dim ) + 2.0*vel_n( dim ) );
+        pos_update( dim ) = pos_n( dim ) + 0.5*dt*( vel_update( dim ) + vel_n( dim ) );//vel_prev( dim ) + 2.0*vel_n( dim ) );
       }// end loop over dim
-   // }// end loop over vert
+ //   }// end loop over vert
   }// end loop over elem_gid
 
 }// end get_position_rdh()

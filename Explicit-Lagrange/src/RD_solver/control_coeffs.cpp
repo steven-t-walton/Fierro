@@ -38,8 +38,10 @@ void get_control_coeffs(){
       }// end loop over basis
     }// end loop over dim 
     
-    // push values to all time storage //
 
+/*
+
+// push values to all time storage //
 #pragma omp simd      
     for (int dim = 0; dim < mesh.num_dim(); dim++){
       for (int basis = 0; basis < ref_elem.num_basis(); basis++){
@@ -49,6 +51,7 @@ void get_control_coeffs(){
         }// end loop over t_step
       }// end loop over basis
     }// end loop over dim
+*/
 
   }// end loop over elem_gid
 
