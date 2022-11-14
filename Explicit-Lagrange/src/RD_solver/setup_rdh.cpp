@@ -98,9 +98,7 @@ void setup_rdh(char *MESH){
 
 
   for(int t_step = 0; t_step < rk_storage; t_step++){
-  
     for(int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
-      
       for(int dim = 0; dim < mesh.num_dim(); dim++){
         node.coords(t_step, node_gid, dim) = mesh.node_coords(node_gid, dim);
       }//end loop over dim
@@ -133,7 +131,6 @@ void setup_rdh(char *MESH){
 
         // get the coords of the element center //
         for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
-
           // get the node assosicated with the gauss point //
           int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
@@ -188,6 +185,7 @@ void setup_rdh(char *MESH){
 	 // fill all material quantities in the gauss points and cells in the element
 	 
 	 if (fill_this == 1){
+          		 
            for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
 
                         int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
@@ -217,6 +215,7 @@ void setup_rdh(char *MESH){
                         gauss_properties(gauss_gid);
 
            }// end loop over gauss
+	   
 
            // Fill Cell Properties using gauss point properties
            for(int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
@@ -240,7 +239,6 @@ void setup_rdh(char *MESH){
              cell_properties(cell_gid); 
             
              for (int node_lid = 0; node_lid < mesh.num_nodes_in_cell(); node_lid++){
-
                int node_gid = mesh.nodes_in_cell(cell_gid, node_lid);
                int gauss_gid  = mesh.gauss_in_cell(cell_gid, node_lid);
 
@@ -324,13 +322,13 @@ void setup_rdh(char *MESH){
                  {
                    //
                     
-                   node.vel(t_step, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
+                   node.vel(t_step, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515);
                    
-                   node.vel(t_step, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1)); 
+                   node.vel(t_step, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515); 
 
 		   node.vel(t_step, node_gid, 2) = 0.0; 
                   
-                   cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*elem_coords_x) + cos(2.0*PI*elem_coords_y) ) + 1.0;
+                   cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;
                    cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g-1.0));
                    
 		   mat_pt.pressure(gauss_gid) = 0.25*( cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;
@@ -339,6 +337,7 @@ void setup_rdh(char *MESH){
                    mat_pt.ie(gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((7.0/5.0) - 1.0)) );
 
                    mat_pt.specific_total_energy(t_step, gauss_gid) = mat_pt.ie(gauss_gid);
+		   
 		   break;
                  }
                } // end of switch
@@ -364,7 +363,7 @@ void setup_rdh(char *MESH){
   }// end loop over t_step stages
 
   // calculate the nodal masses by looping over all cells 
-  real_t partition = 1.0/(8.0);
+  real_t partition = 0.125;
 
   for (int cell_gid = 0; cell_gid < mesh.num_cells(); cell_gid++) {
 

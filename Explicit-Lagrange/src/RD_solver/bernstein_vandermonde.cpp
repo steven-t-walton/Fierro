@@ -43,7 +43,7 @@ void BV_inv(){
       }
     }
     
-/*
+/* 
       std::cout << "---- B transpose ----" << std::endl;  
       for (int index = 0; index < ref_elem.num_basis(); index++){
         for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
@@ -94,7 +94,6 @@ void BV_inv(){
 
 
 /*
-
 
 
            //////////////////////////////////////////
@@ -220,5 +219,6 @@ void BV_inv(){
 
 
 /*
+
 
 */

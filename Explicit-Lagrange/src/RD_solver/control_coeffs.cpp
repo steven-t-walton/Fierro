@@ -29,7 +29,7 @@ void get_control_coeffs(){
       for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
       	for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
 	  int node_lid = elem.vert_node_map(vertex);
-	  int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
+    	  int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
 
 	  elem_state.BV_vel_coeffs(0, elem_gid, basis_id, dim) += elem_state.BV_mat_inv( basis_id, vertex ) * node.vel( 0, node_gid, dim );
           elem_state.BV_pos_coeffs(0, elem_gid, basis_id, dim) += elem_state.BV_mat_inv( basis_id, vertex ) * node.coords( 0, node_gid, dim ); 
@@ -37,25 +37,9 @@ void get_control_coeffs(){
 	}// end loop over vertex
       }// end loop over basis
     }// end loop over dim 
-    
-
-/*
-
-// push values to all time storage //
-#pragma omp simd      
-    for (int dim = 0; dim < mesh.num_dim(); dim++){
-      for (int basis = 0; basis < ref_elem.num_basis(); basis++){
-        for (int t_step = 1; t_step <= num_correction_steps; t_step++){
-          elem_state.BV_vel_coeffs(t_step, elem_gid, basis, dim) = elem_state.BV_vel_coeffs( 0, elem_gid, basis, dim);
-	  elem_state.BV_pos_coeffs(t_step, elem_gid, basis, dim) = elem_state.BV_pos_coeffs( 0, elem_gid, basis, dim);
-        }// end loop over t_step
-      }// end loop over basis
-    }// end loop over dim
-*/
 
   }// end loop over elem_gid
 
-    
 /*
   //// print statements ///
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
@@ -81,6 +65,7 @@ void get_control_coeffs(){
 
 /*
  
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////// -------- pseudo-inverse --------- /////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -121,13 +106,24 @@ void get_control_coeffs(){
 
   }// end loop over elem_gid
 
+*/
+
+/*
+
 
 */
 
-
-
 /*
- 
- */
+// push values to all time storage //
+#pragma omp simd      
+    for (int dim = 0; dim < mesh.num_dim(); dim++){
+      for (int basis = 0; basis < ref_elem.num_basis(); basis++){
+        for (int t_step = 1; t_step <= num_correction_steps; t_step++){
+          elem_state.BV_vel_coeffs(t_step, elem_gid, basis, dim) = elem_state.BV_vel_coeffs( 0, elem_gid, basis, dim);
+	  elem_state.BV_pos_coeffs(t_step, elem_gid, basis, dim) = elem_state.BV_pos_coeffs( 0, elem_gid, basis, dim);
+        }// end loop over t_step
+      }// end loop over basis
+    }// end loop over dim
+*/
 
 

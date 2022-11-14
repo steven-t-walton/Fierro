@@ -7,11 +7,10 @@
 
 void update_coeffs(){
   
-  int update = num_correction_steps;
+  //int update = num_correction_steps;
 
   // update nodal velocity and position //
   for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++) {
-    
     auto vel = ViewCArray <real_t> (&node.vel( 1, node_gid, 0), mesh.num_dim() );
     auto vel_n = ViewCArray <real_t> (&node.vel( 0, node_gid, 0), mesh.num_dim() );
 
@@ -42,16 +41,17 @@ void update_coeffs(){
   }
 
   // update control coeffs //
-  for (int dim = 0; dim < mesh.num_dim(); dim++){
+
+  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for (int basis = 0; basis < ref_elem.num_basis(); basis++){
-      for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-        //for (int t_step = 0; t_step < num_correction_steps; t_step++){
-          elem_state.BV_vel_coeffs(0, elem_gid, basis, dim ) = elem_state.BV_vel_coeffs(update, elem_gid, basis, dim);
-          elem_state.BV_pos_coeffs(0, elem_gid, basis, dim ) = elem_state.BV_pos_coeffs(update, elem_gid, basis, dim);
+      for (int dim = 0; dim < mesh.num_dim(); dim++){
+    	    //for (int t_step = 0; t_step < num_correction_steps; t_step++){
+          elem_state.BV_vel_coeffs( 0, elem_gid, basis, dim ) = elem_state.BV_vel_coeffs( num_correction_steps, elem_gid, basis, dim );
+          elem_state.BV_pos_coeffs( 0, elem_gid, basis, dim ) = elem_state.BV_pos_coeffs( num_correction_steps, elem_gid, basis, dim );
         //}// end loop over t_step
-      }// end loop over elem_gid
+      }// end loop over dim
     }// end loop over basis
-  }// end loop over dim
+  }// end loop over elem_gid
 
 
 }// end update

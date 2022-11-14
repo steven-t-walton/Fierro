@@ -9,14 +9,14 @@ using namespace utils;
 
 void get_position_rdh(int correction_step){
   
-  real_t dt_scale = 1.0/((real_t)num_correction_steps - (real_t)correction_step);
-  int update = correction_step + 1;
-  int current = correction_step;
+  //int update = correction_step + 1;
+  //int current = correction_step;
 #pragma omp simd  
   //for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
   for (int node_gid = 0; node_gid <mesh.num_nodes(); node_gid++){
     //for (int vert = 0; vert < ref_elem.num_basis(); vert++){
-
+      //int node_lid = elem.vert_node_map(vert);
+      //int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
       // View of vel coeffs //
       //auto vel_update = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( update, elem_gid, vert, 0), mesh.num_dim() );
       //auto vel_prev = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( 1, elem_gid, vert, 0), mesh.num_dim() );
@@ -33,7 +33,7 @@ void get_position_rdh(int correction_step){
       for (int dim = 0; dim < mesh.num_dim(); dim++){
         pos_update( dim ) = pos_n( dim ) + 0.5*dt*( vel_update( dim ) + vel_n( dim ) );//vel_prev( dim ) + 2.0*vel_n( dim ) );
       }// end loop over dim
- //   }// end loop over vert
+   // }// end loop over vert
   }// end loop over elem_gid
 
 }// end get_position_rdh()

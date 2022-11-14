@@ -34,10 +34,10 @@ void interp_pos(int update){
 
       for (int dim = 0; dim < mesh.num_dim(); dim++){
         node.coords(1, node_gid, dim) = 0.0;
-	node.coords(0, node_gid, dim) = 0.0;
+	//node.coords(0, node_gid, dim) = 0.0;
       	for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
           node.coords( 1, node_gid, dim ) += ref_elem.ref_nodal_basis( node_lid, vertex ) * elem_state.BV_pos_coeffs( update, elem_gid, vertex, dim );
-          node.coords( 0, node_gid, dim ) += ref_elem.ref_nodal_basis( node_lid, vertex ) * elem_state.BV_pos_coeffs( 0, elem_gid, vertex, dim );
+          //node.coords( 0, node_gid, dim ) += ref_elem.ref_nodal_basis( node_lid, vertex ) * elem_state.BV_pos_coeffs( 0, elem_gid, vertex, dim );
 	}// end loop over vertex
       }// end loop over dim
       

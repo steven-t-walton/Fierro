@@ -20,7 +20,7 @@ void get_state(){
     elem_coords_x = mesh.cell_coords(cell_gid,0);
     elem_coords_y = mesh.cell_coords(cell_gid,1);
 
-    cell_state.density(cell_gid) = 1;
+    cell_state.density(cell_gid) = 1.0;
       
     cell_state.pressure(cell_gid) = 0.25*( cos(2.0*3.141592653589 * elem_coords_x )  + cos(2.0*3.141592653589 * elem_coords_y ) ) + 1.0;
    
