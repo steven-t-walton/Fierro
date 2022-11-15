@@ -339,15 +339,15 @@ void setup_dgh(char *MESH){
                             case init_conds::tg_vortex:
                             {
                                // as a quick fix, pressure and internal energy are calculated here too
-                                mat_pt.velocity(rk_stage, gauss_gid, 0) = sin(2.0*PI * mesh.node_coords(node_gid, 0)) * cos(2.0*PI * mesh.node_coords(node_gid, 1))*cos( PI/0.1515*mesh.node_coords(node_gid,2));
-                                mat_pt.velocity(rk_stage, gauss_gid, 1) = -1.0*cos(2.0*PI * mesh.node_coords(node_gid, 0)) * sin(2.0*PI * mesh.node_coords(node_gid, 1))*cos( PI/0.1515*mesh.node_coords(node_gid,2));
+                                mat_pt.velocity(rk_stage, gauss_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
+                                mat_pt.velocity(rk_stage, gauss_gid, 1) = -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));
                                 mat_pt.velocity(rk_stage, gauss_gid, 2) = 0.0;
                             
-                                node.vel(rk_stage, node_gid, 0) = sin(2.0*PI * mesh.node_coords(node_gid, 0)) * cos(2.0*PI * mesh.node_coords(node_gid, 1))*cos( PI/0.1515*mesh.node_coords(node_gid,2)); // = 0.0;
-                                node.vel(rk_stage, node_gid, 1) =  -1.0*cos(2.0*PI * mesh.node_coords(node_gid, 0)) * sin(2.0*PI * mesh.node_coords(node_gid, 1))*cos( PI/0.1515*mesh.node_coords(node_gid,2)); //. 0.0;
-                                node.vel(rk_stage, node_gid, 2) = 0.0; //. 0.0;
+                                node.vel(rk_stage, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
+                                node.vel(rk_stage, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));
+                                node.vel(rk_stage, node_gid, 2) = 0.0; 
                             
-                                mat_pt.pressure(gauss_gid) = cos( PI/0.1515*mesh.node_coords(node_gid,2))*0.25*( cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;
+                                mat_pt.pressure(gauss_gid) = 0.25*( cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;
                             
                                 // save the internal energy contribution to the total energy
                                 mat_pt.ie(gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((7.0/5.0) - 1.0)) );

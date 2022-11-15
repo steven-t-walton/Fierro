@@ -1223,7 +1223,7 @@ void calc_average_specific_vol();
 // RD code
 void rd_hydro();
 void get_momentum_rd(int correction_step);
-void get_position_rdh(int correction_step);
+void get_position_rdh();
 void get_nodal_res(int t_step);
 void get_total_res();
 void get_betas();
@@ -1239,8 +1239,8 @@ void get_stress();
 void update_coeffs();
 void setup_rdh(char *MESH);
 void boundary_rdh();
-void interp_vel(int correction_step);
-void interp_pos(int correction_step);
-void interp_ie(int correction_step);
+void interp_vel(int step);
+void interp_pos(int step);
+void interp_ie(int step);
 
 #endif 

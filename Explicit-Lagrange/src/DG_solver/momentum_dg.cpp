@@ -194,12 +194,15 @@ void momentum_dg(real_t rk_alpha, int cycle){
                     interp_vel[dim] += mat_pt.velocity(1, interp_gid, dim) * ref_elem.ref_nodal_basis(gauss_lid, basis_id);
                 }
             } 
-            
+            /*
                 // Save interpolated velocity back to gauss point
                 for (int dim = 0; dim < mesh.num_dim(); dim++){   
                     mat_pt.velocity(1, gauss_gid, dim) =  interp_vel[dim];
                 }
-		
+		*/
+          mat_pt.velocity(1, gauss_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
+          mat_pt.velocity(1, gauss_gid, 1) = -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));
+          mat_pt.velocity(1, gauss_gid, 2) = 0.0;		
         } // end loop over gauss_lid
         
     } // end loop over elements

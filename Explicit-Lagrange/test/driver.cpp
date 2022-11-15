@@ -400,27 +400,57 @@ int main(int argc, char *argv[]){
 
 
         // state output for plotting
-        fprintf(out_cell_state, "#cell_gid x y z r den pres sie vol\n");
+        fprintf(out_cell_state, "#cell_gid den pres sie vol\n");// "#cell_gid x y z r den pres sie vol\n");
 
-        real_t x, y, z;
+        //real_t x, y, z;
 
         for (int cell_gid = 0; cell_gid < mesh.num_cells(); cell_gid++){
-
+            /*
             x = mesh.cell_coords(cell_gid, 0);
             y = mesh.cell_coords(cell_gid, 1);
             z = mesh.cell_coords(cell_gid, 2);
-
+            */
 
 
             fprintf(out_cell_state, "%i, %e, %e, %e, %e, %e, %e, %e, %e\n",
                     cell_gid,
-                    x, y, z,
-                    sqrt(x*x + y*y + z*z),
+              //      x, y, z,
+                //    sqrt(x*x + y*y + z*z),
                     cell_state.density(cell_gid),
                     cell_state.pressure(cell_gid),
                     cell_state.ie(1, cell_gid),
                     mesh.cell_vol(cell_gid)
                     );
+        }
+        // state output for plotting
+        fprintf(out_matpt_state, "#x, y, z, r\n");//, den, pres, sie, vol \n");
+
+        real_t x, y, z;
+        for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+
+            for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+
+                int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+
+                int node_lid = gauss_lid;
+                int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+
+
+                x = mesh.node_coords(node_gid, 0);
+                y = mesh.node_coords(node_gid, 1);
+                z = mesh.node_coords(node_gid, 2);
+
+                real_t r = sqrt(x*x + y*y + z*z);
+
+                fprintf(out_matpt_state, "%e, %e, %e, %e, %e, %e, %e, %e\n",
+                    x, y, z, r);/*,
+                    mat_pt.density(gauss_gid),
+                    mat_pt.pressure(gauss_gid),
+                    mat_pt.ie(gauss_gid),
+                    mesh.gauss_pt_det_j(gauss_gid) * mat_pt.weight(gauss_gid)
+                    );
+                    */
+            }
         }
 
     };
@@ -429,7 +459,7 @@ int main(int argc, char *argv[]){
     fclose(out_cell_state);  // cell state values
     fclose(out_matpt_state);
     fclose(out_elem_state);
-/*
+
     // calculate the total energy at the end of the calculation
     if(CCH == true) track_cch(ke, ie);
     if(SGH == true) track_sgh(ke, ie);
@@ -442,7 +472,7 @@ int main(int argc, char *argv[]){
     std::cout<<"Total energy at time = " << TIME << " is = "<< ke+ie <<std::endl;
 
     std::cout<<"Energy Error = "<< (te_0) - (ke+ie) <<std::endl;
-*/
+
     // get the wall clock time
     std::clock_t end_time = std::clock();
     std::cout << "Program Run Time = " << (end_time-start_time)/CLOCKS_PER_SEC << " sec " << std::endl;

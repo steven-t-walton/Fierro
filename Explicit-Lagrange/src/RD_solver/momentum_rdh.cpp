@@ -38,12 +38,11 @@ void get_momentum_rd(int correction_step){
 
       for (int elem_node = 0; elem_node < mesh.num_elems_in_node(node_gid); elem_node++){
         int elem_node_gid = mesh.elems_in_node(node_gid, elem_node);
-        //real_t elem_lumped_mass = 0.0;
 	for (int basis_id = 0; basis_id < num_basis; basis_id++){
           for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
      	    int gauss_gid = mesh.gauss_in_elem(elem_node_gid, gauss_lid);
 	    lumped_mass(basis_id) += ref_elem.ref_nodal_basis( gauss_lid, vertex )
-	                 	     *ref_elem.ref_nodal_basis( gauss_lid, basis_id)
+	                 	     //* ref_elem.ref_nodal_basis( gauss_lid, basis_id)
 		                     * ref_elem.ref_node_g_weights( gauss_lid )
 		                     * mesh.gauss_pt_det_j( gauss_gid );
 	  }// end loop over gauss_lid

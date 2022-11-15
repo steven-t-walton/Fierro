@@ -81,7 +81,7 @@ void get_nodal_res(int t_step){
 	        for (int k = 0; k < num_dim; k++){
 	          J_inv_dot_grad_phi += J_inv( k )*ref_elem.ref_nodal_gradient(gauss_lid, vertex, k);
 	        }// end loop over k
-	        volume_int(dim) -= cell_state.pressure(cell_gid)//mat_pt.pressure(gauss_lid)//
+	        volume_int(dim) -= 0.333*cell_state.pressure(cell_gid)//mat_pt.pressure(gauss_lid)//
 		               * J_inv_dot_grad_phi
 			       * mesh.gauss_cell_pt_det_j(cell_gid)
 			       * ref_elem.ref_cell_g_weights(gauss_lid);
@@ -107,7 +107,7 @@ void get_nodal_res(int t_step){
 	        }// end loop over k
                 surface_int(dim) += ref_elem.ref_nodal_basis(gauss_lid, vertex)
 		                  * J_inv_dot_n
-	  	                  * cell_state.pressure(cell_gid)//mat_pt.pressure(gauss_lid)//
+	  	                  * 0.333*cell_state.pressure(cell_gid)//mat_pt.pressure(gauss_lid)//
 				  * mesh.gauss_cell_pt_det_j(cell_gid)
 				  * ref_elem.ref_cell_g_weights(gauss_lid);
 	      }// end loop over gauss_lid

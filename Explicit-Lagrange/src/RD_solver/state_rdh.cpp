@@ -32,7 +32,7 @@ void get_state(){
 
     track_rdh(ie,ke);
     real_t energy = ie+ke;
-    source = 3.141592653589/(4.0*7.0/5.0 - 4.0)* ( cos(3.0*3.141592653589 * elem_coords_x) * cos( 3.141592653589 * elem_coords_y) - cos( 3.141592653589 * elem_coords_x ) * cos( 3.0*3.141592653589 * elem_coords_y ) ); 
+    source = 3.141592653589/(4.0*0.4)* ( cos(3.0*3.141592653589 * elem_coords_x) * cos( 3.141592653589 * elem_coords_y) - cos( 3.141592653589 * elem_coords_x ) * cos( 3.0*3.141592653589 * elem_coords_y ) ); 
     cell_state.total_energy(1,cell_gid) = energy + source;
     
     cell_state.cs(cell_gid) =
@@ -42,6 +42,13 @@ void get_state(){
             cell_state.density(cell_gid),
             cell_state.ie(1, cell_gid)
             );
+    for (int node_lid = 0; node_lid < mesh.num_nodes_in_cell(); node_lid++){
+      int node_gid = mesh.nodes_in_cell(cell_gid, node_lid);
+      for (int dim = 0; dim < 3; dim++){
+        cell_state.velocity(1, cell_gid, dim) += 0.125*node.vel(1,node_gid,dim);
+	mesh.cell_coords(cell_gid,dim) += 0.125*node.coords(1, node_gid, dim);
+      }// end loop over dim
+    }// end loop over node_lid
   }
 }
 // */  

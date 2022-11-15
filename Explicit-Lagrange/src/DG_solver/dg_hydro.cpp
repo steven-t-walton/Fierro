@@ -157,7 +157,7 @@ void dg_hydro(){
                         mat_pt.ke(gauss_gid) = 0.5*vel_squared;
                         
                         //compute internal energy
-                        mat_pt.ie(gauss_gid) = mat_pt.specific_total_energy(1, gauss_gid) - mat_pt.ke(gauss_gid);
+                        mat_pt.ie(gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((7.0/5.0) - 1.0)) );//mat_pt.specific_total_energy(1, gauss_gid) - mat_pt.ke(gauss_gid);
                         
                         if (mat_pt.ie(gauss_gid) < 0.0) {
                             

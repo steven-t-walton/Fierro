@@ -17,13 +17,12 @@ void update_coeffs(){
     for (int dim = 0; dim < 3; dim++){
       node.coords(0, node_gid, dim) = node.coords(1, node_gid, dim);	
       mesh.node_coords(node_gid, dim) = node.coords(1, node_gid, dim);
-
+    }// end loop over dim
       // Update velocity
-      
+    for (int dim = 0; dim < 3; dim++){
       vel_n( dim ) = vel( dim );
-
-
     }// end loop over dim      
+
   }// end loop over node_gid 
 
   // update ie, stress and total energy //
@@ -37,7 +36,10 @@ void update_coeffs(){
         cell_state.stress(0, cell_gid, dim_i, dim_j) = cell_state.stress(1, cell_gid, dim_i, dim_j);
       }
     }
-    //cell_state.total_energy( 0, cell_gid ) = cell_state.total_energy( 1, cell_gid );
+    cell_state.total_energy( 0, cell_gid ) = cell_state.total_energy( 1, cell_gid );
+    for (int dim = 0; dim < 3; dim++){
+      cell_state.velocity(0, cell_gid,dim) = cell_state.velocity(1, cell_gid,dim);
+    }// end loop over dim
   }
 
   // update control coeffs //

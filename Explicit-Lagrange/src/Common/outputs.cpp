@@ -133,7 +133,7 @@ void ensight() {
         
         // velocity, var 1
         // create view into vertex velocity
-	int update = num_correction_steps - 1;
+	int update = 1;
         auto vel   = ViewCArray <real_t> (&node.vel(update, node_gid, 0), 3);
 
         vec_fields(node_gid, 1, 0) = vel(0);

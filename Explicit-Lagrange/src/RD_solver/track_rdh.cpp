@@ -32,7 +32,7 @@ void track_rdh( real_t &x, real_t &y ){
             // create view into vertex velocity
             auto vel = ViewCArray <real_t> (&node.vel( 1, node_gid, 0 ), num_dim);
 
-            ke += 0.5*(vel(0)*vel(0) + vel(1)*vel(1) + vel(2)*vel(2)) * node.mass(node_gid);              
+            ke += 0.5*( vel(0)*vel(0) + vel(1)*vel(1) + vel(2)*vel(2) ) * node.mass(node_gid);              
 
             mass1 += node.mass(node_gid);
       
