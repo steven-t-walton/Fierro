@@ -35,7 +35,7 @@ void input(){
     //  = 1 uese 3x3x3 (Simpson's rule) quadrature points
     //  = 2 uses 5x5x5 quadrature points
     //  = N uses (2N+1)(2N+1)(2N+1) quadrature points
-    p_order = 2;  // DG will use = 1,2,3,..,N
+    p_order = 1;  // DG will use = 1,2,3,..,N
 
     // With SGH and CCH, p_order = 0 and it is uses a single quadrature point element
     if(SGH == true) p_order = 0;
@@ -48,7 +48,7 @@ void input(){
     //C1 = 1.0;
     //C2 = 1.333;
 
-    dt_min = 1.e-8;
+    dt_min = 1.e-17;
     dt_max = 1.e-2;
     dt_start = 1.e-5;
     
@@ -61,11 +61,11 @@ void input(){
     
     correction_storage = num_correction_steps + 1;
 
-    dt_cfl = 0.4;
+    dt_cfl = 0.2;
 
     // ---- graphics information ---- //
     graphics_cyc_ival = 1000000;
-    graphics_dt_ival  = 0.025;    // every 0.1 time units
+    graphics_dt_ival  = 0.015;    // every 0.1 time units
 
 
 

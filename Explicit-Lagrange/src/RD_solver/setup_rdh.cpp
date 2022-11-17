@@ -112,9 +112,11 @@ void setup_rdh(char *MESH){
 
   std::cout <<"Calculating Jacobian at gauss pts in cells" << std::endl;
   get_gauss_cell_pt_jacobian(mesh, ref_elem);
+  
+  get_gauss_patch_pt_jacobian(mesh, ref_elem);
 
   std::cout << "Before volume from Jacobian"  << std::endl;
-  get_vol_jacobi(mesh, ref_elem);
+  get_vol_jacobi(mesh, ref_elem);//hex(mesh, ref_elem);
 
   std::cout << "Fill instruction NF = " << NF << std::endl;
 
@@ -329,19 +331,19 @@ void setup_rdh(char *MESH){
 		   node.vel(t_step, node_gid, 2) = 0.0; 
                   
                    cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;
-                   cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g-1.0));
+                   cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(0.6666667);//material[f_id].g-1.0));
                    
 		   real_t x = 0.0;
 		   real_t y = 0.0;
                    real_t source = 0.0;
 		   track_rdh(x,y);
-                   source = 3.141592653589/(4.0*0.4)* ( cos(3.0*3.141592653589 * mesh.cell_coords(cell_gid,0)) * cos( 3.141592653589 * mesh.cell_coords(cell_gid,1)) - cos( 3.141592653589 * mesh.cell_coords(cell_gid,0) ) * cos( 3.0*3.141592653589 * mesh.cell_coords(cell_gid,1) ) );
-		   cell_state.total_energy(1, cell_gid) = x+y+source;
+                   source = 3.141592653589/(4.0*0.6666667)* ( cos(3.0*3.141592653589 * mesh.cell_coords(cell_gid,0)) * cos( 3.141592653589 * mesh.cell_coords(cell_gid,1)) - cos( 3.141592653589 * mesh.cell_coords(cell_gid,0) ) * cos( 3.0*3.141592653589 * mesh.cell_coords(cell_gid,1) ) );
+		   cell_state.total_energy(t_step, cell_gid) = cell_state.ie(t_step,cell_gid)+y;//+source;
 		  
 		   mat_pt.pressure(gauss_gid) = 0.25*( cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;
                    
                    // save the internal energy contribution to the total energy
-                   mat_pt.ie(gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((7.0/5.0) - 1.0)) );
+                   mat_pt.ie(gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((5.0/3.0) - 1.0)) );
 
                    mat_pt.specific_total_energy(t_step, gauss_gid) = mat_pt.ie(gauss_gid);
 	           

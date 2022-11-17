@@ -22,21 +22,26 @@ void get_betas(){
     for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
       for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
         for (int dim = 0; dim < mesh.num_dim(); dim++){
+          //int node_lid = elem.vert_node_map(vertex);
+          //int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+          //for (int elem_node_lid = 0; elem_node_lid < mesh.num_elems_in_node(node_gid); elem_node_lid++){
+          //int elem_node_gid = mesh.elems_in_node(node_gid, elem_node_lid);
       	  real_t num = 0.0;
-	  num = std::max( 2.5e-30, elem_state.nodal_res(elem_gid, vertex, dim)/elem_state.total_res(elem_gid, dim) );
+	  num = std::max( 0.0, elem_state.nodal_res(elem_gid, vertex, dim)/elem_state.total_res(elem_gid, dim) );
 	  real_t denom = 0.0;
 	  for (int k = 0; k < ref_elem.num_basis(); k++){
-	    denom += std::max(2.5e-30, elem_state.nodal_res(elem_gid, k, dim)/elem_state.total_res(elem_gid,dim) );
+	    denom += std::max(0.0, elem_state.nodal_res(elem_gid, k, dim)/elem_state.total_res(elem_gid,dim) );
 	  }// end loop over k
 	 
 	  elem_state.psi_coeffs( elem_gid, vertex, dim ) = num/denom;
 	  
 	  //std::cout << elem_state.psi_coeffs( elem_gid, vertex, dim) << std::endl;
+	  //}// end loop ove elem_node_lid 
         }// end loop over dim
       }// end loop over vertex
     }// end loop over elem_gid
 
-    /*
+   /* 
     // check that coeffs sum to 1 //
 
     for (int dim = 0; dim < mesh.num_dim(); dim++){

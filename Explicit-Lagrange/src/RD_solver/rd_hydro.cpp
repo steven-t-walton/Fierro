@@ -18,28 +18,29 @@ void rd_hydro(){
     std::cout<<"cycle = "<<cycle<<std::endl;
 
     if (stop_calc == 1) break;
+
     
     if (cycle == 1){
+
       BV_inv();
       get_control_coeffs();
-      interp_vel(0);
-      interp_pos(0);
       track_rdh(ke0, ie0);
       te_0 = ie0 + ke0;
-      std::cout << " ke at t0 = " << ke0 << std::endl;
-      std::cout << " ie at t0 = " << ie0 << std::endl;
-      std::cout << "E_tot at t0 = "<< te_0 << std::endl;
-      std::cout << std::endl;
+      //std::cout << " ke at t0 = " << ke0 << std::endl;
+      //std::cout << " ie at t0 = " << ie0 << std::endl;
+      //std::cout << "E_tot at t0 = "<< te_0 << std::endl;
+      //std::cout << std::endl;
     };// end if
+    
 
     get_timestep();
 
     dt = fmin(dt, (graphics_time - TIME)+fuzz);
-    
-    
+
     { // Time integration scope //
       
 #pragma omp simd
+
       // DeC update //
       for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
 
@@ -78,6 +79,8 @@ void rd_hydro(){
       get_gauss_pt_jacobian(mesh, ref_elem);
     
       get_gauss_cell_pt_jacobian(mesh, ref_elem);
+
+      get_gauss_patch_pt_jacobian(mesh, ref_elem);
 
       get_vol_jacobi(mesh, ref_elem);
 

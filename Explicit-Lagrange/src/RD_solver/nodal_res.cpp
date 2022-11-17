@@ -28,15 +28,16 @@ void get_nodal_res(int t_step){
       // Loop over elems around node <-- this elem_id is used in momentum update
       for (int elems_in_node_lid = 0; elems_in_node_lid < mesh.num_elems_in_node(node_gid); elems_in_node_lid++){
         int elems_in_node_gid = mesh.elems_in_node(node_gid, elems_in_node_lid);
+        //std::cout << elems_in_node_gid << std::endl;
 
-        // Create mtx with columns vel_r - vel coeffs \in R^{num_basis x num_dim}
+	// Create mtx with columns vel_r - vel coeffs \in R^{num_basis x num_dim}
         auto vel_r = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( current, elems_in_node_gid, 0, 0 ), num_basis, num_dim );
         auto vel = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( 0, elems_in_node_gid, 0, 0 ), num_basis, num_dim );
 
 	real_t res_mass_a[num_basis];
         auto res_mass = ViewCArray <real_t> ( &res_mass_a[0], num_basis );
         for (int i = 0; i < num_basis; i++) res_mass(i) = 0.0;
-       
+
         // Create variable for \sum_{q} M_{pq} \delta u^r_q //      
         real_t Mv_a[num_dim];
         auto Mv = ViewCArray <real_t> ( &Mv_a[0], num_dim );
@@ -53,83 +54,78 @@ void get_nodal_res(int t_step){
 
 	for (int index = 0; index < num_basis; index++){
           for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
-	    int gauss_gid = mesh.gauss_in_elem(elems_in_node_gid, gauss_lid);
-	    res_mass(index) += ref_elem.ref_nodal_basis(gauss_lid, vertex) 
-			     * ref_elem.ref_node_g_weights(gauss_lid)
-		             * mesh.gauss_pt_det_j(gauss_gid)
-                             * ref_elem.ref_nodal_basis(gauss_lid, index);
+	      int gauss_gid = mesh.gauss_in_elem(elems_in_node_gid, gauss_lid);
+	        res_mass(index) += ref_elem.ref_nodal_basis(gauss_lid, vertex) 
+                                 * ref_elem.ref_nodal_basis(gauss_lid, index)
+                                 * ref_elem.ref_node_g_weights(gauss_lid)
+		                 * mesh.gauss_pt_det_j(gauss_gid);
 	  }// end loop over gauss_lid
         }// end loop over index
      
         /* 
         for (int index = 0; index < num_basis; index++){
           std::cout << " mass vec in res at j = " << index << " is " << res_mass(index) << std::endl;
-        }
+	}
         */
 
         real_t volume_int_a[ num_dim ];
         auto volume_int = ViewCArray <real_t> (&volume_int_a[0], num_dim);
         for (int i = 0; i < num_dim; i++) volume_int(i) = 0.0;
       
-       // Volume integral //
-        for (int dim = 0; dim < num_dim; dim++){
-          for (int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
-      	    int cell_gid = mesh.cells_in_elem(elems_in_node_gid, cell_lid);
-            auto J_inv = ViewCArray <real_t> ( &mesh.gauss_cell_pt_jacobian_inverse( cell_gid, dim, 0), num_dim );
-	      for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
-	        real_t J_inv_dot_grad_phi = 0.0;
-	        for (int k = 0; k < num_dim; k++){
-	          J_inv_dot_grad_phi += J_inv( k )*ref_elem.ref_nodal_gradient(gauss_lid, vertex, k);
-	        }// end loop over k
-	        volume_int(dim) -= 0.333*cell_state.pressure(cell_gid)//mat_pt.pressure(gauss_lid)//
-		               * J_inv_dot_grad_phi
-			       * mesh.gauss_cell_pt_det_j(cell_gid)
-			       * ref_elem.ref_cell_g_weights(gauss_lid);
-	      }// end loop over gauss_lid
-	    }// end loop over cell_lid
-          }// end loop over dim 
-      
+         // Volume integral //
+          for (int dim = 0; dim < num_dim; dim++){
+	    for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+	      int gauss_gid = mesh.gauss_in_elem(elems_in_node_gid, gauss_lid);
+	      auto J_inv = ViewCArray <real_t> ( &mesh.gauss_pt_jacobian_inverse(gauss_gid, dim, 0), num_dim );
+	      real_t J_inv_dot_grad_phi = 0.0;
+	      for (int k = 0; k < num_dim; k++){
+	        J_inv_dot_grad_phi = J_inv(k)*ref_elem.ref_nodal_gradient(gauss_lid,vertex,k);
+	      }// end loop over k
+	      volume_int(dim) -= mat_pt.pressure(gauss_lid)
+	    	                * J_inv_dot_grad_phi
+			        * ref_elem.ref_node_g_weights(gauss_lid)
+			        * mesh.gauss_pt_det_j(gauss_gid);
+	    }// end loop over gauss_lid
+	  }// end loop over dim
+
           real_t surface_int_a[ num_dim ];
           auto surface_int = ViewCArray <real_t> (&surface_int_a[0], num_dim);
           for (int i = 0; i < num_dim; i++) surface_int(i) = 0.0;
       
           // Surface Integral //
           for (int dim = 0; dim < num_dim; dim++){
-            for (int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
-	      int cell_gid =  mesh.cells_in_elem(elems_in_node_gid, cell_lid);
-	      for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
-	        int gauss_gid = mesh.gauss_in_cell(cell_gid, gauss_lid);
-	        int corner_gid = mesh.corners_in_cell(cell_gid, gauss_lid);
-                real_t J_inv_dot_n = 0.0;
-	        for (int k = 0; k < num_dim; k++){
-	          J_inv_dot_n = mesh.gauss_cell_pt_jacobian_inverse(cell_gid, dim, k)
-		                * corner.normal(corner_gid, k);
-	        }// end loop over k
-                surface_int(dim) += ref_elem.ref_nodal_basis(gauss_lid, vertex)
-		                  * J_inv_dot_n
-	  	                  * 0.333*cell_state.pressure(cell_gid)//mat_pt.pressure(gauss_lid)//
-				  * mesh.gauss_cell_pt_det_j(cell_gid)
-				  * ref_elem.ref_cell_g_weights(gauss_lid);
-	      }// end loop over gauss_lid
-	    }// end loop over cell_lid
+            for(int patch_gauss_lid = 0; patch_gauss_lid < mesh.num_patches_in_elem(); patch_gauss_lid++){
+
+              int gauss_patch_gid = mesh.gauss_patch_pt_in_elem(elems_in_node_gid, patch_gauss_lid);
+
+              real_t J_inv_dot_sigma = 0.0;
+	      for (int k = 0; k < num_dim; k++){
+	        J_inv_dot_sigma += 0.333*mesh.gauss_patch_pt_jacobian_inverse(gauss_patch_gid, dim, k)*mat_pt.pressure(patch_gauss_lid);
+	      }// end loop over k
+              surface_int(dim) += ref_elem.ref_patch_basis(patch_gauss_lid, vertex)
+		                  * J_inv_dot_sigma
+				  * mesh.gauss_patch_pt_det_j(gauss_patch_gid)
+				  * ref_elem.ref_patch_g_weights(patch_gauss_lid);
+	    }// end loop over gauss_lid
           }// end loop over dim
-      
+     
         for (int dim = 0; dim < num_dim; dim++){
           force(dim, current) = volume_int(dim) + surface_int(dim);
+	  //std::cout << force(dim) << std::endl;
         }
-        //std::cout << force(0,current) << std::endl;
         
 	
         for (int dim = 0; dim < num_dim; dim++){
           for (int index = 0; index < num_basis; index++){
+            //std::cout << vel_r(index,dim) - vel(index,dim) << std::endl;
 	    Mv(dim) += res_mass( index )*vel_r( index, dim ) - res_mass(index)*vel( index, dim );
           }// end loop over index
         }// end loop over dim
        
 
-        /*
+       /* 
         for (int dim = 0; dim < num_dim; dim++){
-          std::cout<< "Mv at dim " << dim << " and correction_step " << t_step << " is " << Mv(dim) << std::endl;
+          std::cout<< "Mv/dt at dim " << dim << " and correction_step " << t_step << " is " << Mv(dim)/dt << std::endl;
 	  std::cout << "force at dim " << dim << " is  " << force(dim,current) << std::endl;
         }
         */

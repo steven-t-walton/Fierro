@@ -8,7 +8,6 @@
 using namespace utils;
 
 void interp_vel(int update){
-
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
       int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
@@ -19,13 +18,11 @@ void interp_vel(int update){
           node.vel( 1, node_gid, dim ) += ref_elem.ref_nodal_basis( node_lid, vertex ) * elem_state.BV_vel_coeffs( update, elem_gid, vertex, dim );
 	}// end loop over vertex
       }// end loop over dim
-
-     /* 
-     node.vel(1, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
-     node.vel(1, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1)); 
-     node.vel(1, node_gid, 2) = 0.0; 
-     */
-
+/*
+      std::cout << node.vel(1, node_gid, 0) - sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1))<< std::endl;
+      std::cout << node.vel(1, node_gid, 1) + 1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1))<< std::endl; 
+      std::cout << node.vel(1, node_gid, 2) << std::endl; 
+*/      
     }// end loop over node_lid
   }// end loop over elem_gid
 

@@ -6,6 +6,7 @@
 #include "geometry.h"
 #include "variables.h"
 
+#define PI 3.14159265
 
 using namespace utils;
 
@@ -66,13 +67,13 @@ void gauss_properties(int mat_pt_gid){
 
 
     // calculate the pressure
-    mat_pt.pressure(mat_pt_gid) = 
-        material[mat_pt.mat_id(mat_pt_gid)].eos_func(
-            p_of_de,
-            mat_pt.mat_id(mat_pt_gid), 
-            mat_pt.density(mat_pt_gid), 
-            mat_pt.ie(mat_pt_gid)
-            );
+    mat_pt.pressure(mat_pt_gid) = 0.25*( cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;
+       // material[mat_pt.mat_id(mat_pt_gid)].eos_func(
+       //     p_of_de,
+       //     mat_pt.mat_id(mat_pt_gid), 
+       //     mat_pt.density(mat_pt_gid), 
+       //     mat_pt.ie(mat_pt_gid)
+       //     );
     
     // calculate the sound speed
     mat_pt.sspd(mat_pt_gid) = 
