@@ -13,15 +13,16 @@ void get_position_rdh(){
   for (int node_gid = 0; node_gid <mesh.num_nodes(); node_gid++){
 
     // View of vel coeffs //
-    auto vel_update = ViewCArray <real_t> ( &node.vel( 1, node_gid, 0 ), mesh.num_dim() );
-    auto vel_n = ViewCArray <real_t> ( &node.vel( 0, node_gid, 0 ), mesh.num_dim() );
+    //auto vel_update = ViewCArray <real_t> ( &node.vel( 1, node_gid, 0 ), mesh.num_dim() );
+    //auto vel_n = ViewCArray <real_t> ( &node.vel( 0, node_gid, 0 ), mesh.num_dim() );
 
     // View of pos coeffs //
-    auto pos_update = ViewCArray <real_t> ( &node.coords( 1, node_gid, 0 ), mesh.num_dim() );
-    auto pos_n = ViewCArray <real_t> ( &node.coords( 0, node_gid,0 ), mesh.num_dim() );
+    //auto pos_update = ViewCArray <real_t> ( &node.coords( 1, node_gid, 0 ), mesh.num_dim() );
+    //auto pos_n = ViewCArray <real_t> ( &node.coords( 0, node_gid,0 ), mesh.num_dim() );
 
     for (int dim = 0; dim < mesh.num_dim(); dim++){
-      pos_update( dim ) = pos_n( dim ) + 0.5*dt*( vel_update( dim ) + vel_n( dim ) );
+      node.coords(1, node_gid, dim ) = node.coords(0, node_gid, dim) + 0.5*dt*( node.vel( 1, node_gid, dim) + node.vel(0, node_gid, dim) );//vel_update( dim ) + vel_n( dim ) );
+      //mesh.node_coords(node_gid, dim) = pos_update( dim );
     }// end loop over dim
   }// end loop over node_gid
 

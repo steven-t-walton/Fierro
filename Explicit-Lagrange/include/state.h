@@ -599,11 +599,11 @@ class elem_state_t {
 	// *** RD *** //
         real_t *BV_mat_inverse_ = NULL;
         real_t *B_vel_coeffs_ = NULL;
-	real_t *B_pos_coeffs_ = NULL;
-        real_t *nodal_res_ = NULL;
-	real_t *total_res_ = NULL;
-	real_t *limited_res_ = NULL;
-	real_t *psi_coeffs_ = NULL;
+	//real_t *B_pos_coeffs_ = NULL;
+        //real_t *nodal_res_ = NULL;
+	//real_t *total_res_ = NULL;
+	//real_t *limited_res_ = NULL;
+	//real_t *psi_coeffs_ = NULL;
 	// *** end RD *** //
 	
     public:
@@ -639,11 +639,11 @@ class elem_state_t {
 	    // *** RD *** //
             BV_mat_inverse_ = new real_t[num_basis_*num_basis_]();
             B_vel_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
-	    B_pos_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
-	    nodal_res_ = new real_t[num_elem_*num_basis_*num_dim_]();
-            total_res_ = new real_t[num_elem_*num_dim_]();
-	    limited_res_ = new real_t[num_elem_*num_basis_*num_dim_]();
-	    psi_coeffs_ = new real_t[num_elem_*num_basis_*num_dim_]();
+	    //B_pos_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
+	    //nodal_res_ = new real_t[num_elem_*num_basis_*num_dim_]();
+            //total_res_ = new real_t[num_elem_*num_dim_]();
+	    //limited_res_ = new real_t[num_elem_*num_basis_*num_dim_]();
+	    //psi_coeffs_ = new real_t[num_elem_*num_basis_*num_dim_]();
 	    // *** end RD *** //
         }
 
@@ -676,30 +676,30 @@ class elem_state_t {
 	    return B_vel_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
 	}
     
-	inline real_t& BV_pos_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const
-	{
-	    return B_pos_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
-	}
+	//inline real_t& BV_pos_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const
+//	{
+//	    return B_pos_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
+//	}
 
-        inline real_t& nodal_res(int elem_gid, int vertex, int this_dim) const
-        {
-            return nodal_res_[elem_gid*num_basis_*num_dim_ + vertex*num_dim_ + this_dim];
-        }
+//        inline real_t& nodal_res(int elem_gid, int vertex, int this_dim) const
+//        {
+//            return nodal_res_[elem_gid*num_basis_*num_dim_ + vertex*num_dim_ + this_dim];
+//        }
 
-        inline real_t& total_res(int elem_gid, int this_dim) const
-        {
-            return total_res_[elem_gid*num_dim_ + this_dim];
-        }
+//        inline real_t& total_res(int elem_gid, int this_dim) const
+//        {
+//            return total_res_[elem_gid*num_dim_ + this_dim];
+//        }
 
-        inline real_t& limited_res(int elem_gid, int vertex, int this_dim) const
-        {
-            return limited_res_[elem_gid*num_basis_*num_dim_ + vertex*num_dim_ + this_dim];
-        }
+//        inline real_t& limited_res(int elem_gid, int vertex, int this_dim) const
+//        {
+//            return limited_res_[elem_gid*num_basis_*num_dim_ + vertex*num_dim_ + this_dim];
+//        }
 
-        inline real_t& psi_coeffs(int elem_gid, int vertex, int this_dim) const
-        {
-            return psi_coeffs_[elem_gid*num_basis_*num_dim_ + vertex*num_dim_ + this_dim];
-        }
+//        inline real_t& psi_coeffs(int elem_gid, int vertex, int this_dim) const
+//        {
+//            return psi_coeffs_[elem_gid*num_basis_*num_dim_ + vertex*num_dim_ + this_dim];
+//        }
         //---- **** end RD allocation **** ----//
 	
         // were are the dims?
@@ -753,11 +753,11 @@ class elem_state_t {
             delete[] bad_;
             delete[] BV_mat_inverse_;
 	    delete[] B_vel_coeffs_;
-            delete[] B_pos_coeffs_;
-	    delete[] nodal_res_;
-	    delete[] total_res_;
-	    delete[] limited_res_;
-	    delete[] psi_coeffs_;
+           // delete[] B_pos_coeffs_;
+	   // delete[] nodal_res_;
+	   // delete[] total_res_;
+	   // delete[] limited_res_;
+	   // delete[] psi_coeffs_;
         }
 };
 
@@ -1222,12 +1222,12 @@ void calc_average_specific_vol();
 
 // RD code
 void rd_hydro();
-void get_momentum_rd(int correction_step);
+//void get_momentum_rd(int correction_step);
 void get_position_rdh();
 void get_nodal_res(int t_step);
-void get_total_res();
-void get_betas();
-void get_limited_res();
+//void get_total_res();
+//void get_betas();
+//void get_limited_res();
 //void lumped_mass();
 //void prediction_step(real_t sub_dt, int pred_step);
 void track_rdh(real_t &x, real_t &y);
@@ -1239,8 +1239,8 @@ void get_stress();
 void update_coeffs();
 void setup_rdh(char *MESH);
 void boundary_rdh();
-void interp_vel(int step);
-void interp_pos(int step);
+void interp_vel();
+//void interp_pos(int step);
 void interp_ie(int step);
 
 #endif 

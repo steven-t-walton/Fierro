@@ -50,14 +50,14 @@ void rd_hydro(){
 	//std::cout << "calling get_nodal_res" << std::endl;
         get_nodal_res( correction_step );
         
-	get_total_res();
+	//get_total_res();
 
-	get_betas();
+	//get_betas();
 
-	get_limited_res();
+	//get_limited_res();
         
       	// updates velocity coeffs //
-	get_momentum_rd( correction_step );
+	//get_momentum_rd( correction_step );
 	
 	// energy update //
         //get_energy_rdh( sub_dt );
@@ -65,16 +65,13 @@ void rd_hydro(){
       }//end correction steps
       
       // intepolate the velocity with evolved coeffs and save to nodes  //
-      interp_vel( num_correction_steps );
+      // interp_vel();
       
       // update boundary vel vals //
       boundary_rdh();
 
       // update position //
       get_position_rdh();   
-
-      // interpolate the position with evolved coeffs and save to nodes //
-      //interp_pos( num_correction_steps );
 
       get_gauss_pt_jacobian(mesh, ref_elem);
     

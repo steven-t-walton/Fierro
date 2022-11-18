@@ -116,7 +116,7 @@ void setup_rdh(char *MESH){
   get_gauss_patch_pt_jacobian(mesh, ref_elem);
 
   std::cout << "Before volume from Jacobian"  << std::endl;
-  get_vol_jacobi(mesh, ref_elem);//hex(mesh, ref_elem);
+  get_vol_hex(mesh, ref_elem);
 
   std::cout << "Fill instruction NF = " << NF << std::endl;
 
@@ -218,8 +218,6 @@ void setup_rdh(char *MESH){
 
            }// end loop over gauss
 	   
-
-           // Fill Cell Properties using gauss point properties
            for(int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
 
              int cell_gid = mesh.cells_in_elem(elem_gid, cell_lid);
@@ -322,12 +320,12 @@ void setup_rdh(char *MESH){
                  }
                  case init_conds::tg_vortex:
                  {
-                   //
-                    
+                   
+                   
                    node.vel(t_step, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515);
                    
                    node.vel(t_step, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515); 
-
+                   
 		   node.vel(t_step, node_gid, 2) = 0.0; 
                   
                    cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;
@@ -338,55 +336,43 @@ void setup_rdh(char *MESH){
                    real_t source = 0.0;
 		   track_rdh(x,y);
                    source = 3.141592653589/(4.0*0.6666667)* ( cos(3.0*3.141592653589 * mesh.cell_coords(cell_gid,0)) * cos( 3.141592653589 * mesh.cell_coords(cell_gid,1)) - cos( 3.141592653589 * mesh.cell_coords(cell_gid,0) ) * cos( 3.0*3.141592653589 * mesh.cell_coords(cell_gid,1) ) );
-		   cell_state.total_energy(t_step, cell_gid) = cell_state.ie(t_step,cell_gid)+y;//+source;
+		   
+		   cell_state.total_energy(t_step, cell_gid) = cell_state.ie(t_step,cell_gid)+y+source;
 		  
 		   mat_pt.pressure(gauss_gid) = 0.25*( cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;
                    
                    // save the internal energy contribution to the total energy
                    mat_pt.ie(gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((5.0/3.0) - 1.0)) );
 
-                   mat_pt.specific_total_energy(t_step, gauss_gid) = mat_pt.ie(gauss_gid);
+                   mat_pt.specific_total_energy(t_step, node_gid) = mat_pt.ie(gauss_gid)+y;
 	           
-                   for (int dim = 0; dim < 3; dim++){
-                     cell_state.velocity(0, cell_gid, dim) += 0.125*node.vel(0,node_gid,dim);
-		     mesh.cell_coords(cell_gid, dim) += 0.125*node.coords(0, node_gid, dim);
-                   }// end loop over dim
 		   break;
                  }
                } // end of switch
 
 
              } // end for loop over nodes in cell
-/*
-             if(mat_fill[f_id].velocity == init_conds::tg_vortex){
-               cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*elem_coords_x) + cos(2.0*PI*elem_coords_y) ) + 1.0;
-               cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(mat_fill[f_id].r*(material[f_id].g-1.0));
-             };// end if
-*/                          
-
            }// end loop over cells in the element
 
 
 
          } // end if fill
        } // end for element loop
-
      } // end for fills
-    boundary_rdh();
   }// end loop over t_step stages
 
+  boundary_rdh();
+  
   // calculate the nodal masses by looping over all cells 
   real_t partition = 0.125;
 
   for (int cell_gid = 0; cell_gid < mesh.num_cells(); cell_gid++) {
-
     // distribute mass to the nodes
     real_t mass = partition*cell_state.mass(cell_gid);
-
     for (int node_lid = 0; node_lid < mesh.num_nodes_in_cell(); node_lid++){
       node.mass(mesh.nodes_in_cell(cell_gid, node_lid)) += mass;
-    }
+    }// end loop over node_lid
+  } // end loop over celL_gid
 
-  } // end for cell k
 
 }// end setup_rd

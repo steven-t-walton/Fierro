@@ -21,35 +21,21 @@ void get_momentum_rd(int correction_step){
     
     for (int vertex = 0; vertex < num_basis; vertex++){
 
-      auto vel_update = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( update, elem_gid, vertex, 0 ),  num_dim );
-      for (int dim = 0; dim < num_dim; dim++){
-         vel_update(dim) = 0.0;
-      }
-      auto vel_r = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( current, elem_gid, vertex, 0 ),  num_dim );
-
       int node_lid = elem.vert_node_map( vertex );
       int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
      
-      //real_t lumped_mass_a[num_basis];
-      //auto lumped_mass = ViewCArray <real_t> ( &lumped_mass_a[0], num_dim);
       real_t lumped_mass = 0.0;
 
       for (int elem_node = 0; elem_node < mesh.num_elems_in_node(node_gid); elem_node++){
         int elem_node_gid = mesh.elems_in_node(node_gid, elem_node);
-	//for (int basis_id = 0; basis_id < num_basis; basis_id++){
-          //for (int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
-            //int cell_gid = mesh.cells_in_elem(elem_node_gid, cell_lid);
-            for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
-     	      int gauss_gid = mesh.gauss_in_elem(elem_node_gid, gauss_lid);
-	      lumped_mass += ref_elem.ref_nodal_basis( gauss_lid, vertex )
-		                       * ref_elem.ref_node_g_weights( gauss_lid )
-		                       * mesh.gauss_pt_det_j( gauss_gid );
-	    }// end loop over gauss_lid
-	 // }// end loop over cell_lid
-//	}// end loop over basis_id
+        for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+     	  int gauss_gid = mesh.gauss_in_elem(elem_node_gid, gauss_lid);
+	  lumped_mass += ref_elem.ref_nodal_basis( gauss_lid, vertex )
+		         * ref_elem.ref_node_g_weights( gauss_lid )
+		         * mesh.gauss_pt_det_j( gauss_gid );
+        }// end loop over gauss_lid
       }// end loop over elem_node
 
-       
       real_t sum_a[num_dim];
       auto sum = ViewCArray <real_t> ( &sum_a[0], num_dim);
       for (int dim  = 0; dim < num_dim; dim++) sum(dim) = 0.0;
@@ -72,9 +58,10 @@ void get_momentum_rd(int correction_step){
 
 	}// end loop over elem_node
       }// end loop over dim
-      
+
       for (int dim = 0; dim < num_dim; dim++){
-        vel_update( dim ) = vel_r( dim ) - dt*sum(dim)/lumped_mass;
+         elem_state.BV_vel_coeffs( update, elem_gid, vertex, dim) = elem_state.BV_vel_coeffs( current, elem_gid, vertex, dim) - sum(dim)/lumped_mass;
+        //vel_update( dim ) = vel_r( dim ) - sum(dim)/lumped_mass;
         // std::cout << vel_update(dim) << std::endl;
       }// end loop over dim
 

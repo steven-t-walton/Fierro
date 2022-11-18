@@ -33,7 +33,7 @@ void get_state(){
     track_rdh(ie,ke);
     real_t energy = ke;//+ie
     source = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * elem_coords_x) * cos( 3.141592653589 * elem_coords_y) - cos( 3.141592653589 * elem_coords_x ) * cos( 3.0*3.141592653589 * elem_coords_y ) ); 
-    cell_state.total_energy(1,cell_gid) = cell_state.ie(1,cell_gid) + energy; //+ source;
+    cell_state.total_energy(1,cell_gid) = cell_state.ie(1,cell_gid) + energy+ source;
     
     cell_state.cs(cell_gid) =
         material[cell_state.mat_id(cell_gid)].eos_func(

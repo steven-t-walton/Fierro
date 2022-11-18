@@ -8,6 +8,8 @@
 #include "geometry.h"
 #include "variables.h"
 
+#define PI 3.14159265
+
 using namespace utils;
 
 void get_nodal_res(int t_step){
@@ -16,6 +18,7 @@ void get_nodal_res(int t_step){
   int num_dim = mesh.num_dim();
 
   int current = t_step;
+  int update = t_step+1;
 
 #pragma omp simd
   // Loop over elements // < --- only used to get node_gid
@@ -24,38 +27,54 @@ void get_nodal_res(int t_step){
     for (int vertex = 0; vertex < num_basis; vertex++){
       int node_lid = elem.vert_node_map(vertex);
       int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-  
+      int num_elems_in_vert = mesh.num_elems_in_node(node_gid);
+
+      real_t lumped_mass = 0.0;
+       
       // Loop over elems around node <-- this elem_id is used in momentum update
-      for (int elems_in_node_lid = 0; elems_in_node_lid < mesh.num_elems_in_node(node_gid); elems_in_node_lid++){
-        int elems_in_node_gid = mesh.elems_in_node(node_gid, elems_in_node_lid);
-        //std::cout << elems_in_node_gid << std::endl;
+      for (int elems_in_vert = 0; elems_in_vert < num_elems_in_vert; elems_in_vert++){
+        int elems_in_vert_gid = mesh.elems_in_node(node_gid, elems_in_vert);
+        
+        for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+	  int gauss_gid = mesh.gauss_in_elem(elems_in_vert_gid, gauss_lid);
+	  lumped_mass += ref_elem.ref_nodal_basis(gauss_lid, vertex)
+		         * ref_elem.ref_node_g_weights(gauss_lid)
+			 * mesh.gauss_pt_det_j(gauss_gid);
+	}// end loop over gauss_lid
+      }// end loop over elems_in_node_lid
+      
+      int nodal_res_size = num_elems_in_vert*num_dim;
+      real_t nodal_res_a[nodal_res_size];
+      for (int i = 0; i < nodal_res_size; i++) nodal_res_a[i] = 0.0;
+      auto nodal_res = ViewCArray <real_t> ( &nodal_res_a[0], num_elems_in_vert, num_dim);
 
-	// Create mtx with columns vel_r - vel coeffs \in R^{num_basis x num_dim}
-        auto vel_r = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( current, elems_in_node_gid, 0, 0 ), num_basis, num_dim );
-        auto vel = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( 0, elems_in_node_gid, 0, 0 ), num_basis, num_dim );
+      real_t sum_nodal_res_a[num_dim];
+      for (int i = 0; i < num_dim; i++) sum_nodal_res_a[i] = 0.0;
+      auto sum_nodal_res = ViewCArray <real_t> ( &sum_nodal_res_a[0], num_dim);
 
+      for (int elems_in_vert = 0; elems_in_vert < num_elems_in_vert; elems_in_vert++){
+
+        int elems_in_vert_gid = mesh.elems_in_node(node_gid, elems_in_vert);
+        
 	real_t res_mass_a[num_basis];
-        auto res_mass = ViewCArray <real_t> ( &res_mass_a[0], num_basis );
-        for (int i = 0; i < num_basis; i++) res_mass(i) = 0.0;
+        for (int i = 0; i < num_basis; i++) res_mass_a[i] = 0.0;
+	auto res_mass = ViewCArray <real_t> ( &res_mass_a[0], num_basis );
 
         // Create variable for \sum_{q} M_{pq} \delta u^r_q //      
         real_t Mv_a[num_dim];
-        auto Mv = ViewCArray <real_t> ( &Mv_a[0], num_dim );
-        for (int i = 0; i < num_dim; i++) Mv(i) = 0.0;
+        for (int i = 0; i < num_dim; i++) Mv_a[i] = 0.0;
+	auto Mv = ViewCArray <real_t> ( &Mv_a[0], num_dim );
 
         // Create CArray to store volume integral over cells in elem of force at each sub time //
-        real_t force_a[ num_dim*num_correction_steps ];
+	int const force_size = num_dim*num_correction_steps;
+        real_t force_a[force_size];
+	for (int i = 0; i < force_size; i++) force_a[i] = 0.0;
         auto force = ViewCArray <real_t> (&force_a[0], num_dim, num_correction_steps);
-        for (int i = 0 ; i < num_dim; i++){
-          for (int step = 0; step < num_correction_steps; step++){	 
-    	    force(i,step) = 0.0;
-          }// end loop over step
-        }// end loop over i
 
-	for (int index = 0; index < num_basis; index++){
+        for (int index = 0; index < num_basis; index++){
           for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
-	      int gauss_gid = mesh.gauss_in_elem(elems_in_node_gid, gauss_lid);
-	        res_mass(index) += ref_elem.ref_nodal_basis(gauss_lid, vertex) 
+	    int gauss_gid = mesh.gauss_in_elem(elems_in_vert_gid, gauss_lid);
+	    res_mass(index) += ref_elem.ref_nodal_basis(gauss_lid, vertex) 
                                  * ref_elem.ref_nodal_basis(gauss_lid, index)
                                  * ref_elem.ref_node_g_weights(gauss_lid)
 		                 * mesh.gauss_pt_det_j(gauss_gid);
@@ -72,45 +91,45 @@ void get_nodal_res(int t_step){
         auto volume_int = ViewCArray <real_t> (&volume_int_a[0], num_dim);
         for (int i = 0; i < num_dim; i++) volume_int(i) = 0.0;
       
-         // Volume integral //
-          for (int dim = 0; dim < num_dim; dim++){
-	    for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
-	      int gauss_gid = mesh.gauss_in_elem(elems_in_node_gid, gauss_lid);
-	      auto J_inv = ViewCArray <real_t> ( &mesh.gauss_pt_jacobian_inverse(gauss_gid, dim, 0), num_dim );
-	      real_t J_inv_dot_grad_phi = 0.0;
-	      for (int k = 0; k < num_dim; k++){
-	        J_inv_dot_grad_phi = J_inv(k)*ref_elem.ref_nodal_gradient(gauss_lid,vertex,k);
-	      }// end loop over k
-	      volume_int(dim) -= mat_pt.pressure(gauss_lid)
-	    	                * J_inv_dot_grad_phi
-			        * ref_elem.ref_node_g_weights(gauss_lid)
-			        * mesh.gauss_pt_det_j(gauss_gid);
-	    }// end loop over gauss_lid
-	  }// end loop over dim
+        // Volume integral //
+        for (int dim = 0; dim < num_dim; dim++){
+	  for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+	    int gauss_gid = mesh.gauss_in_elem(elems_in_vert_gid, gauss_lid);
+	    real_t J_inv_dot_grad_phi = 0.0;
+	    for (int k = 0; k < num_dim; k++){
+	      J_inv_dot_grad_phi += mesh.gauss_pt_jacobian_inverse(gauss_gid, dim, k)*ref_elem.ref_nodal_gradient(gauss_lid,vertex,k);
+	    }// end loop over k
+	    volume_int(dim) += mat_pt.pressure(gauss_lid)
+	        	       * J_inv_dot_grad_phi
+			       * ref_elem.ref_node_g_weights(gauss_lid)
+			       * mesh.gauss_pt_det_j(gauss_gid);
+	  }// end loop over gauss_lid
+        }// end loop over dim
 
-          real_t surface_int_a[ num_dim ];
-          auto surface_int = ViewCArray <real_t> (&surface_int_a[0], num_dim);
-          for (int i = 0; i < num_dim; i++) surface_int(i) = 0.0;
+        real_t surface_int_a[ num_dim ];
+        auto surface_int = ViewCArray <real_t> (&surface_int_a[0], num_dim);
+        for (int i = 0; i < num_dim; i++) surface_int(i) = 0.0;
       
-          // Surface Integral //
-          for (int dim = 0; dim < num_dim; dim++){
-            for(int patch_gauss_lid = 0; patch_gauss_lid < mesh.num_patches_in_elem(); patch_gauss_lid++){
+        // Surface Integral //
+        for (int dim = 0; dim < num_dim; dim++){
+          for(int patch_gauss_lid = 0; patch_gauss_lid < mesh.num_patches_in_elem(); patch_gauss_lid++){
 
-              int gauss_patch_gid = mesh.gauss_patch_pt_in_elem(elems_in_node_gid, patch_gauss_lid);
+            int gauss_patch_gid = mesh.gauss_patch_pt_in_elem(elems_in_vert_gid, patch_gauss_lid);
 
-              real_t J_inv_dot_sigma = 0.0;
-	      for (int k = 0; k < num_dim; k++){
-	        J_inv_dot_sigma += 0.333*mesh.gauss_patch_pt_jacobian_inverse(gauss_patch_gid, dim, k)*mat_pt.pressure(patch_gauss_lid);
-	      }// end loop over k
-              surface_int(dim) += ref_elem.ref_patch_basis(patch_gauss_lid, vertex)
-		                  * J_inv_dot_sigma
+            real_t J_inv_dot_n = 0.0;
+	    for (int k = 0; k < num_dim; k++){
+	      J_inv_dot_n += mesh.gauss_patch_pt_jacobian_inverse(gauss_patch_gid, dim, k);
+	    }// end loop over k
+            surface_int(dim) += 0.0*ref_elem.ref_patch_basis(patch_gauss_lid, vertex)
+		                  * mat_pt.pressure(patch_gauss_lid)
+		                  * J_inv_dot_n
 				  * mesh.gauss_patch_pt_det_j(gauss_patch_gid)
 				  * ref_elem.ref_patch_g_weights(patch_gauss_lid);
-	    }// end loop over gauss_lid
-          }// end loop over dim
+	  }// end loop over gauss_lid
+        }// end loop over dim
      
         for (int dim = 0; dim < num_dim; dim++){
-          force(dim, current) = volume_int(dim) + surface_int(dim);
+          force(dim, current) = -1.0*volume_int(dim) + surface_int(dim);
 	  //std::cout << force(dim) << std::endl;
         }
         
@@ -118,27 +137,78 @@ void get_nodal_res(int t_step){
         for (int dim = 0; dim < num_dim; dim++){
           for (int index = 0; index < num_basis; index++){
             //std::cout << vel_r(index,dim) - vel(index,dim) << std::endl;
-	    Mv(dim) += res_mass( index )*vel_r( index, dim ) - res_mass(index)*vel( index, dim );
+	    Mv(dim) += res_mass( index )*(elem_state.BV_vel_coeffs( current, elems_in_vert_gid,index,dim) - elem_state.BV_vel_coeffs( 0, elems_in_vert_gid,index,dim));
           }// end loop over index
         }// end loop over dim
        
 
        /* 
         for (int dim = 0; dim < num_dim; dim++){
-          std::cout<< "Mv/dt at dim " << dim << " and correction_step " << t_step << " is " << Mv(dim)/dt << std::endl;
-	  std::cout << "force at dim " << dim << " is  " << force(dim,current) << std::endl;
+          std::cout<< "Mv/dt at dim " << dim << " and correction_step " << t_step << " is " << Mv(dim) << std::endl;
+	  std::cout << "force at dim " << dim << " is  " << dt*force(dim,current) << std::endl;
         }
         */
 
 	for (int dim = 0; dim < num_dim; dim++){
 	  // Assign values to nodal res
-	  elem_state.nodal_res( elems_in_node_gid, vertex, dim)  = 0.0;
-          elem_state.nodal_res( elems_in_node_gid, vertex, dim ) = Mv(dim)/dt + 0.5*( force( dim, 0 ) + force( dim, current) );
-        
+	  //elem_state.nodal_res( elems_in_node_gid, vertex, dim)  = 0.0;
+          nodal_res( elems_in_vert, dim ) = Mv(dim) + dt*0.5*( force( dim, 0 ) + force( dim, current) );
         }// end loop over dim
+	
 
       }// end loop over elements in vertex
+      
+      for (int dim = 0;  dim < num_dim; dim++){  
+        for (int elems_in_vert = 0; elems_in_vert< num_elems_in_vert; elems_in_vert++){
+          sum_nodal_res(dim) += nodal_res( elems_in_vert, dim);
+        }
+      }
+      for (int dim = 0; dim < num_dim; dim++){
+        elem_state.BV_vel_coeffs( update, elem_gid, vertex, dim ) = 0.0;
+      }
+
+      for (int dim = 0 ; dim < num_dim; dim++){
+
+        elem_state.BV_vel_coeffs( update, elem_gid, vertex, dim ) = elem_state.BV_vel_coeffs(current, elem_gid, vertex, dim) - (dt/lumped_mass)*sum_nodal_res(dim);
+         
+       	//std::cout << "--- dim ---"<< std::endl;
+	//std::cout << "  "<< dim << "  "<< std::endl;
+	//std::cout << " sum_nodal_res = "<< sum_nodal_res( dim ) << std::endl;
+	//std::cout << " vel_coeff = "<< elem_state.BV_vel_coeffs( update, elem_gid, vertex, dim ) << std::endl;
+        
+      }
+
     }// end loop over vertex
+    if ( update == num_correction_steps ){
+      for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
+      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+
+      for (int dim = 0; dim < mesh.num_dim(); dim++){
+        node.vel(1, node_gid, dim) = node.vel(0, node_gid, dim);//0.0;
+      }// end loop over dim
+
+/*
+      for (int dim = 0; dim < mesh.num_dim(); dim++){
+        for (int vert = 0; vert < ref_elem.num_basis(); vert++){
+            node.vel( 1, node_gid, dim ) += ref_elem.ref_nodal_basis( node_lid, vert ) * elem_state.BV_vel_coeffs( num_correction_steps, elem_gid, vert, dim );
+        }// end loop over vertex
+      }// end loop over dim
+*/
+/*
+
+      node.vel(1, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
+      node.vel(1, node_gid, 1) = -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));
+      node.vel(1, node_gid, 2) = 0.0;
+*/
+
+/*
+      std::cout << node.vel(1, node_gid, 0) - sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1))<< std::endl;
+      std::cout << node.vel(1, node_gid, 1) + 1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1))<< std::endl; 
+      std::cout << node.vel(1, node_gid, 2) << std::endl; 
+*/
+      }// end loop over node_lid
+    }// end if
+
   }// end loop over elements
 
 }// end get_nodal_res
