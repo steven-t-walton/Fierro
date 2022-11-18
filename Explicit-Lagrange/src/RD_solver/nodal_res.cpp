@@ -21,7 +21,7 @@ void get_nodal_res(int t_step){
   int update = t_step+1;
 
 #pragma omp simd
-  // Loop over elements // < --- only used to get node_gid
+  
   for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     
     for (int vertex = 0; vertex < num_basis; vertex++){
@@ -31,7 +31,7 @@ void get_nodal_res(int t_step){
 
       real_t lumped_mass = 0.0;
        
-      // Loop over elems around node <-- this elem_id is used in momentum update
+      
       for (int elems_in_vert = 0; elems_in_vert < num_elems_in_vert; elems_in_vert++){
         int elems_in_vert_gid = mesh.elems_in_node(node_gid, elems_in_vert);
         
@@ -152,7 +152,7 @@ void get_nodal_res(int t_step){
 	for (int dim = 0; dim < num_dim; dim++){
 	  // Assign values to nodal res
 	  //elem_state.nodal_res( elems_in_node_gid, vertex, dim)  = 0.0;
-          nodal_res( elems_in_vert, dim ) = Mv(dim) + dt*0.5*( force( dim, 0 ) + force( dim, current) );
+          nodal_res( elems_in_vert, dim ) = Mv(dim)/dt + 0.5*( force( dim, 0 ) + force( dim, current) );
         }// end loop over dim
 	
 
@@ -181,33 +181,53 @@ void get_nodal_res(int t_step){
     }// end loop over vertex
     if ( update == num_correction_steps ){
       for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
-      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+        int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
-      for (int dim = 0; dim < mesh.num_dim(); dim++){
-        node.vel(1, node_gid, dim) = 0.0;
-      }// end loop over dim
+        for (int dim = 0; dim < mesh.num_dim(); dim++){
+          node.vel(1, node_gid, dim) = 0.0;
+        }// end loop over dim
 
-
-      for (int dim = 0; dim < mesh.num_dim(); dim++){
-        for (int vert = 0; vert < ref_elem.num_basis(); vert++){
+        for (int dim = 0; dim < mesh.num_dim(); dim++){
+          for (int vert = 0; vert < ref_elem.num_basis(); vert++){
             node.vel( 1, node_gid, dim ) += ref_elem.ref_nodal_basis( node_lid, vert ) * elem_state.BV_vel_coeffs( num_correction_steps, elem_gid, vert, dim );
-        }// end loop over vertex
-      }// end loop over dim
+          }// end loop over vertex
+        }// end loop over dim
+
+        for (int dim = 0; dim <  mesh.num_dim(); dim++){
+          for (int vert = 0; vert < ref_elem.num_basis(); vert++){
+	    elem_state.BV_vel_coeffs( 0, elem_gid, vert, dim ) = elem_state.BV_vel_coeffs( num_correction_steps, elem_gid, vert, dim );
+	  }
+        }
+
+        //// print statements ///
+        for (int elem_id = 0; elem_id < mesh.num_elems(); elem_id++){
+          std::cout << " ------- elem id ------- " << std::endl;
+          std::cout << elem_id << std::endl;
+          std::cout << " ----------------------- " << std::endl;
+          for (int dim = 0; dim < mesh.num_dim(); dim++){
+            std::cout << "-------- dim ------" <<std::endl;
+            std::cout << dim << std::endl;
+            for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
+              std::cout << elem_state.BV_vel_coeffs( 0, elem_id, basis_id, dim ) << ", ";  
+            }
+            std::cout<<std::endl;
+          }
+          std::cout << " ----------------------- " << std::endl;
+          std::cout << " ----------------------- " << std::endl;
+        }
 
 /*
-
-      node.vel(1, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
-      node.vel(1, node_gid, 1) = -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));
-      node.vel(1, node_gid, 2) = 0.0;
+        node.vel(1, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
+        node.vel(1, node_gid, 1) = -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));
+        node.vel(1, node_gid, 2) = 0.0;
 */
-
 /*
-      std::cout << node.vel(1, node_gid, 0) - sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1))<< std::endl;
-      std::cout << node.vel(1, node_gid, 1) + 1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1))<< std::endl; 
-      std::cout << node.vel(1, node_gid, 2) << std::endl; 
+        std::cout << node.vel(1, node_gid, 0) - sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1))<< std::endl;
+        std::cout << node.vel(1, node_gid, 1) + 1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1))<< std::endl; 
+        std::cout << node.vel(1, node_gid, 2) << std::endl; 
 */
       }// end loop over node_lid
-    }// end if
+     }// end if
 
   }// end loop over elements
 
