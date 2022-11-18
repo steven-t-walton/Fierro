@@ -184,16 +184,16 @@ void get_nodal_res(int t_step){
       int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
       for (int dim = 0; dim < mesh.num_dim(); dim++){
-        node.vel(1, node_gid, dim) = node.vel(0, node_gid, dim);//0.0;
+        node.vel(1, node_gid, dim) = 0.0;
       }// end loop over dim
 
-/*
+
       for (int dim = 0; dim < mesh.num_dim(); dim++){
         for (int vert = 0; vert < ref_elem.num_basis(); vert++){
             node.vel( 1, node_gid, dim ) += ref_elem.ref_nodal_basis( node_lid, vert ) * elem_state.BV_vel_coeffs( num_correction_steps, elem_gid, vert, dim );
         }// end loop over vertex
       }// end loop over dim
-*/
+
 /*
 
       node.vel(1, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));

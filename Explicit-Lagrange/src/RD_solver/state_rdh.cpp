@@ -20,20 +20,21 @@ void get_state(){
     elem_coords_x = mesh.cell_coords(cell_gid,0);
     elem_coords_y = mesh.cell_coords(cell_gid,1);
 
+    real_t source = 0.0;
+
+    source = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * elem_coords_x) * cos( 3.141592653589 * elem_coords_y) - cos( 3.141592653589 * elem_coords_x ) * cos( 3.0*3.141592653589 * elem_coords_y ) ); 
+    
     cell_state.density(cell_gid) = 1.0;
       
     cell_state.pressure(cell_gid) = 0.25*( cos(2.0*3.141592653589 * elem_coords_x )  + cos(2.0*3.141592653589 * elem_coords_y ) ) + 1.0;
    
-    cell_state.ie(1, cell_gid) = cell_state.pressure(cell_gid)/(cell_state.density(cell_gid)*(0.66666667));
+    cell_state.ie(1, cell_gid) = source + cell_state.pressure(cell_gid)/(cell_state.density(cell_gid)*(0.66666667));
 
     real_t ie = 0.0;
     real_t ke = 0.0;
-    real_t source = 0.0;
-
     track_rdh(ie,ke);
     real_t energy = ke;//+ie
-    source = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * elem_coords_x) * cos( 3.141592653589 * elem_coords_y) - cos( 3.141592653589 * elem_coords_x ) * cos( 3.0*3.141592653589 * elem_coords_y ) ); 
-    cell_state.total_energy(1,cell_gid) = cell_state.ie(1,cell_gid) + energy+ source;
+    cell_state.total_energy(1,cell_gid) = cell_state.ie(1,cell_gid) + energy;
     
     cell_state.cs(cell_gid) =
         material[cell_state.mat_id(cell_gid)].eos_func(
@@ -42,13 +43,6 @@ void get_state(){
             cell_state.density(cell_gid),
             cell_state.ie(1, cell_gid)
             );
-    for (int node_lid = 0; node_lid < mesh.num_nodes_in_cell(); node_lid++){
-      int node_gid = mesh.nodes_in_cell(cell_gid, node_lid);
-      for (int dim = 0; dim < 3; dim++){
-        cell_state.velocity(1, cell_gid, dim) += 0.125*node.vel(1,node_gid,dim);
-	mesh.cell_coords(cell_gid,dim) += 0.125*node.coords(1, node_gid, dim);
-      }// end loop over dim
-    }// end loop over node_lid
   }
 }
 // */  
