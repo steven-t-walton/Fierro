@@ -79,7 +79,7 @@ void rd_hydro(){
 
       get_gauss_patch_pt_jacobian(mesh, ref_elem);
 
-      get_vol_jacobi(mesh, ref_elem);
+      get_vol_hex(mesh, ref_elem);
 
       get_state();
 

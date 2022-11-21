@@ -65,7 +65,7 @@ void input(){
 
     // ---- graphics information ---- //
     graphics_cyc_ival = 1000000;
-    graphics_dt_ival  = 0.015;    // every 0.1 time units
+    graphics_dt_ival  = 0.010;   
 
 
 

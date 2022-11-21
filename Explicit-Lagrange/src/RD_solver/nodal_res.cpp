@@ -2,6 +2,8 @@
 
 #include<iostream>
 #include<math.h>
+#include<algorithm>
+#include<vector>
 
 #include "utilities.h"
 #include "state.h"
@@ -22,25 +24,46 @@ void get_nodal_res(int t_step){
 
 #pragma omp simd
   
-  for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-    
-    for (int vertex = 0; vertex < num_basis; vertex++){
-      int node_lid = elem.vert_node_map(vertex);
+  std::vector<int> verts_temp; 
+  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+    for (int verts = 0; verts < num_basis; verts++){
+      int node_lid = elem.vert_node_map(verts);
       int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-      int num_elems_in_vert = mesh.num_elems_in_node(node_gid);
+      verts_temp.push_back(node_gid);
+    }
+  }
 
+  std::sort(verts_temp.begin(), verts_temp.end());
+  auto temp = std::unique(verts_temp.begin(), verts_temp.end());
+  verts_temp.erase(temp, verts_temp.end());
+
+  int num_verts = verts_temp.size();
+  auto vert_gid_array = ViewCArray <int> ( &verts_temp[0], num_verts );
+  
+  
+
+  //for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+  for (int index = 0; index < num_verts; index++){
+    int vert_gid = vert_gid_array(index); 
+
+    //for (int vertex = 0; vertex < num_basis; vertex++){
+    //  int node_lid = elem.vert_node_map(vertex);
+    //  int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+    int num_elems_in_vert = mesh.num_elems_in_node(vert_gid);
+
+    
       real_t lumped_mass = 0.0;
-       
       
       for (int elems_in_vert = 0; elems_in_vert < num_elems_in_vert; elems_in_vert++){
-        int elems_in_vert_gid = mesh.elems_in_node(node_gid, elems_in_vert);
-        
-        for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
-	  int gauss_gid = mesh.gauss_in_elem(elems_in_vert_gid, gauss_lid);
-	  lumped_mass += ref_elem.ref_nodal_basis(gauss_lid, vertex)
-		         * ref_elem.ref_node_g_weights(gauss_lid)
-			 * mesh.gauss_pt_det_j(gauss_gid);
-	}// end loop over gauss_lid
+        int elems_in_vert_gid = mesh.elems_in_node(vert_gid, elems_in_vert);
+        for (int basis_id = 0; basis_id < num_basis; basis_id++){        
+          for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+	    int gauss_gid = mesh.gauss_in_elem(elems_in_vert_gid, gauss_lid);
+	    lumped_mass += ref_elem.ref_nodal_basis(gauss_lid, vertex)
+		           * ref_elem.ref_node_g_weights(gauss_lid)
+			   * mesh.gauss_pt_det_j(gauss_gid);
+	  }// end loop over gauss_lid
+	}// end loop over basis_id
       }// end loop over elems_in_node_lid
       
       int nodal_res_size = num_elems_in_vert*num_dim;
@@ -54,7 +77,7 @@ void get_nodal_res(int t_step){
 
       for (int elems_in_vert = 0; elems_in_vert < num_elems_in_vert; elems_in_vert++){
 
-        int elems_in_vert_gid = mesh.elems_in_node(node_gid, elems_in_vert);
+        int elems_in_vert_gid = mesh.elems_in_node(vert_gid, elems_in_vert);
         
 	real_t res_mass_a[num_basis];
         for (int i = 0; i < num_basis; i++) res_mass_a[i] = 0.0;
@@ -97,7 +120,7 @@ void get_nodal_res(int t_step){
 	    int gauss_gid = mesh.gauss_in_elem(elems_in_vert_gid, gauss_lid);
 	    real_t J_inv_dot_grad_phi = 0.0;
 	    for (int k = 0; k < num_dim; k++){
-	      J_inv_dot_grad_phi += mesh.gauss_pt_jacobian_inverse(gauss_gid, dim, k)*ref_elem.ref_nodal_gradient(gauss_lid,vertex,k);
+	      J_inv_dot_grad_phi += mesh.gauss_pt_jacobian_inverse(gauss_gid, k, dim)*ref_elem.ref_nodal_gradient(gauss_lid,vertex,k);
 	    }// end loop over k
 	    volume_int(dim) += mat_pt.pressure(gauss_lid)
 	        	       * J_inv_dot_grad_phi
@@ -111,25 +134,115 @@ void get_nodal_res(int t_step){
         for (int i = 0; i < num_dim; i++) surface_int(i) = 0.0;
       
         // Surface Integral //
+	// compute patch normal
+	int const normal_size = num_dim*num_dim*mesh.num_patches_in_elem();
+	real_t patch_normal_a[normal_size];
+	for (int i = 0; i < normal_size; i++) patch_normal_a[i] = 0.0;
+	auto patch_normal = ViewCArray <real_t> ( &patch_normal_a[0], num_dim, num_dim, mesh.num_patches_in_elem());
+
+        for (int gauss_patch_lid = 0; gauss_patch_lid < mesh.num_patches_in_elem(); gauss_patch_lid++){
+          int gauss_patch_gid = mesh.gauss_patch_pt_in_elem( elems_in_vert_gid, gauss_patch_lid );
+            
+	  patch_normal(0,0, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 1, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2,2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,2);
+          patch_normal(0,1, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0, 2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 2);
+          patch_normal(0,2, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid,0,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,2) - mesh.gauss_patch_pt_jacobian( gauss_patch_gid,1,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,2);
+
+	  patch_normal(1,0, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 1, 0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2,2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,2);
+          patch_normal(1,1, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0, 2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 2);
+          patch_normal(1,2, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid,0,0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,2);
+
+	  patch_normal(2,0, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 1, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2,0) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,0);
+          patch_normal(2,1, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0, 0) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 0);
+          patch_normal(2,2, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid,0,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,0) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,0);
+
+	}// end loop over patch_lid
+
+	// normalize
+	for (int dim = 0; dim < num_dim; dim++){
+	  for( int patch_lid = 0; patch_lid < mesh.num_patches_in_elem(); patch_lid++){
+	    patch_normal(dim, 0, patch_lid) = patch_normal(dim, 0, patch_lid)/sqrt(patch_normal(dim, 0,patch_lid)*patch_normal(dim,0,patch_lid) + patch_normal(dim, 1,patch_lid)*patch_normal(dim,1,patch_lid) + patch_normal(dim, 2,patch_lid)*patch_normal(dim,2,patch_lid) ); 
+
+	    patch_normal(dim, 1, patch_lid) = patch_normal(dim, 1, patch_lid)/sqrt(patch_normal(dim, 0,patch_lid)*patch_normal(dim,0,patch_lid) + patch_normal(dim, 1,patch_lid)*patch_normal(dim,1,patch_lid) + patch_normal(dim, 2,patch_lid)*patch_normal(dim,2,patch_lid) );  
+
+	    patch_normal(dim, 2, patch_lid) = patch_normal(dim, 2, patch_lid)/sqrt(patch_normal(dim, 0,patch_lid)*patch_normal(dim,0,patch_lid) + patch_normal(dim, 1,patch_lid)*patch_normal(dim,1,patch_lid) + patch_normal(dim, 2,patch_lid)*patch_normal(dim,2,patch_lid) );  
+	  }
+	}
+
+        //compute surface determinant //
+	int surface_jacobian_size = num_dim*num_dim*num_dim*mesh.num_patches_in_elem();
+	real_t surface_jacobian_a[surface_jacobian_size];
+	for (int i = 0; i < surface_jacobian_size; i++) surface_jacobian_a[i] = 0.0;
+	auto surface_jacobian = ViewCArray <real_t> ( &surface_jacobian_a[0], mesh.num_patches_in_elem(), num_dim, num_dim, num_dim);
+        
+
+	for (int dim = 0; dim < num_dim; dim++){
+	  for (int patch_lid = 0; patch_lid < mesh.num_patches_in_elem(); patch_lid++){
+            int gauss_patch_gid = mesh.gauss_patch_pt_in_elem(elems_in_vert_gid, patch_lid);
+            if ( dim == 0 ){
+	      for (int j = 1; j < num_dim; j++){
+		int k = 0;
+		for (int i = 0; i < num_dim; i++){
+	          surface_jacobian(dim, patch_lid, i, k) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, i,j);    
+		}
+		k++;
+	      }
+	      for (int i = 0; i < num_dim; i++){
+	        surface_jacobian(dim, patch_lid, i, 2) = patch_normal(dim, i, patch_lid);
+	      }
+	    }
+	    else if (dim == 1){
+	      for (int j = 0; j < num_dim; j = j+2){
+		int k = 0;
+		for (int i = 0; i < num_dim; i++){
+	          surface_jacobian(dim, patch_lid, i, k) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, i,j);   
+		}
+		k++;
+	      }
+	      for (int i = 0; i < num_dim; i++){
+	        surface_jacobian(dim, patch_lid, i, 2) = patch_normal(dim, i, patch_lid);
+	      }
+	    }
+	    else if ( dim == 2){
+	      for (int j = 0; j < 2; j++){
+		for (int i = 0; i < num_dim; i++){
+	          surface_jacobian(dim, patch_lid, i, j) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, i,j);    
+		}
+	      }
+	      for (int i = 0; i < num_dim; i++){
+	        surface_jacobian(dim, patch_lid, i, 2) = patch_normal(dim, i, patch_lid);
+	      }
+	    };
+	  }
+	}	
+	
+	int det_surf_jac_size = num_dim*mesh.num_patches_in_elem();
+	real_t det_surf_jacobian_a[det_surf_jac_size];
+	for (int i = 0; i < det_surf_jac_size; i++) det_surf_jacobian_a[i] = 0.0;
+        auto det_surf_jacobian = ViewCArray <real_t> ( &det_surf_jacobian_a[0], num_dim, mesh.num_patches_in_elem() );
+        
+        // compute surface jacobian determinant
+	for (int dim = 0; dim < num_dim; dim++){
+	  for (int patch_lid = 0; patch_lid < mesh.num_patches_in_elem(); patch_lid++){
+	    det_surf_jacobian(dim, patch_lid)  = surface_jacobian(dim, patch_lid, 0, 0) * ( surface_jacobian(dim, patch_lid,1, 1) *  surface_jacobian(dim, patch_lid,2, 2) -  surface_jacobian(dim, patch_lid,2, 1) *  surface_jacobian(dim, patch_lid,1, 2)) -
+                 surface_jacobian(dim, patch_lid,0, 1) * ( surface_jacobian(dim, patch_lid,1, 0) *  surface_jacobian(dim, patch_lid,2, 2) -  surface_jacobian(dim, patch_lid,1, 2) *  surface_jacobian(dim, patch_lid,2, 0)) +
+                 surface_jacobian(dim, patch_lid,0, 2) * ( surface_jacobian(dim, patch_lid,1, 0) *  surface_jacobian(dim, patch_lid,2, 1) -  surface_jacobian(dim, patch_lid,1, 1) *  surface_jacobian(dim, patch_lid,2, 0));
+	  }
+	}
+
+
         for (int dim = 0; dim < num_dim; dim++){
           for(int patch_gauss_lid = 0; patch_gauss_lid < mesh.num_patches_in_elem(); patch_gauss_lid++){
 
-            int gauss_patch_gid = mesh.gauss_patch_pt_in_elem(elems_in_vert_gid, patch_gauss_lid);
-
-            real_t J_inv_dot_n = 0.0;
-	    for (int k = 0; k < num_dim; k++){
-	      J_inv_dot_n += mesh.gauss_patch_pt_jacobian_inverse(gauss_patch_gid, dim, k);
-	    }// end loop over k
-            surface_int(dim) += 0.0*ref_elem.ref_patch_basis(patch_gauss_lid, vertex)
-		                  * mat_pt.pressure(patch_gauss_lid)
-		                  * J_inv_dot_n
-				  * mesh.gauss_patch_pt_det_j(gauss_patch_gid)
-				  * ref_elem.ref_patch_g_weights(patch_gauss_lid);
+            int patch_gid = mesh.gauss_patch_pt_in_elem(elems_in_vert_gid, patch_gauss_lid);
+	    surface_int(dim) += ref_elem.ref_patch_basis(patch_gauss_lid, vertex)
+				  * mat_pt.pressure(patch_gauss_lid)
+				  * ref_elem.ref_patch_g_weights(patch_gauss_lid)
+				  * det_surf_jacobian(dim,patch_gauss_lid);// mesh.gauss_patch_pt_det_j(patch_gid);
 	  }// end loop over gauss_lid
         }// end loop over dim
-     
+       
         for (int dim = 0; dim < num_dim; dim++){
-          force(dim, current) = -1.0*volume_int(dim) + surface_int(dim);
+          force(dim, current) = surface_int(dim) - volume_int(dim);
 	  //std::cout << force(dim) << std::endl;
         }
         
@@ -151,12 +264,13 @@ void get_nodal_res(int t_step){
 
 	for (int dim = 0; dim < num_dim; dim++){
 	  // Assign values to nodal res
-	  //elem_state.nodal_res( elems_in_node_gid, vertex, dim)  = 0.0;
           nodal_res( elems_in_vert, dim ) = Mv(dim)/dt + 0.5*( force( dim, 0 ) + force( dim, current) );
         }// end loop over dim
 	
 
       }// end loop over elements in vertex
+
+
       
       for (int dim = 0;  dim < num_dim; dim++){  
         for (int elems_in_vert = 0; elems_in_vert< num_elems_in_vert; elems_in_vert++){
@@ -168,17 +282,15 @@ void get_nodal_res(int t_step){
       }
 
       for (int dim = 0 ; dim < num_dim; dim++){
-
-        elem_state.BV_vel_coeffs( update, elem_gid, vertex, dim ) = elem_state.BV_vel_coeffs(current, elem_gid, vertex, dim) - (dt/lumped_mass)*sum_nodal_res(dim);
-         
-       	//std::cout << "--- dim ---"<< std::endl;
-	//std::cout << "  "<< dim << "  "<< std::endl;
-	//std::cout << " sum_nodal_res = "<< sum_nodal_res( dim ) << std::endl;
-	//std::cout << " vel_coeff = "<< elem_state.BV_vel_coeffs( update, elem_gid, vertex, dim ) << std::endl;
-        
+          elem_state.BV_vel_coeffs( update, elem_gid, vertex, dim ) = elem_state.BV_vel_coeffs(current, elem_gid, vertex, dim) - (dt/lumped_mass)*sum_nodal_res(dim);
+       	  //std::cout << "--- dim ---"<< std::endl;
+	  //std::cout << "  "<< dim << "  "<< std::endl;
+	  //std::cout << " sum_nodal_res = "<< sum_nodal_res( dim ) << std::endl;
+	  //std::cout << " vel_coeff = "<< elem_state.BV_vel_coeffs( update, elem_gid, vertex, dim ) << std::endl;
       }
 
     }// end loop over vertex
+
     if ( update == num_correction_steps ){
       for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
         int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
@@ -198,7 +310,7 @@ void get_nodal_res(int t_step){
 	    elem_state.BV_vel_coeffs( 0, elem_gid, vert, dim ) = elem_state.BV_vel_coeffs( num_correction_steps, elem_gid, vert, dim );
 	  }
         }
-
+/*
         //// print statements ///
         for (int elem_id = 0; elem_id < mesh.num_elems(); elem_id++){
           std::cout << " ------- elem id ------- " << std::endl;
@@ -215,7 +327,7 @@ void get_nodal_res(int t_step){
           std::cout << " ----------------------- " << std::endl;
           std::cout << " ----------------------- " << std::endl;
         }
-
+*/
 /*
         node.vel(1, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
         node.vel(1, node_gid, 1) = -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));
