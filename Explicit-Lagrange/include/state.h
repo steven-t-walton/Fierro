@@ -598,7 +598,7 @@ class elem_state_t {
         
 	// *** RD *** //
         real_t *BV_mat_inverse_ = NULL;
-        real_t *B_vel_coeffs_ = NULL;
+        //real_t *B_vel_coeffs_ = NULL;
 	//real_t *B_pos_coeffs_ = NULL;
         //real_t *nodal_res_ = NULL;
 	//real_t *total_res_ = NULL;
@@ -638,7 +638,7 @@ class elem_state_t {
 
 	    // *** RD *** //
             BV_mat_inverse_ = new real_t[num_basis_*num_basis_]();
-            B_vel_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
+            //B_vel_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
 	    //B_pos_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
 	    //nodal_res_ = new real_t[num_elem_*num_basis_*num_dim_]();
             //total_res_ = new real_t[num_elem_*num_dim_]();
@@ -671,10 +671,10 @@ class elem_state_t {
             return BV_mat_inverse_[basis_m*num_basis_ + basis_n];
         }
         
-	inline real_t& BV_vel_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const
-	{
-	    return B_vel_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
-	}
+	//inline real_t& BV_vel_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const
+	//{
+	//    return B_vel_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
+	//}
     
 	//inline real_t& BV_pos_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const
 //	{
@@ -752,7 +752,7 @@ class elem_state_t {
             delete[] avg_specific_volume_;
             delete[] bad_;
             delete[] BV_mat_inverse_;
-	    delete[] B_vel_coeffs_;
+	   // delete[] B_vel_coeffs_;
            // delete[] B_pos_coeffs_;
 	   // delete[] nodal_res_;
 	   // delete[] total_res_;
@@ -1223,8 +1223,8 @@ void calc_average_specific_vol();
 // RD code
 void rd_hydro();
 //void get_momentum_rd(int correction_step);
-void get_position_rdh();
-void get_nodal_res(int t_step);
+void update_position();
+void update_velocity(int t_step);
 //void get_total_res();
 //void get_betas();
 //void get_limited_res();
@@ -1234,13 +1234,13 @@ void track_rdh(real_t &x, real_t &y);
 void BV_inv();
 void get_control_coeffs();
 void get_state();
-void get_energy_rdh(real_t sub_dt);
+//void get_energy_rdh(real_t sub_dt);
 void get_stress();
 void update_coeffs();
 void setup_rdh(char *MESH);
 void boundary_rdh();
-void interp_vel();
+//void interp_vel();
 //void interp_pos(int step);
-void interp_ie(int step);
+//void interp_ie(int step);
 
 #endif 

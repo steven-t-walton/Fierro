@@ -47,8 +47,7 @@ void rd_hydro(){
 	//real_t sub_dt = correction_step*dt/num_correction_steps;
         //real_t sub_time = TIME + sub_dt;          
  
-	//std::cout << "calling get_nodal_res" << std::endl;
-        get_nodal_res( correction_step );
+        update_velocity( correction_step );
         
 	//get_total_res();
 
@@ -71,7 +70,7 @@ void rd_hydro(){
       boundary_rdh();
 
       // update position //
-      get_position_rdh();   
+      update_position();   
 
       get_gauss_pt_jacobian(mesh, ref_elem);
     
@@ -79,7 +78,7 @@ void rd_hydro(){
 
       get_gauss_patch_pt_jacobian(mesh, ref_elem);
 
-      get_vol_hex(mesh, ref_elem);
+      get_vol_jacobi(mesh, ref_elem);
 
       get_state();
 

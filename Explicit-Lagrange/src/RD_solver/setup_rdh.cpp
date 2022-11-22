@@ -39,7 +39,7 @@ void setup_rdh(char *MESH){
 
 
   // ---- Node Initialization ---- //
-  node.init_node_state( num_dim, mesh, rk_storage );
+  node.init_node_state( num_dim, mesh, correction_storage);
   std::cout << "Node state allocated and initialized" << std::endl;
   std::cout << std::endl;
 
@@ -62,7 +62,7 @@ void setup_rdh(char *MESH){
   std::cout << std::endl;
 
 
-  elem_state.init_elem_state( num_dim, mesh, correction_storage, ref_elem );
+  elem_state.init_elem_state( num_dim, mesh, rk_storage, ref_elem );
   std::cout << "Element state allocated and initialized" << std::endl;  std::cout<< std::endl;
 
   std::cout << "number of patches = " << mesh.num_patches() << std::endl;
@@ -116,7 +116,7 @@ void setup_rdh(char *MESH){
   get_gauss_patch_pt_jacobian(mesh, ref_elem);
 
   std::cout << "Before volume from Jacobian"  << std::endl;
-  get_vol_hex(mesh, ref_elem);
+  get_vol_jacobi(mesh, ref_elem);
 
   std::cout << "Fill instruction NF = " << NF << std::endl;
 
@@ -322,11 +322,23 @@ void setup_rdh(char *MESH){
                  {
                    
                    
-                   node.vel(t_step, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515);
+                   node.vel(0, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515);
                    
-                   node.vel(t_step, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515); 
+                   node.vel(0, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515); 
                    
-		   node.vel(t_step, node_gid, 2) = 0.0; 
+		   node.vel(0, node_gid, 2) = 0.0; 
+                  
+                   node.vel(1, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515);
+                   
+                   node.vel(1, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515); 
+                   
+		   node.vel(1, node_gid, 2) = 0.0; 
+                  
+                   node.vel(2, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515);
+                   
+                   node.vel(2, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515); 
+                   
+		   node.vel(2, node_gid, 2) = 0.0; 
                   
                    real_t source = 0.0;
                    source = 3.141592653589/(4.0*0.6666667)* ( cos(3.0*3.141592653589 * mesh.cell_coords(cell_gid,0)) * cos( 3.141592653589 * mesh.cell_coords(cell_gid,1)) - cos( 3.141592653589 * mesh.cell_coords(cell_gid,0) ) * cos( 3.0*3.141592653589 * mesh.cell_coords(cell_gid,1) ) );

@@ -13,19 +13,12 @@ void get_control_coeffs(){
    //------------/////--control only at vertices--/////-----------//
    ////////////////////////////////////////////////////////////////
 
+  int control_coeff_a_size = mesh.num_elems()*mesh.num_dim()*ref_elem.num_basis();
+  real_t control_coeff_a[control_coeff_a_size];
+  for (int i = 0; i < control_coeff_a_size; i++) control_coeff_a[i] = 0.0;
+  auto control_coeffs = ViewCArray <real_t> ( &control_coeff_a[0], mesh.num_elems(), ref_elem.num_basis(), mesh.num_dim());
+
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-
-    // initialize control coeffs to zero //
-#pragma omp simd     
-
-   for (int t_step = 0; t_step < num_correction_steps+1; t_step++){
-      for (int j = 0; j < ref_elem.num_basis(); j++){
-        for( int k = 0; k < mesh.num_dim(); k ++){
-          elem_state.BV_vel_coeffs(t_step, elem_gid, j, k) = 0.0;
-        }// end loop over k
-      }// end loop over j
-    }// end loop over t_step
-
 
 #pragma omp simd      
     for (int dim = 0; dim < mesh.num_dim(); dim++){
@@ -33,12 +26,25 @@ void get_control_coeffs(){
       	for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
 	  int node_lid = elem.vert_node_map(vertex);
     	  int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
-	  elem_state.BV_vel_coeffs(0, elem_gid, basis_id, dim) += elem_state.BV_mat_inv( basis_id, vertex ) * node.vel( 0, node_gid, dim );
+	  control_coeffs(elem_gid, basis_id, dim) += elem_state.BV_mat_inv( basis_id, vertex ) * node.vel( 0, node_gid, dim );
 	}// end loop over vertex
       }// end loop over basis
     }// end loop over dim 
 
   }// end loop over elem_gid
+  
+  //Save back to nodal velocity
+  for (int t_step = 0; t_step < num_correction_steps+1; t_step++){
+    for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+      for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
+        int node_lid = elem.vert_node_map(vertex);
+        int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
+        for (int dim = 0; dim < mesh.num_dim(); dim++){
+          node.vel(t_step, node_gid, dim) = control_coeffs(elem_gid, vertex, dim);  
+        }// end loop over dim
+      }// end loop over vertex
+    }// end loop over elem_gid
+  }// end loop over t_step
 
 /*
   //// print statements ///
