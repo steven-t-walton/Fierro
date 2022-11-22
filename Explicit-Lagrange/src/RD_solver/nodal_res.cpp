@@ -39,8 +39,13 @@ void get_nodal_res(int t_step){
 
   int num_verts = verts_temp.size();
   auto vert_gid_array = ViewCArray <int> ( &verts_temp[0], num_verts );
-  
-  
+  CArray <int> nodal_res_strides( num_verts );
+  for (int index = 0; index < num_verts; index++){
+    int vert_gid = vert_gid_array(index);
+    nodal_res_strides( index )  = mesh.num_elems_in_node(vert_gid);
+  }
+
+  RaggedRightArray <real_t> nodal_res( nodal_res_strides, num_dim ); 
 
   //for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
   for (int index = 0; index < num_verts; index++){
@@ -50,8 +55,11 @@ void get_nodal_res(int t_step){
     //  int node_lid = elem.vert_node_map(vertex);
     //  int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
     int num_elems_in_vert = mesh.num_elems_in_node(vert_gid);
-
     
+    
+    for (int elem_vert_lid = 0; elem_vert_lid < num_elems_in_vert; elem_vert_lid++){
+      
+    }// end loop over elem_vert_lid
       real_t lumped_mass = 0.0;
       
       for (int elems_in_vert = 0; elems_in_vert < num_elems_in_vert; elems_in_vert++){
