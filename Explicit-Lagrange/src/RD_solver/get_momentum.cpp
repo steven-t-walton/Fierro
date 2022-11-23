@@ -197,8 +197,13 @@ void update_velocity(int t_step){
           for(int patch_gauss_lid = 0; patch_gauss_lid < mesh.num_patches_in_elem(); patch_gauss_lid++){
 
             int patch_gid = mesh.gauss_patch_pt_in_elem(elems_in_vert_gid, patch_gauss_lid);
+	    real_t J_inv_dot_n = 0.0;
+	    for (int k = 0; k < num_dim; k++){
+	      J_inv_dot_n += mesh.gauss_patch_pt_jacobian_inverse(patch_gid, k, dim)*patch_normal(dim, k, patch_gauss_lid);
+	    }// end loop over k
 	    surface_int(dim) += ref_elem.ref_patch_basis(patch_gauss_lid, vertex)
-				  * 0.333*mat_pt.pressure(patch_gauss_lid)
+				  * mat_pt.pressure(patch_gauss_lid)
+				  * J_inv_dot_n
 				  * ref_elem.ref_patch_g_weights(patch_gauss_lid)
 				  * mesh.gauss_patch_pt_det_j(patch_gid);//det_surf_jacobian(dim,patch_gauss_lid);// 
 	  }// end loop over gauss_lid
@@ -207,7 +212,7 @@ void update_velocity(int t_step){
         for (int dim = 0; dim < num_dim; dim++){
           force(dim, current) = surface_int(dim) - volume_int(dim);
 	  //std::cout << force(dim) << std::endl;
-        }
+        }// end loop over dim
         
 	
         for (int dim = 0; dim < num_dim; dim++){
@@ -237,6 +242,66 @@ void update_velocity(int t_step){
   /// end nodal res computation ///
 
 
+      // compute total residual //
+      int total_res_size = num_dim*mesh.num_elems();
+      real_t total_res_a[total_res_size];
+      for (int i = 0; i < total_res_size; i++) total_res_a[i] = 0.0;
+      auto total_res = ViewCArray <real_t> ( &total_res_a[0], mesh.num_elems(), num_dim);
+      
+      for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+        for (int dim = 0; dim < num_dim; dim++){
+          for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
+	    int node_lid = elem.vert_node_map( vertex);
+	    int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+	    total_res(elem_gid, dim) += nodal_res(node_gid, elem_gid, dim);
+          }// end loop over node_lid
+	}// end loop over dim
+      }// end loop over elem_gid
+
+      // compute psi coeffs //
+      int psi_coeffs_size = num_dim*mesh.num_nodes()*mesh.num_elems();
+      real_t psi_coeffs_a[psi_coeffs_size];
+      for (int i = 0; i < psi_coeffs_size; i++) psi_coeffs_a[i] = 0.0;
+      auto psi_coeffs = ViewCArray <real_t> ( &psi_coeffs_a[0], mesh.num_elems(), mesh.num_nodes(), num_dim);
+
+      for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+        for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
+          int node_lid = elem.vert_node_map(vertex);
+	  int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+          for (int dim = 0; dim < mesh.num_dim(); dim++){
+            real_t num = 0.0;
+            num = std::max( 0.0, nodal_res(elem_gid, node_gid, dim)/total_res(elem_gid, dim) );
+            real_t denom = 0.0;
+            for (int k = 0; k < ref_elem.num_basis(); k++){
+	      int node_k_lid = elem.vert_node_map( k );
+	      int node_k_gid = mesh.nodes_in_elem(elem_gid, node_k_lid);
+              denom += std::max(0.0, nodal_res(elem_gid, node_k_gid, dim)/total_res(elem_gid,dim) );
+            }// end loop over k
+
+            psi_coeffs( elem_gid, node_gid, dim ) = num/denom;
+
+          }// end loop over dim
+        }// end loop over vertex
+      }// end loop over elem_gid
+
+      // compute limited residual //
+      int limited_res_size = num_dim*mesh.num_nodes()*mesh.num_elems();
+      real_t limited_res_a[limited_res_size];
+      for (int i = 0; i < limited_res_size; i++) limited_res_a[i] = 0.0;
+      auto limited_res = ViewCArray <real_t> ( &limited_res_a[0], mesh.num_elems(), mesh.num_nodes(), num_dim);
+
+      for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+        for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
+	  int node_lid = elem.vert_node_map( vertex );
+	  int node_gid = mesh.nodes_in_elem( elem_gid, node_lid);
+	  for (int dim = 0; dim < num_dim; dim++){
+	    limited_res(elem_gid, node_gid, dim) = psi_coeffs( elem_gid, node_gid, dim)*total_res(elem_gid, dim);
+	  }// end loop over dim
+	}// end loop over vertex
+      }// end loop over elem_gid
+
+
+
   /// update velocity using nodal res //
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
@@ -259,7 +324,7 @@ void update_velocity(int t_step){
 	}// end loop over basis_id
       }// end loop over elems_in_node_lid
 
-      // sum over elements tied to node in nodal_res //
+      // sum over elements tied to node in res //
       
       real_t sum_res_a[num_dim];
       for (int i = 0; i < num_dim; i++) sum_res_a[i] = 0.0;
@@ -268,7 +333,7 @@ void update_velocity(int t_step){
       for (int dim = 0; dim < num_dim; dim++){
         for (int elems_in_vert = 0; elems_in_vert < num_elems_in_vert; elems_in_vert++){
           int elems_in_vert_gid = mesh.elems_in_node(node_gid, elems_in_vert);
-          sum_res(dim) += nodal_res(node_gid, elems_in_vert_gid, dim);       
+          sum_res(dim) += nodal_res(node_gid, elems_in_vert_gid, dim);//limited_res(elems_in_vert_gid, node_gid, dim);       
 	}// end loop over elems_in_vert
       }// end loop over dim
       
