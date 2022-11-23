@@ -80,13 +80,13 @@ void rd_hydro(){
 
       get_vol_jacobi(mesh, ref_elem);
 
-      get_state();
-
-      get_stress(); 
-
       for(int gauss_gid=0; gauss_gid<mesh.num_gauss_pts(); gauss_gid++){
         gauss_properties(gauss_gid);
       }// end loop over gauss_gid
+
+      get_state();
+
+      get_stress(); 
 
       update_coeffs();
        

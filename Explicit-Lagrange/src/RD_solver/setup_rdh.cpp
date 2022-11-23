@@ -39,7 +39,7 @@ void setup_rdh(char *MESH){
 
 
   // ---- Node Initialization ---- //
-  node.init_node_state( num_dim, mesh, correction_storage);
+  node.init_node_state( num_dim, mesh, rk_storage);
   std::cout << "Node state allocated and initialized" << std::endl;
   std::cout << std::endl;
 
@@ -62,7 +62,7 @@ void setup_rdh(char *MESH){
   std::cout << std::endl;
 
 
-  elem_state.init_elem_state( num_dim, mesh, rk_storage, ref_elem );
+  elem_state.init_elem_state( num_dim, mesh, correction_storage, ref_elem );
   std::cout << "Element state allocated and initialized" << std::endl;  std::cout<< std::endl;
 
   std::cout << "number of patches = " << mesh.num_patches() << std::endl;
@@ -321,29 +321,24 @@ void setup_rdh(char *MESH){
                  case init_conds::tg_vortex:
                  {
                    
+                   node.vel(t_step, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
                    
-                   node.vel(0, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515);
+                   node.vel(t_step, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1)); 
                    
-                   node.vel(0, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515); 
-                   
-		   node.vel(0, node_gid, 2) = 0.0; 
+		   node.vel(t_step, node_gid, 2) = 0.0; 
                   
-                   node.vel(1, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515);
+                  /* 
+                   node.vel(t_step, node_gid, 0) = sin(2.0*PI * mesh.node_coords(node_gid, 0)) * cos(2.0*PI * mesh.node_coords(node_gid, 1))*cos(6.0*PI * mesh.node_coords(node_gid,2));
                    
-                   node.vel(1, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515); 
+                   node.vel(t_step, node_gid, 1) =  -1.0*cos(2.0*PI * mesh.node_coords(node_gid, 0)) * sin(2.0*PI * mesh.node_coords(node_gid, 1))*cos(6.0*PI * mesh.node_coords(node_gid,2)); 
                    
-		   node.vel(1, node_gid, 2) = 0.0; 
+		   node.vel(t_step, node_gid, 2) = 0.0; 
                   
-                   node.vel(2, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515);
-                   
-                   node.vel(2, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));//*cos(PI * mesh.node_coords(node_gid,2)/0.1515); 
-                   
-		   node.vel(2, node_gid, 2) = 0.0; 
-                  
+                  */
                    real_t source = 0.0;
                    source = 3.141592653589/(4.0*0.6666667)* ( cos(3.0*3.141592653589 * mesh.cell_coords(cell_gid,0)) * cos( 3.141592653589 * mesh.cell_coords(cell_gid,1)) - cos( 3.141592653589 * mesh.cell_coords(cell_gid,0) ) * cos( 3.0*3.141592653589 * mesh.cell_coords(cell_gid,1) ) );
 		   
-                   cell_state.pressure(cell_gid) = 0.25*( cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;
+                   cell_state.pressure(cell_gid) = 0.25*(cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;//0.0625*((cos(6.0*PI*mesh.cell_coords(cell_gid,2)+2) ) * cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;
                    cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(0.6666667) + source;//material[f_id].g-1.0));
                    
 		   real_t x = 0.0;
@@ -351,7 +346,7 @@ void setup_rdh(char *MESH){
 		   track_rdh(x,y);
 		   cell_state.total_energy(t_step, cell_gid) = cell_state.ie(t_step,cell_gid)+y;
 		  
-		   mat_pt.pressure(gauss_gid) = 0.25*( cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;
+		   mat_pt.pressure(gauss_gid) = 0.25*(cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;
                    
                    // save the internal energy contribution to the total energy
                    mat_pt.ie(gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((5.0/3.0) - 1.0)) );

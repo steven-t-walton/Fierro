@@ -8,6 +8,8 @@
 #include "geometry.h"
 #include "variables.h"
 
+#define PI 3.14159265
+
 using namespace utils;
 
 void get_state(){
