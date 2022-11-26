@@ -50,6 +50,8 @@ void setup_rdh(char *MESH){
   std::cout << "Corner state allocated and initialized"  << std::endl;
   std::cout << std::endl;
 
+  build_corner_normals();
+
   // ---- Cell state initialization --- ///
   cell_state.init_cell_state( num_dim, mesh, rk_storage );
   std::cout << "Cell state allocated and initialized" << std::endl;

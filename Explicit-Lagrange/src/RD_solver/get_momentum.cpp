@@ -154,8 +154,9 @@ void update_velocity(int t_step){
 				  * mesh.gauss_patch_pt_det_j(patch_gid);// det_surf_jacobian(dim,patch_gauss_lid);// 
 	  }// end loop over gauss_lid
         }// end loop over dim
-*/      
-	
+*/     
+
+        build_corner_normals(); 	
        	// Surface integral
         for(int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
 
@@ -170,15 +171,12 @@ void update_velocity(int t_step){
             int node_rid = ref_elem.cell_nodes_in_elem(cell_lid, node_lid);
 
             for (int dim = 0; dim < num_dim; dim ++){
-	      for (int k = 0; k < dim; k++){
                 surface_int(dim) += ref_elem.ref_nodal_basis(node_rid, vertex) 
-		                    * corner.normal(corner_gid, k) 
+		                    * corner.normal(corner_gid, dim) 
 				    * mat_pt.pressure(gauss_gid);
-              }// end loop over k
 	    }// end loop over dim
           }// end loop over nodes/corners in a cell
         } // end loop over cells in an element
-         
 
         for (int dim = 0; dim < num_dim; dim++){
           force(dim, current) = surface_int(dim) - volume_int(dim);
