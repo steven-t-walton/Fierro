@@ -48,7 +48,7 @@ void input(){
     //C1 = 1.0;
     //C2 = 1.333;
 
-    dt_min = 1.e-17;
+    dt_min = 1.e-10;
     dt_max = 1.e-2;
     dt_start = 1.e-5;
     
@@ -61,7 +61,7 @@ void input(){
     
     correction_storage = num_correction_steps + 1;
 
-    dt_cfl = 0.002;
+    dt_cfl = 0.3;
 
     // ---- graphics information ---- //
     graphics_cyc_ival = 1000000;
@@ -802,7 +802,7 @@ void input(){
         
         // Tag Z = 1 plane
         boundary[5].surface = bdy::z_plane;
-        boundary[5].value = 0.33;
+        boundary[5].value = 0.2;
         boundary[5].hydro_bc = bdy::reflected;
         
 
