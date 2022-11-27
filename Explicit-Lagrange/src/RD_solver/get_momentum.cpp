@@ -327,7 +327,7 @@ void update_velocity(int t_step){
       for (int dim = 0; dim < num_dim; dim++){
         elem_state.vel_coeffs(update, elem_gid, vertex, dim) = elem_state.vel_coeffs(current,elem_gid, vertex, dim) - 1.0/(2.0-(real_t)t_step)*(dt/lumped_mass)*sum_res(dim);
       }
-
+    
     }// end loop over vertex
   }// end loop over elem_gid
 
@@ -339,12 +339,10 @@ void update_velocity(int t_step){
         int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
 	int node_gid = mesh.nodes_in_elem(elem_gid, gauss_lid);
         
-	
 	real_t interp_a[num_dim];
         for (int i =0; i < num_dim; i++) interp_a[i] =0.0;
 	auto interp = ViewCArray <real_t> ( &interp_a[0], num_dim);
         
-
 	for (int dim = 0; dim < mesh.num_dim(); dim++){
           for (int vert = 0; vert < ref_elem.num_basis(); vert++){
 	    //int interp_lid = elem.vert_node_map(vert);
@@ -358,7 +356,6 @@ void update_velocity(int t_step){
 	  node.vel(1, node_gid, dim) = interp(dim);
         }
         
-
 /*      
         node.vel(1, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
         node.vel(1, node_gid, 1) = -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));

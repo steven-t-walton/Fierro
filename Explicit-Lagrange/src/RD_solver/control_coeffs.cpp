@@ -23,6 +23,7 @@ void get_control_coeffs(){
       for(int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
         for (int dim = 0; dim < mesh.num_dim(); dim++){
           elem_state.vel_coeffs(t_step, elem_gid, basis_id, dim) = 0.0;
+	  elem_state.pos_coeffs(t_step, elem_gid, basis_id, dim) = 0.0;
         }// end loop over dim
       }// end loop over basis_id
     }// end loop over elem_gid  
@@ -36,7 +37,8 @@ void get_control_coeffs(){
       	for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
 	  int node_lid = elem.vert_node_map(vertex);
     	  int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
-	  elem_state.vel_coeffs(t_step,elem_gid, basis_id, dim) += elem_state.BV_mat_inv( basis_id, vertex ) * node.vel( 0, node_gid, dim );
+	  elem_state.vel_coeffs(t_step, elem_gid, basis_id, dim) += elem_state.BV_mat_inv( basis_id, vertex ) * node.vel( 0, node_gid, dim );
+	  elem_state.pos_coeffs(t_step, elem_gid, basis_id, dim) += elem_state.BV_mat_inv( basis_id, vertex ) * node.coords( 0, node_gid, dim );
 	}// end loop over vertex
       }// end loop over basis
     }// end loop over dim 

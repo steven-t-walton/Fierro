@@ -48,7 +48,7 @@ void input(){
     //C1 = 1.0;
     //C2 = 1.333;
 
-    dt_min = 1.e-10;
+    dt_min = 1.e-07;
     dt_max = 1.e-2;
     dt_start = 1.e-5;
     
