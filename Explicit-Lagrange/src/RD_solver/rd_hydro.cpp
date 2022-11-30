@@ -79,7 +79,8 @@ void rd_hydro(){
       get_gauss_patch_pt_jacobian(mesh, ref_elem);
 
       get_vol_jacobi(mesh, ref_elem);
-
+      
+      
       //for(int gauss_gid=0; gauss_gid<mesh.num_gauss_pts(); gauss_gid++){
       //  gauss_properties(gauss_gid);
       //}// end loop over gauss_gid

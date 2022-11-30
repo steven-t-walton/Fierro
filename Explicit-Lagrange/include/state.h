@@ -573,6 +573,7 @@ class elem_state_t {
         int num_rk_;
         int num_corrections_;
         int num_basis_;
+	int num_dual_basis_;
 	//int num_cells_;
 	int num_nodes_in_elem_;
 
@@ -598,8 +599,10 @@ class elem_state_t {
         
 	// *** RD *** //
         real_t *BV_mat_inverse_ = NULL;
+	real_t *dual_BV_mat_inverse_ = NULL;
         real_t *vel_coeffs_ = NULL;
 	real_t *pos_coeffs_ = NULL;
+	real_t *sie_coeffs_ = NULL;
         //real_t *nodal_res_ = NULL;
 	//real_t *total_res_ = NULL;
 	//real_t *limited_res_ = NULL;
@@ -618,6 +621,7 @@ class elem_state_t {
             // element state
             num_elem_ = mesh.num_elems();
             num_basis_ = ref_elem.num_basis();  // this num_basis is only needed for modal DG.
+	    num_dual_basis_ = ref_elem.num_dual_basis();
             //num_cells_ = mesh.num_cells();
             num_nodes_in_elem_ = mesh.num_nodes_in_elem();
 
@@ -638,8 +642,10 @@ class elem_state_t {
 
 	    // *** RD *** //
             BV_mat_inverse_ = new real_t[num_basis_*num_basis_]();
+	    dual_BV_mat_inverse_ = new real_t[num_nodes_in_elem_*num_dual_basis_]();//num_dual_basis_*num_dual_basis_]();
             vel_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
 	    pos_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
+	    sie_coeffs_ = new real_t[num_corrections_*num_elem_*num_dual_basis_*num_dim_]();
 	    //nodal_res_ = new real_t[num_elem_*num_basis_*num_dim_]();
             //total_res_ = new real_t[num_elem_*num_dim_]();
 	    //limited_res_ = new real_t[num_elem_*num_basis_*num_dim_]();
@@ -671,6 +677,11 @@ class elem_state_t {
             return BV_mat_inverse_[basis_m*num_basis_ + basis_n];
         }
         
+        inline real_t& dual_BV_mat_inv(int node_lid, int basis_n ) const
+        {
+            return dual_BV_mat_inverse_[node_lid*num_dual_basis_ + basis_n];
+        }
+        
 	inline real_t& vel_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const
 	{
 	    return vel_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
@@ -679,6 +690,11 @@ class elem_state_t {
 	inline real_t& pos_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const
 	{
 	    return pos_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
+	}
+
+	inline real_t& sie_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const
+	{
+	    return sie_coeffs_[ correction_step*num_elem_*num_dual_basis_*num_dim_ + elem_gid*num_dual_basis_*num_dim_ + basis_m*num_dim_ + dim ];
 	}
 
 //        inline real_t& nodal_res(int elem_gid, int vertex, int this_dim) const
@@ -752,8 +768,10 @@ class elem_state_t {
             delete[] avg_specific_volume_;
             delete[] bad_;
             delete[] BV_mat_inverse_;
+	    delete[] dual_BV_mat_inverse_;
 	    delete[] vel_coeffs_;
             delete[] pos_coeffs_;
+	    delete[] sie_coeffs_;
 	   // delete[] nodal_res_;
 	   // delete[] total_res_;
 	   // delete[] limited_res_;
@@ -1222,14 +1240,11 @@ void calc_average_specific_vol();
 
 // RD code
 void rd_hydro();
-//void get_momentum_rd(int correction_step);
 void update_position();
 void update_velocity(int t_step);
 //void get_total_res();
 //void get_betas();
 //void get_limited_res();
-//void lumped_mass();
-//void prediction_step(real_t sub_dt, int pred_step);
 void track_rdh(real_t &x, real_t &y);
 void BV_inv();
 void get_control_coeffs();

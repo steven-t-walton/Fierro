@@ -123,6 +123,13 @@ void ensight() {
     
     // save the vertex vector fields to an array for exporting to graphics files
     auto vec_fields = CArray <real_t> (mesh.num_nodes(), num_vec_vars, 3);
+    for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
+      for (int vars_id = 0; vars_id < num_vec_vars; vars_id++){
+        for (int dim = 0; dim < 3; dim++){
+	  vec_fields(node_gid, vars_id, dim) = 0.0;
+	}
+      }
+    }
 
     for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
         
@@ -133,8 +140,7 @@ void ensight() {
         
         // velocity, var 1
         // create view into vertex velocity
-	int update = 1;
-        auto vel   = ViewCArray <real_t> (&node.vel(update, node_gid, 0), 3);
+        auto vel   = ViewCArray <real_t> (&node.vel(1, node_gid, 0), 3);
 
         vec_fields(node_gid, 1, 0) = vel(0);
         vec_fields(node_gid, 1, 1) = vel(1);

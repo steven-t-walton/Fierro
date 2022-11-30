@@ -37,15 +37,11 @@ void setup_rdh(char *MESH){
   // Initialize reference element //
   ref_elem.init(p_order, num_dim, elem);
 
-
   // ---- Node Initialization ---- //
   node.init_node_state( num_dim, mesh, rk_storage);
   std::cout << "Node state allocated and initialized" << std::endl;
   std::cout << std::endl;
 
-
-  mesh.init_gauss_pts();
-  
   corner.init_corner_state(num_dim, mesh, rk_storage);
   std::cout << "Corner state allocated and initialized"  << std::endl;
   std::cout << std::endl;
@@ -57,7 +53,6 @@ void setup_rdh(char *MESH){
   std::cout << "Cell state allocated and initialized" << std::endl;
   std::cout << std::endl;
   
-  mesh.init_gauss_cell_pts();  
   // ---- Material point initialization ---- //
   mat_pt.init_mat_pt_state(num_dim, mesh, rk_storage);
   std::cout << "Material point state allocated and initialized"  << std::endl;
@@ -70,12 +65,15 @@ void setup_rdh(char *MESH){
   std::cout << "number of patches = " << mesh.num_patches() << std::endl;
 
 
+  mesh.init_gauss_pts();
+  
+  mesh.init_gauss_cell_pts();  
    
+  mesh.init_gauss_patch_pts();
   // build boundary mesh patches
   mesh.build_bdy_patches();
   std::cout << "number of bdy patches = " << mesh.num_bdy_patches() << std::endl;
 
-  mesh.init_gauss_patch_pts();
   int num_bdy_sets = NB;
 
   mesh.init_bdy_sets(num_bdy_sets);
@@ -196,10 +194,9 @@ void setup_rdh(char *MESH){
 
 
                         // --- Density and specific volume ---
-                        mat_pt.density(gauss_gid)  = mat_fill[f_id].r;
+                        mat_pt.density(gauss_gid)  = 1.0;
 
-                        mat_pt.mass(gauss_gid) = mat_pt.density(gauss_gid)
-                                                * (mesh.gauss_pt_det_j(gauss_gid) * mat_pt.weight(gauss_gid));
+                        mat_pt.mass(gauss_gid) = mat_pt.density(gauss_gid)*(mesh.gauss_pt_det_j(gauss_gid) * ref_elem.ref_node_g_weights(gauss_lid));
 
                         mat_pt.mat_id(gauss_gid) = mat_fill[f_id].mat_id;
 
@@ -353,7 +350,7 @@ void setup_rdh(char *MESH){
                    // save the internal energy contribution to the total energy
                    mat_pt.ie(gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((5.0/3.0) - 1.0)) );
 
-                   mat_pt.specific_total_energy(t_step, node_gid) = mat_pt.ie(gauss_gid)+y;
+                   mat_pt.specific_total_energy(t_step, gauss_gid) += y;
 	           
 		   break;
                  }

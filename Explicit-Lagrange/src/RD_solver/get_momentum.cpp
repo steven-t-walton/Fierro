@@ -69,11 +69,23 @@ void update_velocity(int t_step){
           alpha = alpha > temp2 ? alpha : temp2;	    
         }
         
-       // std::cout << "a0 = " << alpha_a[0] << ", a1 = " << alpha_a[1] << ", a2 = " << alpha_a[2] << std::endl;
-     }// end loop over node_lid	  
+        // std::cout << "a0 = " << alpha_a[0] << ", a1 = " << alpha_a[1] << ", a2 = " << alpha_a[2] << std::endl;
+        
+	// --- end Compute alpha ---//
+        
+    }// end loop over node_lid	  
 	
     //std::cout << " alpha = " << alpha << " in elem "<< elem_gid << std::endl;
-  
+   // --- Strong Mass ---//
+    for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+ 
+      int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+
+      real_t vol_gauss = ref_elem.ref_node_g_weights(gauss_lid)*mesh.gauss_pt_det_j(gauss_gid);
+      mat_pt.density(gauss_gid) = mat_pt.mass(gauss_gid)/vol_gauss;
+      //std::cout << mat_pt.density(gauss_gid) << std::endl;
+    } // end loop gauss
+
     for (int vertex = 0; vertex < num_basis; vertex++){
       
       int node_lid = elem.vert_node_map(vertex);
@@ -101,7 +113,8 @@ void update_velocity(int t_step){
       for (int index = 0; index < num_basis; index++){
         for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
 	  int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
-	  res_mass(index) += ref_elem.ref_nodal_basis(gauss_lid, vertex) 
+	  res_mass(index) += ref_elem.ref_nodal_basis(gauss_lid, vertex)
+		               * mat_pt.density(gauss_gid) 
                                * ref_elem.ref_node_g_weights(gauss_lid)
 		               * mesh.gauss_pt_det_j(gauss_gid)
 		               * ref_elem.ref_nodal_basis(gauss_lid, index);
@@ -141,59 +154,7 @@ void update_velocity(int t_step){
       real_t surface_int_a[ num_dim ];
       auto surface_int = ViewCArray <real_t> (&surface_int_a[0], num_dim);
       for (int i = 0; i < num_dim; i++) surface_int(i) = 0.0;        
-/*
-        // Surface Integral //
-	// compute patch normal
-	int const normal_size = num_dim*num_dim*mesh.num_patches_in_elem();
-	real_t patch_normal_a[normal_size];
-	for (int i = 0; i < normal_size; i++) patch_normal_a[i] = 0.0;
-	auto patch_normal = ViewCArray <real_t> ( &patch_normal_a[0], num_dim, num_dim, mesh.num_patches_in_elem());
-
-        for (int gauss_patch_lid = 0; gauss_patch_lid < mesh.num_patches_in_elem(); gauss_patch_lid++){
-          int gauss_patch_gid = mesh.gauss_patch_pt_in_elem( elem_gid, gauss_patch_lid );
-            
-	  patch_normal(0,0, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 1, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2,2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,2);
-          patch_normal(0,1, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0, 2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 2);
-          patch_normal(0,2, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid,0,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,2) - mesh.gauss_patch_pt_jacobian( gauss_patch_gid,1,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,2);
-
-	  patch_normal(1,0, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 1, 0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2,2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,2);
-          patch_normal(1,1, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0, 2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 2);
-          patch_normal(1,2, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid,0,0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,2);
-
-	  patch_normal(2,0, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 1, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2,0) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,0);
-          patch_normal(2,1, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0, 0) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 0);
-          patch_normal(2,2, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid,0,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,0) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,0);
-
-	}// end loop over patch_lid
-
-	// normalize
-	for (int dim = 0; dim < num_dim; dim++){
-	  for( int patch_lid = 0; patch_lid < mesh.num_patches_in_elem(); patch_lid++){
-	    patch_normal(dim, 0, patch_lid) = patch_normal(dim, 0, patch_lid)/sqrt(patch_normal(dim, 0,patch_lid)*patch_normal(dim,0,patch_lid) + patch_normal(dim, 1,patch_lid)*patch_normal(dim,1,patch_lid) + patch_normal(dim, 2,patch_lid)*patch_normal(dim,2,patch_lid) ); 
-
-	    patch_normal(dim, 1, patch_lid) = patch_normal(dim, 1, patch_lid)/sqrt(patch_normal(dim, 0,patch_lid)*patch_normal(dim,0,patch_lid) + patch_normal(dim, 1,patch_lid)*patch_normal(dim,1,patch_lid) + patch_normal(dim, 2,patch_lid)*patch_normal(dim,2,patch_lid) );  
-
-	    patch_normal(dim, 2, patch_lid) = patch_normal(dim, 2, patch_lid)/sqrt(patch_normal(dim, 0,patch_lid)*patch_normal(dim,0,patch_lid) + patch_normal(dim, 1,patch_lid)*patch_normal(dim,1,patch_lid) + patch_normal(dim, 2,patch_lid)*patch_normal(dim,2,patch_lid) );  
-	  }
-	}
-
-        for (int dim = 0; dim < num_dim; dim++){
-          for(int patch_gauss_lid = 0; patch_gauss_lid < mesh.num_patches_in_elem(); patch_gauss_lid++){
-
-            int patch_gid = mesh.gauss_patch_pt_in_elem(elem_gid, patch_gauss_lid);
-	    real_t J_inv_dot_n = 0.0;
-	    for (int k = 0; k < num_dim; k++){
-	      J_inv_dot_n += mesh.gauss_patch_pt_jacobian_inverse(patch_gid, dim, k)*patch_normal(dim, k, patch_gauss_lid);
-	    }// end loop over k
-	    surface_int(dim) += ref_elem.ref_patch_basis(patch_gauss_lid, vertex)
-				  * mat_pt.pressure(patch_gid)
-				  * J_inv_dot_n
-				  * ref_elem.ref_patch_g_weights(patch_gauss_lid)
-				  * mesh.gauss_patch_pt_det_j(patch_gid);// det_surf_jacobian(dim,patch_gauss_lid);// 
-	  }// end loop over gauss_lid
-        }// end loop over dim
-*/     
-
+      
       build_corner_normals(); 	
       // Surface integral
       for(int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
@@ -209,7 +170,7 @@ void update_velocity(int t_step){
           int node_rid = ref_elem.cell_nodes_in_elem(cell_lid, node_lid);
 
           for (int dim = 0; dim < num_dim; dim ++){
-            surface_int(dim) += ref_elem.ref_nodal_basis(node_rid, vertex) 
+            surface_int(dim) += ref_elem.ref_nodal_basis(node_rid, vertex)
 		                * corner.normal(corner_gid, dim) 
 				* mat_pt.pressure(gauss_gid);
 	  }// end loop over dim
@@ -377,6 +338,7 @@ void update_velocity(int t_step){
         for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
 	  int gauss_gid = mesh.gauss_in_elem(elems_in_vert_gid, gauss_lid);
 	  lumped_mass +=  ref_elem.ref_node_g_weights(gauss_lid)
+		         * mat_pt.density(gauss_gid)
 			 * mesh.gauss_pt_det_j(gauss_gid)
 	                 *ref_elem.ref_nodal_basis(gauss_lid, vertex);
         }// end loop over gauss_lid
@@ -442,6 +404,59 @@ void update_velocity(int t_step){
 
 }// end get_nodal_res
 
+
+/*
+        // Surface Integral //
+	// compute patch normal
+	int const normal_size = num_dim*num_dim*mesh.num_patches_in_elem();
+	real_t patch_normal_a[normal_size];
+	for (int i = 0; i < normal_size; i++) patch_normal_a[i] = 0.0;
+	auto patch_normal = ViewCArray <real_t> ( &patch_normal_a[0], num_dim, num_dim, mesh.num_patches_in_elem());
+
+        for (int gauss_patch_lid = 0; gauss_patch_lid < mesh.num_patches_in_elem(); gauss_patch_lid++){
+          int gauss_patch_gid = mesh.gauss_patch_pt_in_elem( elem_gid, gauss_patch_lid );
+            
+	  patch_normal(0,0, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 1, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2,2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,2);
+          patch_normal(0,1, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0, 2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 2);
+          patch_normal(0,2, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid,0,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,2) - mesh.gauss_patch_pt_jacobian( gauss_patch_gid,1,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,2);
+
+	  patch_normal(1,0, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 1, 0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2,2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,2);
+          patch_normal(1,1, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0, 2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 2);
+          patch_normal(1,2, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid,0,0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,2) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,0)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,2);
+
+	  patch_normal(2,0, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 1, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2,0) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,0);
+          patch_normal(2,1, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0, 0) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 2, 0);
+          patch_normal(2,2, gauss_patch_lid) = mesh.gauss_patch_pt_jacobian(gauss_patch_gid,0,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,0) - mesh.gauss_patch_pt_jacobian(gauss_patch_gid,1,1)*mesh.gauss_patch_pt_jacobian(gauss_patch_gid, 0,0);
+
+	}// end loop over patch_lid
+
+	// normalize
+	for (int dim = 0; dim < num_dim; dim++){
+	  for( int patch_lid = 0; patch_lid < mesh.num_patches_in_elem(); patch_lid++){
+	    patch_normal(dim, 0, patch_lid) = patch_normal(dim, 0, patch_lid)/sqrt(patch_normal(dim, 0,patch_lid)*patch_normal(dim,0,patch_lid) + patch_normal(dim, 1,patch_lid)*patch_normal(dim,1,patch_lid) + patch_normal(dim, 2,patch_lid)*patch_normal(dim,2,patch_lid) ); 
+
+	    patch_normal(dim, 1, patch_lid) = patch_normal(dim, 1, patch_lid)/sqrt(patch_normal(dim, 0,patch_lid)*patch_normal(dim,0,patch_lid) + patch_normal(dim, 1,patch_lid)*patch_normal(dim,1,patch_lid) + patch_normal(dim, 2,patch_lid)*patch_normal(dim,2,patch_lid) );  
+
+	    patch_normal(dim, 2, patch_lid) = patch_normal(dim, 2, patch_lid)/sqrt(patch_normal(dim, 0,patch_lid)*patch_normal(dim,0,patch_lid) + patch_normal(dim, 1,patch_lid)*patch_normal(dim,1,patch_lid) + patch_normal(dim, 2,patch_lid)*patch_normal(dim,2,patch_lid) );  
+	  }
+	}
+
+        for (int dim = 0; dim < num_dim; dim++){
+          for(int patch_gauss_lid = 0; patch_gauss_lid < mesh.num_patches_in_elem(); patch_gauss_lid++){
+
+            int patch_gid = mesh.gauss_patch_pt_in_elem(elem_gid, patch_gauss_lid);
+	    real_t J_inv_dot_n = 0.0;
+	    for (int k = 0; k < num_dim; k++){
+	      J_inv_dot_n += mesh.gauss_patch_pt_jacobian_inverse(patch_gid, dim, k)*patch_normal(dim, k, patch_gauss_lid);
+	    }// end loop over k
+	    surface_int(dim) += ref_elem.ref_patch_basis(patch_gauss_lid, vertex)
+				  * mat_pt.pressure(patch_gid)
+				  * J_inv_dot_n
+				  * ref_elem.ref_patch_g_weights(patch_gauss_lid)
+				  * mesh.gauss_patch_pt_det_j(patch_gid);// det_surf_jacobian(dim,patch_gauss_lid);// 
+	  }// end loop over gauss_lid
+        }// end loop over dim
+*/     
 
     // store control coeffs to temp array //
     
