@@ -19,7 +19,7 @@ void update_coeffs(){
     }// end loop over dim
     
   }// end loop over node_gid 
-  get_control_coeffs(); 
+  //get_control_coeffs(); 
   // update ie, stress and total energy //
 #pragma omp simd     
   for (int cell_gid = 0; cell_gid < mesh.num_cells(); cell_gid++){
@@ -41,7 +41,9 @@ void update_coeffs(){
     for (int basis = 0; basis < ref_elem.num_basis(); basis++){
       for (int dim = 0; dim < mesh.num_dim(); dim++){
         elem_state.vel_coeffs( 0, elem_gid, basis, dim ) = elem_state.vel_coeffs( num_correction_steps, elem_gid, basis, dim );
+      //  elem_state.pos_coeffs( 0, elem_gid, basis, dim ) = elem_state.vel_coeffs( num_correction_steps, elem_gid, basis, dim );
       }// end loop over dim
+      elem_state.sie_coeffs( 0, elem_gid, basis ) = elem_state.sie_coeffs( num_correction_steps, elem_gid, basis);
     }// end loop over basis
   }// end loop over elem_gid
 

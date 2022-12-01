@@ -645,7 +645,7 @@ class elem_state_t {
 	    dual_BV_mat_inverse_ = new real_t[num_nodes_in_elem_*num_dual_basis_]();//num_dual_basis_*num_dual_basis_]();
             vel_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
 	    pos_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
-	    sie_coeffs_ = new real_t[num_corrections_*num_elem_*num_dual_basis_*num_dim_]();
+	    sie_coeffs_ = new real_t[num_corrections_*num_elem_*num_dual_basis_]();
 	    //nodal_res_ = new real_t[num_elem_*num_basis_*num_dim_]();
             //total_res_ = new real_t[num_elem_*num_dim_]();
 	    //limited_res_ = new real_t[num_elem_*num_basis_*num_dim_]();
@@ -692,9 +692,9 @@ class elem_state_t {
 	    return pos_coeffs_[ correction_step*num_elem_*num_basis_*num_dim_ + elem_gid*num_basis_*num_dim_ + basis_m*num_dim_ + dim ];
 	}
 
-	inline real_t& sie_coeffs(int correction_step, int elem_gid, int basis_m, int dim) const
+	inline real_t& sie_coeffs(int correction_step, int elem_gid, int basis_m) const
 	{
-	    return sie_coeffs_[ correction_step*num_elem_*num_dual_basis_*num_dim_ + elem_gid*num_dual_basis_*num_dim_ + basis_m*num_dim_ + dim ];
+	    return sie_coeffs_[ correction_step*num_elem_*num_dual_basis_ + elem_gid*num_dual_basis_ + basis_m];
 	}
 
 //        inline real_t& nodal_res(int elem_gid, int vertex, int this_dim) const
@@ -813,6 +813,9 @@ private:
     real_t *mass_ = NULL; 
     real_t *ie_ = NULL;
     real_t *ke_ = NULL;
+    // RD //
+    real_t *sie_ = NULL;
+    // end RD //
 
     real_t *div_vel_ = NULL;
     real_t *grad_vel_ = NULL;  // symmetric part of velocity gradient
@@ -857,7 +860,10 @@ public:
         sspd_ = new real_t[num_matpt_]();
         mass_ = new real_t[num_matpt_]();
         ie_ = new real_t[num_matpt_]();
-        ke_ = new real_t[num_matpt_]();
+        // RD //
+	sie_ = new real_t[num_rk_*num_matpt_]();
+        // end RD //
+	ke_ = new real_t[num_matpt_]();
     
         den_phi_ = new real_t[num_matpt_]();
         vel_phi_ = new real_t[num_matpt_]();
@@ -938,7 +944,12 @@ public:
     {
         return ie_[mat_pt_gid];
     }
-
+// RD //
+    inline real_t& sie(int rk_stage, int mat_pt_gid) const
+    {
+        return sie_[ rk_stage*num_matpt_+ mat_pt_gid];
+    }
+// end RD //
     inline real_t& ke(int mat_pt_gid) const
     {
         return ke_[mat_pt_gid];
@@ -1003,6 +1014,9 @@ public:
         delete[] vel_phi_;
         delete[] te_phi_;
         
+	// RD //
+	delete[] sie_;
+	// end RD //
         
         delete[] q_visc_;
 

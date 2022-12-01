@@ -9,7 +9,7 @@ using namespace utils;
 
 void update_position(){
 
-/* 
+ 
 #pragma omp simd  
   for (int node_gid = 0; node_gid <mesh.num_nodes(); node_gid++){
     for (int dim = 0; dim < mesh.num_dim(); dim++){
@@ -17,8 +17,8 @@ void update_position(){
       mesh.node_coords(node_gid, dim) = node.coords(1, node_gid, dim);
     }// end loop over dim
   }// end loop over node_gid
-*/
 
+/*
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
       for (int dim = 0; dim < mesh.num_dim(); dim++){
@@ -52,7 +52,7 @@ void update_position(){
     }// end loop over gauss_lid
   }// end loop over elem_gid
 
-
+*/
 }// end get_position_rdh()
 
 
