@@ -70,7 +70,7 @@ void update_velocity(int t_step){
         }
         
         // std::cout << "a0 = " << alpha_a[0] << ", a1 = " << alpha_a[1] << ", a2 = " << alpha_a[2] << std::endl;
-        
+       // add in max density and  
 	// --- end Compute alpha ---//
         
     }// end loop over node_lid	  
@@ -154,7 +154,7 @@ void update_velocity(int t_step){
       real_t surface_int_a[ num_dim ];
       auto surface_int = ViewCArray <real_t> (&surface_int_a[0], num_dim);
       for (int i = 0; i < num_dim; i++) surface_int(i) = 0.0;        
-      
+/* 
       build_corner_normals(); 	
       // Surface integral
       for(int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
@@ -176,7 +176,7 @@ void update_velocity(int t_step){
 	  }// end loop over dim
         }// end loop over nodes/corners in a cell
       } // end loop over cells in an element
-
+*/
       for (int dim = 0; dim < num_dim; dim++){
         force(dim, current) = surface_int(dim) - volume_int(dim);
 	//std::cout << force(dim) << std::endl;
@@ -229,7 +229,7 @@ void update_velocity(int t_step){
 	  std::cout << "force at dim " << dim << " is  " << dt*force(dim,current) << std::endl;
         }
         */
-      //--- Assign Values to Galerkin Residual ---//
+      //--- Assign Values to Galerkin/Rusanov Residual ---//
       for (int dim = 0; dim < num_dim; dim++){
         // Assign values to nodal res
         nodal_res(node_gid, elem_gid, dim ) = Mv(dim)/dt + 0.5*( force( dim, 0 ) + force( dim, current) );// + Q(dim, 0) + Q(dim, current) );
@@ -356,51 +356,13 @@ void update_velocity(int t_step){
 	  //sum_res(dim) += limited_res(elems_in_vert_gid, vertex, dim);       
 	}// end loop over elems_in_vert
       }// end loop over dim
-      
+     
+      // Update vel coeffs //
       for (int dim = 0; dim < num_dim; dim++){
-        elem_state.vel_coeffs(update, elem_gid, vertex, dim) = elem_state.vel_coeffs(current,elem_gid, vertex, dim) - 1.0/(2.0-(real_t)t_step)*(dt/lumped_mass)*sum_res(dim);
+        elem_state.vel_coeffs(update, elem_gid, vertex, dim) = elem_state.vel_coeffs(current,elem_gid, vertex, dim) - (dt/lumped_mass)*sum_res(dim);// (1.0/(2.0-(real_t)t_step))*
       }
-    
     }// end loop over vertex
   }// end loop over elem_gid
-
-
-  if ( update == num_correction_steps ){
-    
-    for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-      for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
-        int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
-	int node_gid = mesh.nodes_in_elem(elem_gid, gauss_lid);
-        
-	real_t interp_a[num_dim];
-        for (int i =0; i < num_dim; i++) interp_a[i] =0.0;
-	auto interp = ViewCArray <real_t> ( &interp_a[0], num_dim);
-        
-	for (int dim = 0; dim < mesh.num_dim(); dim++){
-          for (int vert = 0; vert < ref_elem.num_basis(); vert++){
-            interp(dim) += ref_elem.ref_nodal_basis( gauss_lid, vert ) * elem_state.vel_coeffs(update, elem_gid, vert, dim);
-          }// end loop over vertex
-        }// end loop over dim
-      
-          
-	for (int dim = 0; dim < num_dim; dim++){
-	  node.vel(1, node_gid, dim) = interp(dim);
-        }
-        
-/*      
-        node.vel(1, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
-        node.vel(1, node_gid, 1) = -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));
-        node.vel(1, node_gid, 2) = 0.0;
-*/
-
-/*
-        std::cout << node.vel(1, node_gid, 0) - sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1))<< std::endl;
-        std::cout << node.vel(1, node_gid, 1) + 1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1))<< std::endl; 
-        std::cout << node.vel(1, node_gid, 2) << std::endl; 
-*/
-      }// end loop over node_lid
-    }// end loop over elements
-  }// end if
 
 }// end get_nodal_res
 
@@ -767,28 +729,6 @@ void update_velocity(int t_step){
 /*
   // Initialize nodal_res to zero //
 #pragma omp simd 
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-    for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
-      int node_lid = elem.vert_node_map(vertex);
-      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-
-      for (int cell_lid = 0; cell_lid < mesh.num_cells_in_node(node_gid);  cell_lid++){
-        int cell_gid = mesh.cells_in_node(node_gid, cell_lid);
-        for (int dim = 0; dim < num_dim; dim++){
-          elem_state.nodal_res( elem_gid, vertex, cell_gid, dim)  = 0.0;
-        }// end loop over dim
-      }// end loop over cell_lid
-    }// end loop over vertex
-  }// end loop over elem_gid
-
-  real_t time_weights[num_correction_steps];
-  for (int i = 0; i < num_correction_steps; i++) time_weights[i] = 0.0;
-  
-  real_t time_points[num_correction_steps];
-  for (int i = 0; i < num_correction_steps; i++) time_points[i] = 0.0;
-
-  if (current == 0){
-
     time_weights[0] = 0.5;
 
     time_points[0] = 0;

@@ -13,11 +13,6 @@ void get_control_coeffs(){
    //------------/////--Kinematic control only at vertices--/////-----------//
    ////////////////////////////////////////////////////////////////
    
-  //int control_coeff_a_size = mesh.num_elems()*mesh.num_dim()*ref_elem.num_basis();
-  //real_t control_coeff_a[control_coeff_a_size];
-  //for (int i = 0; i < control_coeff_a_size; i++) control_coeff_a[i] = 0.0;
-  //auto control_coeffs = ViewCArray <real_t> ( &control_coeff_a[0], mesh.num_elems(), ref_elem.num_basis(), mesh.num_dim());
-  
   for (int t_step = 0; t_step < num_correction_steps+1; t_step++){
     for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
       for(int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
@@ -45,18 +40,6 @@ void get_control_coeffs(){
   }// end loop over elem_gid
  }// end loop over t_step
   
-  /*
-  //Save back to nodal velocity
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-    for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
-      int node_lid = elem.vert_node_map(vertex);
-      int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
-      for (int dim = 0; dim < mesh.num_dim(); dim++){
-        node.vel(0, node_gid, dim) = control_coeffs(elem_gid, vertex, dim);  
-      }// end loop over dim
-    }// end loop over vertex
-  }// end loop over elem_gid
-  */
 /*
   //// print statements ///
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
@@ -67,7 +50,7 @@ void get_control_coeffs(){
        std::cout << "-------- dim ------" <<std::endl;
        std::cout << dim << std::endl;
       for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
-        std::cout << elem_state.vel_coeffs( 0, elem_gid, basis_id, dim ) << ", ";  
+        std::cout << elem_state.pos_coeffs( 0, elem_gid, basis_id, dim ) << ", ";  
       }
       std::cout<<std::endl;
     }
@@ -105,7 +88,7 @@ void get_control_coeffs(){
     
   }// end loop over elem_gid
 
-
+/*
   //// print statements ///
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     std::cout << " ------- elem id ------- " << std::endl;
@@ -118,11 +101,31 @@ void get_control_coeffs(){
     std::cout << " ----------------------- " << std::endl;
     std::cout << " ----------------------- " << std::endl;
   }
-  
+*/  
 
 }// end get_control_coeffs()
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //int control_coeff_a_size = mesh.num_elems()*mesh.num_dim()*ref_elem.num_basis();
+  //real_t control_coeff_a[control_coeff_a_size];
+  //for (int i = 0; i < control_coeff_a_size; i++) control_coeff_a[i] = 0.0;
+  //auto control_coeffs = ViewCArray <real_t> ( &control_coeff_a[0], mesh.num_elems(), ref_elem.num_basis(), mesh.num_dim());
+  
 /*
  
 
@@ -130,6 +133,18 @@ void get_control_coeffs(){
 
 /*
 
+  
+  //Save back to nodal velocity
+  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+    for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
+      int node_lid = elem.vert_node_map(vertex);
+      int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
+      for (int dim = 0; dim < mesh.num_dim(); dim++){
+        node.vel(0, node_gid, dim) = control_coeffs(elem_gid, vertex, dim);  
+      }// end loop over dim
+    }// end loop over vertex
+  }// end loop over elem_gid
+ 
 
 */
 

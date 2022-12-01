@@ -1263,12 +1263,12 @@ void track_rdh(real_t &x, real_t &y);
 void BV_inv();
 void get_control_coeffs();
 void get_state();
-//void get_energy_rdh(real_t sub_dt);
+void update_energy(int t_step);
 void get_stress();
 void update_coeffs();
 void setup_rdh(char *MESH);
 void boundary_rdh();
-//void interp_vel();
+void interp_vel();
 //void interp_pos(int step);
 //void interp_ie(int step);
 

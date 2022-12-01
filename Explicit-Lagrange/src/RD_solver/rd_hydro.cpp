@@ -39,6 +39,7 @@ void rd_hydro(){
 
     { // Time integration scope //
       
+
 #pragma omp simd
 
       // DeC update //
@@ -49,29 +50,35 @@ void rd_hydro(){
  
         update_velocity( correction_step );
         
-	//get_total_res();
-
-	//get_betas();
-
-	//get_limited_res();
+	// Update position coefficients //
+        for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+	  for (int dof = 0; dof < ref_elem.num_basis(); dof++){
+	    for (int dim = 0; dim < mesh.num_dim(); dim++){
+	      elem_state.pos_coeffs(correction_step+1, elem_gid, dof, dim) = elem_state.pos_coeffs(0, elem_gid,dof, dim)
+		             + 0.5*dt*(elem_state.vel_coeffs(correction_step, elem_gid, dof, dim) + elem_state.vel_coeffs(0,elem_gid, dof, dim) );
+	    }
+	  }
+	}
         
-      	// updates velocity coeffs //
-	//get_momentum_rd( correction_step );
-	
-	// energy update //
-        //get_energy_rdh( sub_dt );
-
+	// Update internal energy //
+	//update_energy( correction_step );
+      
       }//end correction steps
       
       // intepolate the velocity with evolved coeffs and save to nodes  //
-      // interp_vel();
+      interp_vel();
       
       // update boundary vel vals //
       boundary_rdh();
-
+      
       // update position //
       update_position();   
 
+      //for(int gauss_gid=0; gauss_gid<mesh.num_gauss_pts(); gauss_gid++){
+      //  gauss_properties(gauss_gid);
+      //}// end loop over gauss_gid
+
+   
       get_gauss_pt_jacobian(mesh, ref_elem);
     
       get_gauss_cell_pt_jacobian(mesh, ref_elem);
@@ -80,11 +87,6 @@ void rd_hydro(){
 
       get_vol_jacobi(mesh, ref_elem);
       
-      
-      //for(int gauss_gid=0; gauss_gid<mesh.num_gauss_pts(); gauss_gid++){
-      //  gauss_properties(gauss_gid);
-      //}// end loop over gauss_gid
-
       get_state();
 
       get_stress(); 
@@ -112,4 +114,17 @@ void rd_hydro(){
 
 }// end rd_hydro
 
+
+
+	//get_total_res();
+
+	//get_betas();
+
+	//get_limited_res();
+        
+      	// updates velocity coeffs //
+	//get_momentum_rd( correction_step );
+	
+	// energy update //
+        //get_energy_rdh( sub_dt );
 
