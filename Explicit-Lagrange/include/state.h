@@ -1270,6 +1270,6 @@ void setup_rdh(char *MESH);
 void boundary_rdh();
 void interp_vel();
 //void interp_pos(int step);
-//void interp_ie(int step);
+void interp_ie();
 
 #endif 

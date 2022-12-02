@@ -21,22 +21,22 @@ void get_state(){
     real_t elem_coords_y = 0.0;
     elem_coords_x = mesh.cell_coords(cell_gid,0);
     elem_coords_y = mesh.cell_coords(cell_gid,1);
-
-    real_t source = 0.0;
-
-    source = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * elem_coords_x) * cos( 3.141592653589 * elem_coords_y) - cos( 3.141592653589 * elem_coords_x ) * cos( 3.0*3.141592653589 * elem_coords_y ) ); 
     
     cell_state.density(cell_gid) = 1.0;
       
     cell_state.pressure(cell_gid) = 0.25*( cos(2.0*3.141592653589 * elem_coords_x )  + cos(2.0*3.141592653589 * elem_coords_y ) ) + 1.0;
-   
-    cell_state.ie(1, cell_gid) = source + cell_state.pressure(cell_gid)/(cell_state.density(cell_gid)*(0.66666667));
+    
+    for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
+      int gauss_gid = mesh.gauss_in_cell(cell_gid, gauss_lid);
+      cell_state.ie(1, cell_gid) += 0.125*mat_pt.sie(1,gauss_gid);
+    }
+
 
     real_t ie = 0.0;
     real_t ke = 0.0;
     track_rdh(ie,ke);
-    real_t energy = ke;//+ie
-    cell_state.total_energy(1,cell_gid) = cell_state.ie(1,cell_gid) + energy;
+    
+    cell_state.total_energy(1,cell_gid) = cell_state.ie(1,cell_gid) + ke; 
     
     cell_state.cs(cell_gid) =
         material[cell_state.mat_id(cell_gid)].eos_func(

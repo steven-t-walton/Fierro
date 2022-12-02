@@ -65,7 +65,31 @@ void interp_pos(int update){
 }// end interp_pos()
 */
 
-void interp_ie(int update){
+void interp_ie(){
   
+  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+    for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+      
+      int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+      int node_gid = mesh.nodes_in_elem(elem_gid, gauss_lid);
+      
+      real_t interp = 0.0;
+
+      for (int vert = 0; vert < ref_elem.num_dual_basis(); vert++){
+        interp += ref_elem.ref_nodal_dual_basis( gauss_lid, vert ) * elem_state.sie_coeffs(num_correction_steps, elem_gid, vert);
+      }// end loop over vertex
+      
+      mat_pt.sie(1, gauss_gid) = interp;
+    
+      real_t source = 0.0;
+
+      source = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * mesh.node_coords(node_gid,0))  * cos( 3.141592653589 * mesh.node_coords(node_gid,1)) - cos( 3.141592653589 * mesh.node_coords(node_gid,0) ) * cos( 3.0*3.141592653589 * mesh.node_coords(node_gid, 1) ) );
+      
+      mat_pt.sie(1, gauss_gid) += source;
+
+    }// end loop over gauss_lid
+  }// end loop over elem_gid
+
+
 }// end interp_ie
 

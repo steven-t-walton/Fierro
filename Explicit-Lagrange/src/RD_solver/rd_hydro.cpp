@@ -61,7 +61,7 @@ void rd_hydro(){
 	}
         
 	// Update internal energy //
-	//update_energy( correction_step );
+	update_energy( correction_step );
       
       }//end correction steps
       
@@ -70,7 +70,10 @@ void rd_hydro(){
       
       // update boundary vel vals //
       boundary_rdh();
-      
+     
+      // interpolate energy coeffs //
+      interp_ie();
+
       // update position //
       update_position();   
 
