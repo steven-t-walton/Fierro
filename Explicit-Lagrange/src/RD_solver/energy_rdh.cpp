@@ -65,18 +65,18 @@ void update_energy( int t_step ){
       
           for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
             int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+	    int node_gid = mesh.nodes_in_elem(elem_gid, gauss_lid);
+
 	    real_t J_inv_dot_grad_phi = 0.0;
 	    
 	    for (int k = 0; k < mesh.num_dim(); k++){
 	      J_inv_dot_grad_phi += mesh.gauss_pt_jacobian_inverse(gauss_gid, k, dim)*ref_elem.ref_nodal_gradient(gauss_lid, k_dof, k);
 	    }// end loop over k
 	    
-	    F( 0, k_dof,dim) += J_inv_dot_grad_phi * mat_pt.pressure(gauss_gid)// <-- stress(0, gauss_gid, dim, dim)
-	              	            * ref_elem.ref_nodal_dual_basis(gauss_lid, t_dof)
+	    F( 0, k_dof,dim) += J_inv_dot_grad_phi * mat_pt.pressure(gauss_gid) * ref_elem.ref_nodal_dual_basis(gauss_lid, t_dof) 
 			            * mesh.gauss_pt_det_j(gauss_gid)
 			            * ref_elem.ref_node_g_weights(gauss_lid);
-	    F(t_step,k_dof,dim) += J_inv_dot_grad_phi * mat_pt.pressure(gauss_gid)// <-- stress(t_step, gauss_gid,dim,dim)
-	            	            * ref_elem.ref_nodal_dual_basis(gauss_lid, t_dof)
+	    F(t_step,k_dof,dim) += J_inv_dot_grad_phi * mat_pt.pressure(gauss_gid) * ref_elem.ref_nodal_dual_basis(gauss_lid, t_dof)
 			            * mesh.gauss_pt_det_j(gauss_gid)
 			            * ref_elem.ref_node_g_weights(gauss_lid);
           }// end loop over gauss_lid 
@@ -94,7 +94,30 @@ void update_energy( int t_step ){
  	}// end loop over dim
       }// end loop over k_dof
       
-      energy_res(elem_gid, node_gid) =  Me/dt + 0.5*(force_0 + force_k);
+      
+      real_t source_int = 0.0;
+
+      for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+        int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+	int node_gid = mesh.nodes_in_elem(elem_gid, gauss_lid);
+        
+	real_t source_0 = 0.0;	
+	real_t source_k = 0.0;
+        
+       // source_0 = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(0,node_gid,0))  * cos( 3.141592653589 * node.coords(0,node_gid,1)) - cos( 3.141592653589 * node.coords(0,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(0,node_gid, 1) ) ); 
+	    
+       // source_k = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(1,node_gid,0))  * cos( 3.141592653589 * node.coords(1,node_gid,1)) - cos( 3.141592653589 * node.coords(1,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(1,node_gid, 1) ) ); 
+        
+        source_0 = ( 0.25*( cos(2.0*3.141592653589*node.coords(0,node_gid,0) ) + cos(2*3.141592653589*node.coords(0, node_gid, 1) ) ) +1 )/(mat_pt.density(gauss_gid)*0.666666667);
+ 
+        source_k = ( 0.25*( cos(2.0*3.141592653589*node.coords(1,node_gid,0) ) + cos(2*3.141592653589*node.coords(1, node_gid, 1) ) ) +1 )/(mat_pt.density(gauss_gid)*0.666666667);
+
+        source_int += (source_0+source_k)*ref_elem.ref_nodal_dual_basis(gauss_lid,t_dof) * mesh.gauss_pt_det_j(gauss_gid)* ref_elem.ref_node_g_weights(gauss_lid);
+      }// end loop over gauss_lid 
+     
+      //std::cout << source_int << std::endl;
+      
+      energy_res(elem_gid, node_gid) =  Me/dt + 0.5*(force_0 + force_k) - 0.5*source_int;
 
       //std::cout << energy_res(elem_gid, node_gid) << std::endl;
       

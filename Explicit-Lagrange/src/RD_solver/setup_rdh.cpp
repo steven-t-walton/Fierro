@@ -207,7 +207,7 @@ void setup_rdh(char *MESH){
 
                         // --- Internal energy ---
                         mat_pt.specific_total_energy(t_step, gauss_gid) = mat_fill[f_id].ie;  // kinetic energy is added later
-                        mat_pt.ie(gauss_gid) = mat_fill[f_id].ie;
+                        //mat_pt.ie(gauss_gid) = mat_fill[f_id].ie;
 
                         // elem_state.total_energy(rk_stage, elem_gid) = mat_fill[f_id].ie; // + initialization of kinetic energy
 
@@ -229,7 +229,7 @@ void setup_rdh(char *MESH){
              cell_state.mass(cell_gid) = cell_state.density(cell_gid)*mesh.cell_vol(cell_gid);
 
              // --- Internal energy ---
-             cell_state.ie(t_step, cell_gid) = mat_fill[f_id].ie;
+             //cell_state.ie(t_step, cell_gid) = mat_fill[f_id].ie;
              cell_state.total_energy(t_step, cell_gid) = mat_fill[f_id].ie;              
              
 
@@ -352,9 +352,9 @@ void setup_rdh(char *MESH){
 		   mat_pt.ie(gauss_gid) = mat_pt.sie(t_step,gauss_gid);
                    mat_pt.specific_total_energy(t_step, gauss_gid) = mat_pt.ie(gauss_gid) + y;
 	           
-		   //cell_state.ie(t_step, cell_gid) = 0.0;
+		   cell_state.ie(t_step, cell_gid) = 0.0;
                    
-		   cell_state.ie(t_step, cell_gid) += mat_pt.ie(gauss_gid)*0.125 + 0.125*source;
+		   cell_state.ie(t_step, cell_gid) = mat_pt.ie(gauss_gid);//*0.125;// + 0.125*source;
                    
 		   break;
                  }
