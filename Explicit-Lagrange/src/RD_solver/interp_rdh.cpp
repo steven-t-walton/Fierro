@@ -79,14 +79,12 @@ void interp_ie(){
         interp += ref_elem.ref_nodal_dual_basis( gauss_lid, vert ) * elem_state.sie_coeffs(num_correction_steps, elem_gid, vert);
       }// end loop over vertex
       
-      mat_pt.sie(1, gauss_gid) = interp;
-    
       real_t source = 0.0;
 
-      source = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * mesh.node_coords(node_gid,0))  * cos( 3.141592653589 * mesh.node_coords(node_gid,1)) - cos( 3.141592653589 * mesh.node_coords(node_gid,0) ) * cos( 3.0*3.141592653589 * mesh.node_coords(node_gid, 1) ) );
+      source = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(1,node_gid,0))  * cos( 3.141592653589 * node.coords(1,node_gid,1)) - cos( 3.141592653589 * node.coords(1,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(1,node_gid, 1) ) );
       
-      mat_pt.sie(1, gauss_gid) += source;
-
+      mat_pt.sie(1, gauss_gid) = interp+source;
+      mat_pt.ie(gauss_gid) = mat_pt.sie(1,gauss_gid);   
     }// end loop over gauss_lid
   }// end loop over elem_gid
 

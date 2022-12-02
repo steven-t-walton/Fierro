@@ -77,10 +77,6 @@ void rd_hydro(){
       // update position //
       update_position();   
 
-      //for(int gauss_gid=0; gauss_gid<mesh.num_gauss_pts(); gauss_gid++){
-      //  gauss_properties(gauss_gid);
-      //}// end loop over gauss_gid
-
    
       get_gauss_pt_jacobian(mesh, ref_elem);
     
@@ -93,6 +89,10 @@ void rd_hydro(){
       get_state();
 
       get_stress(); 
+
+      //for(int gauss_gid=0; gauss_gid<mesh.num_gauss_pts(); gauss_gid++){
+      //  gauss_properties(gauss_gid);
+      //}// end loop over gauss_gid
 
       update_coeffs();
        

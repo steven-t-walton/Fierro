@@ -16,7 +16,7 @@ void update_energy( int t_step ){
   
   int update = t_step + 1;
 
-  auto energy_res = CArray <real_t> (mesh.num_elems(), ref_elem.num_dual_basis() );
+  auto energy_res = CArray <real_t> (mesh.num_elems(), mesh.num_nodes() );
   
   for (int i = 0; i < mesh.num_elems(); i++){
     for (int j = 0; j < ref_elem.num_dual_basis(); j++){
@@ -34,7 +34,9 @@ void update_energy( int t_step ){
     // The Galerkin residual is then R(e) = M.de/dt + F^T.v // 
     
     for (int t_dof = 0; t_dof < ref_elem.num_dual_basis(); t_dof++){
-      	    
+      int node_lid = ref_elem.dual_vert_node_map(t_dof);
+      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+
       auto res_mass = CArray <real_t> (ref_elem.num_dual_basis());
       for (int i = 0; i < ref_elem.num_dual_basis(); i++) res_mass(i) = 0.0;
 
@@ -94,14 +96,14 @@ void update_energy( int t_step ){
       real_t force_0 = 0.0;
       real_t force_k = 0.0;
 
-      for (int k_dof = 0; k_dof < ref_elem.num_basis(); k_dof++){
-        for (int dim = 0; dim < mesh.num_dim(); dim++){
+      for (int dim = 0; dim < mesh.num_dim(); dim++){
+        for (int k_dof = 0; k_dof < ref_elem.num_basis(); k_dof++){
           force_0 += F(0,k_dof,dim)*elem_state.vel_coeffs(0, elem_gid, k_dof, dim);
           force_k += F(t_step,k_dof,dim)*elem_state.vel_coeffs(t_step, elem_gid, k_dof, dim);	  
  	}// end loop over dim
       }// end loop over k_dof
       
-      energy_res(elem_gid, t_dof) =  Me + 0.5*(force_0 + force_k);
+      energy_res(elem_gid, node_gid) =  Me + 0.5*(force_0 + force_k);
 
     }// end loop over t_dof
 
@@ -128,7 +130,7 @@ void update_energy( int t_step ){
       real_t res_sum = 0.0;
       for (int elem_node_lid = 0; elem_node_lid < mesh.num_elems_in_node(node_gid); elem_node_lid++){
         int elem_node_gid = mesh.elems_in_node(node_gid, elem_node_lid);
-	  res_sum += energy_res(elem_node_gid,t_dof);
+	res_sum += energy_res(elem_node_gid, node_gid);
       }// end loop over elem_node_lid
       
       elem_state.sie_coeffs(update, elem_gid, t_dof) = elem_state.sie_coeffs(t_step,elem_gid,t_dof) - (dt/lumped_mass)*res_sum;

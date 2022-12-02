@@ -349,8 +349,9 @@ void setup_rdh(char *MESH){
                    
                    // save the internal energy contribution to the total energy
                    mat_pt.sie(t_step,gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((5.0/3.0) - 1.0)) );
-
-                   mat_pt.specific_total_energy(t_step, gauss_gid) += y;
+                   
+		   mat_pt.ie(gauss_gid) = mat_pt.sie(t_step,gauss_gid);
+                   mat_pt.specific_total_energy(t_step, gauss_gid) = mat_pt.ie(gauss_gid) + y;
 	           
 		   break;
                  }
