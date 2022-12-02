@@ -154,7 +154,7 @@ void update_velocity(int t_step){
       real_t surface_int_a[ num_dim ];
       auto surface_int = ViewCArray <real_t> (&surface_int_a[0], num_dim);
       for (int i = 0; i < num_dim; i++) surface_int(i) = 0.0;        
-/* 
+ 
       build_corner_normals(); 	
       // Surface integral
       for(int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
@@ -176,7 +176,7 @@ void update_velocity(int t_step){
 	  }// end loop over dim
         }// end loop over nodes/corners in a cell
       } // end loop over cells in an element
-*/
+
       for (int dim = 0; dim < num_dim; dim++){
         force(dim, current) = surface_int(dim) - volume_int(dim);
 	//std::cout << force(dim) << std::endl;

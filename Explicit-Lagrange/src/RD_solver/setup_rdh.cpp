@@ -335,10 +335,9 @@ void setup_rdh(char *MESH){
                   
                   */
                    real_t source = 0.0;
-                   source = 3.141592653589/(4.0*0.6666667)* ( cos(3.0*3.141592653589 * mesh.cell_coords(cell_gid,0)) * cos( 3.141592653589 * mesh.cell_coords(cell_gid,1)) - cos( 3.141592653589 * mesh.cell_coords(cell_gid,0) ) * cos( 3.0*3.141592653589 * mesh.cell_coords(cell_gid,1) ) );
+                   source = 3.141592653589/(4.0*0.6666667)* ( cos(3.0*3.141592653589 * mesh.node_coords(node_gid,0)) * cos( 3.141592653589 * mesh.node_coords(node_gid,1)) - cos( 3.141592653589 * mesh.node_coords(node_gid,0) ) * cos( 3.0*3.141592653589 * mesh.node_coords(node_gid,1) ) );
 		   
                    cell_state.pressure(cell_gid) = 0.25*(cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;//0.0625*((cos(6.0*PI*mesh.cell_coords(cell_gid,2)+2) ) * cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;
-                   cell_state.ie(t_step, cell_gid) = cell_state.pressure(cell_gid)/(0.6666667) + source;//material[f_id].g-1.0));
                    
 		   real_t x = 0.0;
 		   real_t y = 0.0;
@@ -353,6 +352,10 @@ void setup_rdh(char *MESH){
 		   mat_pt.ie(gauss_gid) = mat_pt.sie(t_step,gauss_gid);
                    mat_pt.specific_total_energy(t_step, gauss_gid) = mat_pt.ie(gauss_gid) + y;
 	           
+		   //cell_state.ie(t_step, cell_gid) = 0.0;
+                   
+		   cell_state.ie(t_step, cell_gid) += mat_pt.ie(gauss_gid)*0.125 + 0.125*source;
+                   
 		   break;
                  }
                } // end of switch

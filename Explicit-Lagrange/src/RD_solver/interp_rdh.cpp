@@ -72,7 +72,6 @@ void interp_ie(){
       
       int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
       int node_gid = mesh.nodes_in_elem(elem_gid, gauss_lid);
-      
       real_t interp = 0.0;
 
       for (int vert = 0; vert < ref_elem.num_dual_basis(); vert++){
@@ -83,8 +82,12 @@ void interp_ie(){
 
       source = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(1,node_gid,0))  * cos( 3.141592653589 * node.coords(1,node_gid,1)) - cos( 3.141592653589 * node.coords(1,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(1,node_gid, 1) ) );
       
-      mat_pt.sie(1, gauss_gid) = interp+source;
+      mat_pt.sie(1, gauss_gid) = interp;//+source;
+
+      //std::cout<< mat_pt.sie(1,gauss_gid) << std::endl;
+
       mat_pt.ie(gauss_gid) = mat_pt.sie(1,gauss_gid);   
+    
     }// end loop over gauss_lid
   }// end loop over elem_gid
 
