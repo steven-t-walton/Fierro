@@ -87,10 +87,11 @@ void update_energy( int t_step ){
       real_t force_0 = 0.0;
       real_t force_k = 0.0;
 
-      for (int dim = 0; dim < mesh.num_dim(); dim++){
-        for (int k_dof = 0; k_dof < ref_elem.num_basis(); k_dof++){
-          force_0 += F(0,k_dof,dim)*elem_state.vel_coeffs(0 , elem_gid, k_dof, dim);
-          force_k += F(t_step,k_dof,dim)*elem_state.vel_coeffs(t_step, elem_gid, k_dof, dim);	  
+      for (int k_dof = 0; k_dof < ref_elem.num_basis(); k_dof++){
+        for (int dim = 0; dim < mesh.num_dim(); dim++){
+          force_0 += 0.5*F(0,k_dof,dim)*elem_state.vel_coeffs(0 , elem_gid, k_dof, dim) + 0.5*F(0,k_dof,dim)*elem_state.vel_coeffs(t_step , elem_gid, k_dof, dim) ;
+          force_k += 0.5*F(t_step,k_dof,dim)*elem_state.vel_coeffs(0, elem_gid, k_dof, dim)
+		     + 0.5*F(t_step,k_dof, dim)*elem_state.vel_coeffs(t_step+1,elem_gid,k_dof,dim);	  
  	}// end loop over dim
       }// end loop over k_dof
       
@@ -104,13 +105,15 @@ void update_energy( int t_step ){
 	real_t source_0 = 0.0;	
 	real_t source_k = 0.0;
         
-       // source_0 = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(0,node_gid,0))  * cos( 3.141592653589 * node.coords(0,node_gid,1)) - cos( 3.141592653589 * node.coords(0,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(0,node_gid, 1) ) ); 
+	// the usual source term //
+        source_0 = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(0,node_gid,0))  * cos( 3.141592653589 * node.coords(0,node_gid,1)) - cos( 3.141592653589 * node.coords(0,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(0,node_gid, 1) ) ); 
 	    
-       // source_k = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(1,node_gid,0))  * cos( 3.141592653589 * node.coords(1,node_gid,1)) - cos( 3.141592653589 * node.coords(1,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(1,node_gid, 1) ) ); 
+        source_k = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(1,node_gid,0))  * cos( 3.141592653589 * node.coords(1,node_gid,1)) - cos( 3.141592653589 * node.coords(1,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(1,node_gid, 1) ) ); 
         
-        source_0 = ( 0.25*( cos(2.0*3.141592653589*node.coords(0,node_gid,0) ) + cos(2*3.141592653589*node.coords(0, node_gid, 1) ) ) +1 )/(mat_pt.density(gauss_gid)*0.666666667);
+	// source from Dobrev et al. //
+       // source_0 = ( 0.25*( cos(2.0*3.141592653589*node.coords(0,node_gid,0) ) + cos(2*3.141592653589*node.coords(0, node_gid, 1) ) ) +1 )/(mat_pt.density(gauss_gid)*0.666666667);
  
-        source_k = ( 0.25*( cos(2.0*3.141592653589*node.coords(1,node_gid,0) ) + cos(2*3.141592653589*node.coords(1, node_gid, 1) ) ) +1 )/(mat_pt.density(gauss_gid)*0.666666667);
+       // source_k = ( 0.25*( cos(2.0*3.141592653589*node.coords(1,node_gid,0) ) + cos(2*3.141592653589*node.coords(1, node_gid, 1) ) ) +1 )/(mat_pt.density(gauss_gid)*0.666666667);
 
         source_int += (source_0+source_k)*ref_elem.ref_nodal_dual_basis(gauss_lid,t_dof) * mesh.gauss_pt_det_j(gauss_gid)* ref_elem.ref_node_g_weights(gauss_lid);
       }// end loop over gauss_lid 

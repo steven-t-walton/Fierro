@@ -132,6 +132,10 @@ void update_velocity(int t_step){
         
       //--- Force ---//
 
+      real_t volume_int_a0[ num_dim ];
+      auto volume_int0 = ViewCArray <real_t> (&volume_int_a0[0], num_dim);
+      for (int i = 0; i < num_dim; i++) volume_int0(i) = 0.0;
+      
       real_t volume_int_a[ num_dim ];
       auto volume_int = ViewCArray <real_t> (&volume_int_a[0], num_dim);
       for (int i = 0; i < num_dim; i++) volume_int(i) = 0.0;
@@ -148,9 +152,17 @@ void update_velocity(int t_step){
 	        	       * J_inv_dot_grad_phi
 			       * ref_elem.ref_node_g_weights(gauss_lid)
 			       * mesh.gauss_pt_det_j(gauss_vert_gid);
+	  volume_int0(dim) += mat_pt.pressure(gauss_vert_gid)
+	        	       * J_inv_dot_grad_phi
+			       * ref_elem.ref_node_g_weights(gauss_lid)
+			       * mesh.gauss_pt_det_j(gauss_vert_gid);
 	}// end loop over gauss_lid
       }// end loop over dim
 
+      real_t surface_int_a0[ num_dim ];
+      auto surface_int0 = ViewCArray <real_t> (&surface_int_a0[0], num_dim);
+      for (int i = 0; i < num_dim; i++) surface_int0(i) = 0.0;        
+ 
       real_t surface_int_a[ num_dim ];
       auto surface_int = ViewCArray <real_t> (&surface_int_a[0], num_dim);
       for (int i = 0; i < num_dim; i++) surface_int(i) = 0.0;        
@@ -173,11 +185,15 @@ void update_velocity(int t_step){
             surface_int(dim) += ref_elem.ref_nodal_basis(node_rid, vertex)
 		                * corner.normal(corner_gid, dim) 
 				* mat_pt.pressure(gauss_gid);
+            surface_int0(dim) += ref_elem.ref_nodal_basis(node_rid, vertex)
+		                * corner.normal(corner_gid, dim) 
+				* mat_pt.pressure(gauss_gid);
 	  }// end loop over dim
         }// end loop over nodes/corners in a cell
       } // end loop over cells in an element
 
       for (int dim = 0; dim < num_dim; dim++){
+	force(dim, 0) = surface_int0(dim)  - volume_int0(dim);
         force(dim, current) = surface_int(dim) - volume_int(dim);
 	//std::cout << force(dim) << std::endl;
       }// end loop over dim
