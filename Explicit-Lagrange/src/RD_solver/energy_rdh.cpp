@@ -15,7 +15,7 @@ using namespace utils;
 void update_energy( int t_step ){
   
   int update = t_step + 1;
-
+  /*
   auto energy_res = CArray <real_t> (mesh.num_elems(), mesh.num_nodes() );
   
   for (int i = 0; i < mesh.num_elems(); i++){
@@ -23,11 +23,12 @@ void update_energy( int t_step ){
       energy_res(i,j) = 0.0;
     }// end loop over j
   }// end loop over i
-
+  */
 
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
   
     for (int t_dof = 0; t_dof < ref_elem.num_dual_basis(); t_dof++){
+      real_t energy_res = 0.0;
       int node_lid = ref_elem.dual_vert_node_map(t_dof);
       int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
@@ -87,11 +88,11 @@ void update_energy( int t_step ){
       real_t force_0 = 0.0;
       real_t force_k = 0.0;
 
-      for (int k_dof = 0; k_dof < ref_elem.num_basis(); k_dof++){
-        for (int dim = 0; dim < mesh.num_dim(); dim++){
-          force_0 += 0.5*F(0,k_dof,dim)*elem_state.vel_coeffs(0 , elem_gid, k_dof, dim) + 0.5*F(0,k_dof,dim)*elem_state.vel_coeffs(t_step , elem_gid, k_dof, dim) ;
+      for (int dim = 0; dim < mesh.num_dim(); dim++){
+        for (int k_dof = 0; k_dof < ref_elem.num_basis(); k_dof++){
+          force_0 += F(0,k_dof,dim)*elem_state.vel_coeffs(0 , elem_gid, k_dof, dim);
           force_k += 0.5*F(t_step,k_dof,dim)*elem_state.vel_coeffs(0, elem_gid, k_dof, dim)
-		     + 0.5*F(t_step,k_dof, dim)*elem_state.vel_coeffs(t_step+1,elem_gid,k_dof,dim);	  
+		     + 0.5*F(t_step,k_dof, dim)*elem_state.vel_coeffs(t_step,elem_gid,k_dof,dim);	  
  	}// end loop over dim
       }// end loop over k_dof
       
@@ -108,7 +109,7 @@ void update_energy( int t_step ){
 	// the usual source term //
         source_0 = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(0,node_gid,0))  * cos( 3.141592653589 * node.coords(0,node_gid,1)) - cos( 3.141592653589 * node.coords(0,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(0,node_gid, 1) ) ); 
 	    
-        source_k = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(1,node_gid,0))  * cos( 3.141592653589 * node.coords(1,node_gid,1)) - cos( 3.141592653589 * node.coords(1,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(1,node_gid, 1) ) ); 
+        //source_k = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(1,node_gid,0))  * cos( 3.141592653589 * node.coords(1,node_gid,1)) - cos( 3.141592653589 * node.coords(1,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(1,node_gid, 1) ) ); 
         
 	// source from Dobrev et al. //
        // source_0 = ( 0.25*( cos(2.0*3.141592653589*node.coords(0,node_gid,0) ) + cos(2*3.141592653589*node.coords(0, node_gid, 1) ) ) +1 )/(mat_pt.density(gauss_gid)*0.666666667);
@@ -120,14 +121,33 @@ void update_energy( int t_step ){
      
       //std::cout << source_int << std::endl;
       
-      energy_res(elem_gid, node_gid) =  Me/dt + 0.5*(force_0 + force_k) - 0.5*source_int;
+      energy_res =  Me/dt + 0.5*(force_0 + force_k) - source_int;
 
       //std::cout << energy_res(elem_gid, node_gid) << std::endl;
+     
+       
+      real_t lumped_mass = 0.0;
+      /*
+      //std::cout << mesh.num_elems_in_node(node_gid) << std::endl;
       
+      for (int g_lid = 0; g_lid < mesh.num_gauss_in_elem(); g_lid++){
+        int g_gid = mesh.gauss_in_elem(cell_gid, g_lid);
+	lumped_mass += mat_pt.density(g_gid)
+		         * ref_elem.ref_nodal_dual_basis(g_lid, t_dof)
+			 * ref_elem.ref_node_g_weights(g_lid)
+			 * mesh.gauss_pt_det_j(g_gid);
+      }// end loop over g_lid
+      */
+      for (int index = 0; index < ref_elem.num_dual_basis(); index++){
+        lumped_mass += res_mass(index);
+      }
+      elem_state.sie_coeffs(update, elem_gid, t_dof) = elem_state.sie_coeffs(t_step,elem_gid,t_dof) - (dt/lumped_mass)*energy_res;//(elem_gid,node_gid);
+
     }// end loop over t_dof
 
   }// end loop over elem_gid
 
+  /*
   for (int elem_gid = 0; elem_gid <  mesh.num_elems(); elem_gid++){
     for (int t_dof = 0; t_dof < ref_elem.num_dual_basis(); t_dof++){
       
@@ -159,5 +179,5 @@ void update_energy( int t_step ){
 
     }// end loop over t_dof
   }// end loop over elem_gid
-
+  */
 } // end subroutine

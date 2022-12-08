@@ -7,7 +7,7 @@
 
 using namespace utils;
 
-void interp_vel(){
+void interp_vel(int t_step){
 
    for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
       for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
@@ -20,7 +20,7 @@ void interp_vel(){
         
         for (int dim = 0; dim < mesh.num_dim(); dim++){
           for (int vert = 0; vert < ref_elem.num_basis(); vert++){
-            interp(dim) += ref_elem.ref_nodal_basis( gauss_lid, vert ) * elem_state.vel_coeffs(num_correction_steps, elem_gid, vert, dim);
+            interp(dim) += ref_elem.ref_nodal_basis( gauss_lid, vert ) * elem_state.vel_coeffs(t_step, elem_gid, vert, dim);
           }// end loop over vertex
         }// end loop over dim
       
@@ -65,7 +65,7 @@ void interp_pos(int update){
 }// end interp_pos()
 */
 
-void interp_ie(){
+void interp_ie(int t_step){
   
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
@@ -75,14 +75,10 @@ void interp_ie(){
       real_t interp = 0.0;
 
       for (int vert = 0; vert < ref_elem.num_dual_basis(); vert++){
-        interp += ref_elem.ref_nodal_dual_basis( gauss_lid, vert ) * elem_state.sie_coeffs(num_correction_steps, elem_gid, vert);
+        interp += ref_elem.ref_nodal_dual_basis( gauss_lid, vert ) * elem_state.sie_coeffs(t_step, elem_gid, vert);
       }// end loop over vertex
       
-      real_t source = 0.0;
-
-      source = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(1,node_gid,0))  * cos( 3.141592653589 * node.coords(1,node_gid,1)) - cos( 3.141592653589 * node.coords(1,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(1,node_gid, 1) ) );
-      
-      mat_pt.sie(1, gauss_gid) = interp;//+source;
+      mat_pt.sie(1, gauss_gid) = interp;
 
       //std::cout<< mat_pt.sie(1,gauss_gid) << std::endl;
 

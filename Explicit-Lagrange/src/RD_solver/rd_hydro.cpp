@@ -24,12 +24,14 @@ void rd_hydro(){
 
       BV_inv();
       get_control_coeffs();
+      interp_vel(0);
+      interp_ie(0);
       track_rdh(ke0, ie0);
       te_0 = ie0 + ke0;
-      //std::cout << " ke at t0 = " << ke0 << std::endl;
-      //std::cout << " ie at t0 = " << ie0 << std::endl;
-      //std::cout << "E_tot at t0 = "<< te_0 << std::endl;
-      //std::cout << std::endl;
+      std::cout << " ke at t0 = " << ke0 << std::endl;
+      std::cout << " ie at t0 = " << ie0 << std::endl;
+      std::cout << "E_tot at t0 = "<< te_0 << std::endl;
+      std::cout << std::endl;
     };// end if
     
 
@@ -50,6 +52,9 @@ void rd_hydro(){
  
         update_velocity( correction_step );
         
+	// Update internal energy //
+	update_energy( correction_step );
+      
 	// Update position coefficients //
         for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
 	  for (int dof = 0; dof < ref_elem.num_basis(); dof++){
@@ -60,19 +65,16 @@ void rd_hydro(){
 	  }
 	}
         
-	// Update internal energy //
-	update_energy( correction_step );
-      
       }//end correction steps
       
       // intepolate the velocity with evolved coeffs and save to nodes  //
-      interp_vel();
+      interp_vel(num_correction_steps);
       
       // update boundary vel vals //
       boundary_rdh();
      
       // interpolate energy coeffs //
-      interp_ie();
+      interp_ie(num_correction_steps);
 
       // update position //
       update_position();   

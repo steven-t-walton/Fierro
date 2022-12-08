@@ -193,8 +193,8 @@ void update_velocity(int t_step){
       } // end loop over cells in an element
 
       for (int dim = 0; dim < num_dim; dim++){
-	force(dim, 0) = surface_int0(dim)  - volume_int0(dim);
-        force(dim, current) = surface_int(dim) - volume_int(dim);
+	force(dim, 0) =  surface_int0(dim)  - volume_int0(dim);
+        force(dim, current) =  surface_int(dim) - volume_int(dim);
 	//std::cout << force(dim) << std::endl;
       }// end loop over dim
       //--- end Force ---//

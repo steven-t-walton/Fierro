@@ -1268,8 +1268,8 @@ void get_stress();
 void update_coeffs();
 void setup_rdh(char *MESH);
 void boundary_rdh();
-void interp_vel();
+void interp_vel(int t_step);
 //void interp_pos(int step);
-void interp_ie();
+void interp_ie(int t_step);
 
 #endif 
