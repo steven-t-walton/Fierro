@@ -46,8 +46,8 @@ void update_velocity(int t_step){
         int n_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 	int gauss_gid = mesh.gauss_in_elem(elem_gid, node_lid);
 
-        real_t alpha_a[3];
-        for (int i = 0; i < 3; i++) alpha_a[i] = 0.0;
+        real_t alpha_a = 0.0;//[3];
+        //for (int i = 0; i < 3; i++) alpha_a[i] = 0.0;
 
         real_t speed = sqrt( node.vel(0, n_gid, 0)*node.vel(0, n_gid, 0) 
 			+ node.vel(0, n_gid,  1)*node.vel(0, n_gid, 1)
@@ -58,23 +58,27 @@ void update_velocity(int t_step){
 			+ elem_state.vel_coeffs(current, elem_gid, vertex, 2)*elem_state.vel_coeffs(current, elem_gid, vertex, 2) );
         */
 	
-	alpha_a[0] = speed + mat_pt.sspd(gauss_gid);
-        alpha_a[1] = mat_pt.sspd(gauss_gid);
-        alpha_a[2] = speed - mat_pt.sspd(gauss_gid);
+	alpha_a = speed + mat_pt.sspd(gauss_gid);
+        //alpha_a[1] = mat_pt.sspd(gauss_gid);
+        //alpha_a[2] = speed - mat_pt.sspd(gauss_gid);
       
-
+        /*
 	for (int i = 0; i < 3; i++){
 	  real_t temp1 = alpha_a[0] > alpha_a[1] ? alpha_a[0] : alpha_a[1];
 	  real_t temp2 = alpha_a[2] > temp1 ? alpha_a[2] : temp1;
           alpha = alpha > temp2 ? alpha : temp2;	    
         }
+        */
         
+	alpha = alpha > alpha_a ? alpha : alpha_a;
+
         // std::cout << "a0 = " << alpha_a[0] << ", a1 = " << alpha_a[1] << ", a2 = " << alpha_a[2] << std::endl;
        // add in max density and  
 	// --- end Compute alpha ---//
         
     }// end loop over node_lid	  
-	
+
+    real_t max_density = 0.0;
     //std::cout << " alpha = " << alpha << " in elem "<< elem_gid << std::endl;
    // --- Strong Mass ---//
     for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
@@ -84,8 +88,38 @@ void update_velocity(int t_step){
       real_t vol_gauss = ref_elem.ref_node_g_weights(gauss_lid)*mesh.gauss_pt_det_j(gauss_gid);
       mat_pt.density(gauss_gid) = mat_pt.mass(gauss_gid)/vol_gauss;
       //std::cout << mat_pt.density(gauss_gid) << std::endl;
+      max_density = max_density > mat_pt.density(gauss_gid) ? max_density : mat_pt.density(gauss_gid);
     } // end loop gauss
+    
+    alpha = alpha*max_density;
+    
+    real_t max_length = 0.0;
+    for (int vertex = 0; vertex < num_basis; vertex++){
+      real_t length[num_dim];
+      for (int i = 0; i < num_dim; i++) length[i] = 0.0;
+      real_t mag_length = 0.0;
+      for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+	int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+	for (int dim = 0; dim < num_dim; dim++){
+          length[dim] += ref_elem.ref_nodal_gradient(gauss_lid, vertex, dim)
+		    * mesh.gauss_pt_det_j(gauss_gid)
+		    * ref_elem.ref_node_g_weights(gauss_lid);
+	}// end loop over dim
+      }// end loop over gauss_lid
 
+      mag_length = sqrt( length[0]*length[0] + length[1]*length[1] +  length[2]*length[2]  );
+      
+      max_length = max_length > mag_length ? max_length : mag_length;
+
+    }// end loop over vertex
+    
+    alpha = max_length*alpha; 
+    
+    // FOR TG multiply by small coefficient //
+    alpha = 0.001*alpha;
+
+
+    // Compute residual //
     for (int vertex = 0; vertex < num_basis; vertex++){
       
       int node_lid = elem.vert_node_map(vertex);
@@ -248,7 +282,7 @@ void update_velocity(int t_step){
       //--- Assign Values to Galerkin/Rusanov Residual ---//
       for (int dim = 0; dim < num_dim; dim++){
         // Assign values to nodal res
-        nodal_res(node_gid, elem_gid, dim ) = Mv(dim)/dt + 0.5*( force( dim, 0 ) + force( dim, current) );// + Q(dim, 0) + Q(dim, current) );
+        nodal_res(node_gid, elem_gid, dim ) = Mv(dim)/dt + 0.5*( force( dim, 0 ) + force( dim, current) + Q(dim, 0) + Q(dim, current) );
       }// end loop over dim
 
 
