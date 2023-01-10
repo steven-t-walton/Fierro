@@ -24,8 +24,8 @@ void rd_hydro(){
 
       BV_inv();
       get_control_coeffs();
-      interp_vel(0);
-      interp_ie(0);
+      //interp_vel(0);
+      //interp_ie(0);
       track_rdh(ke0, ie0);
       te_0 = ie0 + ke0;
       std::cout << " ke at t0 = " << ke0 << std::endl;
@@ -41,7 +41,7 @@ void rd_hydro(){
 
     { // Time integration scope //
       
-
+      //update_coeffs();
 #pragma omp simd
 
       // DeC update //

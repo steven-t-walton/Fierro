@@ -12,8 +12,8 @@ using namespace utils;
 void track_rdh( real_t &x, real_t &y ){
 
     /* track the total energy in the problem */
-    real_t mass = 0.0;
-    real_t mass1 = 0.0;
+    //real_t mass = 0.0;
+    //real_t mass1 = 0.0;
     real_t ke = 0.0;
     real_t ie = 0.0;
 
@@ -23,7 +23,7 @@ void track_rdh( real_t &x, real_t &y ){
     for (int cell_gid = 0; cell_gid < mesh.num_cells(); cell_gid++) {
         
         ie   += cell_state.ie( 1, cell_gid ) * cell_state.mass( cell_gid );
-        mass += cell_state.mass( cell_gid );
+        //mass += cell_state.mass( cell_gid );
     
     }
 
@@ -34,7 +34,7 @@ void track_rdh( real_t &x, real_t &y ){
 
             ke += 0.5*( vel(0)*vel(0) + vel(1)*vel(1) + vel(2)*vel(2) ) * node.mass(node_gid);              
 
-            mass1 += node.mass(node_gid);
+            //mass1 += node.mass(node_gid);
       
     }
 

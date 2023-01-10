@@ -339,22 +339,24 @@ void setup_rdh(char *MESH){
 		   
                    cell_state.pressure(cell_gid) = 0.25*(cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;//0.0625*((cos(6.0*PI*mesh.cell_coords(cell_gid,2)+2) ) * cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;
                    
-		   real_t x = 0.0;
-		   real_t y = 0.0;
-		   track_rdh(x,y);
-		   cell_state.total_energy(t_step, cell_gid) = cell_state.ie(t_step,cell_gid)+y;
-		  
 		   mat_pt.pressure(gauss_gid) = 0.25*(cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;
                    
                    // save the internal energy contribution to the total energy
-                   mat_pt.sie(t_step,gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((5.0/3.0) - 1.0))) + source;
+                   mat_pt.sie(t_step,gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((5.0/3.0) - 1.0)));// + source;
                    
-		   mat_pt.ie(gauss_gid) = mat_pt.sie(t_step,gauss_gid);
-                   mat_pt.specific_total_energy(t_step, gauss_gid) = mat_pt.ie(gauss_gid) + y;
+		   mat_pt.ie(gauss_gid) = mat_pt.sie(t_step, gauss_gid);
+		   //cell_state.ie(t_step, cell_gid) = 0.0;
+                   
+		   cell_state.ie(t_step, cell_gid) += mat_pt.ie(gauss_gid)*0.125;// + 0.125*source;
+		   
+		   real_t x = 0.0;
+		   real_t y = 0.0;
+		   track_rdh(x,y);
+		   cell_state.total_energy(t_step, cell_gid) = cell_state.ie(t_step,cell_gid)+y;//+source;
+		   cell_state.total_energy(t_step, cell_gid) += 0.125*source;
+                   
+		   mat_pt.specific_total_energy(t_step, gauss_gid) = mat_pt.ie(gauss_gid) + y;
 	           
-		   cell_state.ie(t_step, cell_gid) = 0.0;
-                   
-		   cell_state.ie(t_step, cell_gid) = mat_pt.ie(gauss_gid);//*0.125;// + 0.125*source;
                    
 		   break;
                  }
@@ -363,8 +365,6 @@ void setup_rdh(char *MESH){
 
              } // end for loop over nodes in cell
            }// end loop over cells in the element
-
-
 
          } // end if fill
        } // end for element loop
