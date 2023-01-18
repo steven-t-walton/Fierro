@@ -59,7 +59,7 @@ void input(){
 
     num_correction_steps = 2;
     
-    correction_storage = num_correction_steps + 1;
+    correction_storage = 3;//num_correction_steps + 1;
 
     dt_cfl = 0.3;
 
@@ -802,7 +802,7 @@ void input(){
         
         // Tag Z = 1 plane
         boundary[5].surface = bdy::z_plane;
-        boundary[5].value = 0.1;
+        boundary[5].value = 0.33;
         boundary[5].hydro_bc = bdy::reflected;
         
 

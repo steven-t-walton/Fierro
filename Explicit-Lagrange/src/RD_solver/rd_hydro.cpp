@@ -45,36 +45,39 @@ void rd_hydro(){
 #pragma omp simd
 
       // DeC update //
-      for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
 
-	//real_t sub_dt = correction_step*dt/num_correction_steps;
-        //real_t sub_time = TIME + sub_dt;          
- 
-        update_velocity( correction_step );
+      int current = 0;
+      
+      for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
+          
+	if (current == correction_storage-1){
+	  current = 0;
+	}
+        update_velocity( current );
         
 	// Update internal energy //
-	update_energy( correction_step );
+	update_energy( current );
       
 	// Update position coefficients //
         for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
 	  for (int dof = 0; dof < ref_elem.num_basis(); dof++){
 	    for (int dim = 0; dim < mesh.num_dim(); dim++){
-	      elem_state.pos_coeffs(correction_step+1, elem_gid, dof, dim) = elem_state.pos_coeffs(0, elem_gid,dof, dim)
-		             + 0.5*dt*(elem_state.vel_coeffs(correction_step, elem_gid, dof, dim) + elem_state.vel_coeffs(0,elem_gid, dof, dim) );
+	      elem_state.pos_coeffs(current+1, elem_gid, dof, dim) = elem_state.pos_coeffs(0, elem_gid,dof, dim)
+		             + 0.5*dt*(elem_state.vel_coeffs(current+1, elem_gid, dof, dim) + elem_state.vel_coeffs(0,elem_gid, dof, dim) );
 	    }
 	  }
 	}
-        
+        current++;
       }//end correction steps
       
       // intepolate the velocity with evolved coeffs and save to nodes  //
-      interp_vel(num_correction_steps);
+      interp_vel(correction_storage-1);
       
       // update boundary vel vals //
       boundary_rdh();
      
       // interpolate energy coeffs //
-      interp_ie(num_correction_steps);
+      interp_ie(correction_storage-1);
 
       // update position //
       update_position();   

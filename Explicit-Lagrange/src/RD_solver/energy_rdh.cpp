@@ -51,7 +51,7 @@ void update_energy( int t_step ){
         M_dot_e += res_mass(basis_id)*elem_state.sie_coeffs(t_step, elem_gid, basis_id) - res_mass(basis_id)*elem_state.sie_coeffs(0, elem_gid, basis_id);
       }// end loop over basis id
       
-      auto F = CArray <real_t> ( num_correction_steps, ref_elem.num_basis(), mesh.num_dim() );
+      auto F = CArray <real_t> ( correction_storage-1, ref_elem.num_basis(), mesh.num_dim() );
     
         for (int i = 0; i < ref_elem.num_basis(); i++){
           for (int dim = 0; dim < mesh.num_dim(); dim++){

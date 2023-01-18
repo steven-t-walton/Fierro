@@ -13,7 +13,7 @@ void get_control_coeffs(){
    //------------/////--Kinematic control only at vertices--/////-----------//
    ////////////////////////////////////////////////////////////////
    
-  for (int t_step = 0; t_step < num_correction_steps+1; t_step++){
+  for (int t_step = 0; t_step < correction_storage; t_step++){
     for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
       for(int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
         for (int dim = 0; dim < mesh.num_dim(); dim++){
@@ -25,7 +25,7 @@ void get_control_coeffs(){
   }// end loop over t_step
 
 #pragma omp simd     
- for (int t_step = 0; t_step < num_correction_steps+1; t_step++){ 
+ for (int t_step = 0; t_step < correction_storage; t_step++){ 
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for (int dim = 0; dim < mesh.num_dim(); dim++){
       for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
@@ -69,13 +69,13 @@ void get_control_coeffs(){
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
 
     // initialize control coeffs to zero //
-    for (int t_step = 0; t_step < num_correction_steps+1; t_step++){
+    for (int t_step = 0; t_step < correction_storage; t_step++){
       for (int j = 0; j < ref_elem.num_dual_basis(); j++){
         elem_state.sie_coeffs(t_step, elem_gid, j) = 0.0;
       }// end loop over j
     }// end loop over t_step
 
-    for (int t_step = 0; t_step < num_correction_steps+1; t_step++){
+    for (int t_step = 0; t_step < correction_storage; t_step++){
       for (int basis_id = 0; basis_id < ref_elem.num_dual_basis(); basis_id++){
       	//for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
 	//  int gauss_gid = mesh.gauss_in_elem( elem_gid, node_lid );
