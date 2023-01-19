@@ -1,5 +1,5 @@
 /* DeC scheme for RD */
-
+#include<iostream>
 
 #include "utilities.h"
 #include "state.h"
@@ -53,9 +53,11 @@ void rd_hydro(){
 	if (current == correction_storage-1){
 	  current = 0;
 	}
-        update_velocity( current );
+        get_kinematic_L2( current );
+	update_velocity( current );
         
 	// Update internal energy //
+	get_thermodynamic_L2( current );
 	update_energy( current );
       
 	// Update position coefficients //
@@ -63,7 +65,7 @@ void rd_hydro(){
 	  for (int dof = 0; dof < ref_elem.num_basis(); dof++){
 	    for (int dim = 0; dim < mesh.num_dim(); dim++){
 	      elem_state.pos_coeffs(current+1, elem_gid, dof, dim) = elem_state.pos_coeffs(0, elem_gid,dof, dim)
-		             + 0.5*dt*(elem_state.vel_coeffs(current+1, elem_gid, dof, dim) + elem_state.vel_coeffs(0,elem_gid, dof, dim) );
+		             + 0.5*dt*(elem_state.vel_coeffs(current, elem_gid, dof, dim) + elem_state.vel_coeffs(0,elem_gid, dof, dim) );
 	    }
 	  }
 	}
@@ -121,18 +123,4 @@ void rd_hydro(){
   std::cout << "E_tot final is "<< ke+ie << std::endl;
 
 }// end rd_hydro
-
-
-
-	//get_total_res();
-
-	//get_betas();
-
-	//get_limited_res();
-        
-      	// updates velocity coeffs //
-	//get_momentum_rd( correction_step );
-	
-	// energy update //
-        //get_energy_rdh( sub_dt );
 

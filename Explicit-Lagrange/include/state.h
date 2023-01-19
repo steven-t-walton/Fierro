@@ -576,6 +576,7 @@ class elem_state_t {
 	int num_dual_basis_;
 	//int num_cells_;
 	int num_nodes_in_elem_;
+	int num_nodes_;
 
         // **** Element State **** //
         int num_elem_;
@@ -603,10 +604,8 @@ class elem_state_t {
         real_t *vel_coeffs_ = NULL;
 	real_t *pos_coeffs_ = NULL;
 	real_t *sie_coeffs_ = NULL;
-        //real_t *nodal_res_ = NULL;
-	//real_t *total_res_ = NULL;
-	//real_t *limited_res_ = NULL;
-	//real_t *psi_coeffs_ = NULL;
+	real_t *kinematic_L2_ = NULL;
+	real_t *thermodynamic_L2_ = NULL;
 	// *** end RD *** //
 	
     public:
@@ -624,6 +623,7 @@ class elem_state_t {
 	    num_dual_basis_ = ref_elem.num_dual_basis();
             //num_cells_ = mesh.num_cells();
             num_nodes_in_elem_ = mesh.num_nodes_in_elem();
+            num_nodes_ = mesh.num_nodes();
 
             mat_id_ = new int[num_elem_]();
             bad_ = new int[num_elem_]();
@@ -646,10 +646,8 @@ class elem_state_t {
             vel_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
 	    pos_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
 	    sie_coeffs_ = new real_t[num_corrections_*num_elem_*num_dual_basis_]();
-	    //nodal_res_ = new real_t[num_elem_*num_basis_*num_dim_]();
-            //total_res_ = new real_t[num_elem_*num_dim_]();
-	    //limited_res_ = new real_t[num_elem_*num_basis_*num_dim_]();
-	    //psi_coeffs_ = new real_t[num_elem_*num_basis_*num_dim_]();
+	    kinematic_L2_ = new real_t[num_corrections_*num_nodes_*num_dim_]();
+	    thermodynamic_L2_ = new real_t[num_corrections_*num_nodes_]();
 	    // *** end RD *** //
         }
 
@@ -696,26 +694,15 @@ class elem_state_t {
 	{
 	    return sie_coeffs_[ correction_step*num_elem_*num_dual_basis_ + elem_gid*num_dual_basis_ + basis_m];
 	}
-
-//        inline real_t& nodal_res(int elem_gid, int vertex, int this_dim) const
-//        {
-//            return nodal_res_[elem_gid*num_basis_*num_dim_ + vertex*num_dim_ + this_dim];
-//        }
-
-//        inline real_t& total_res(int elem_gid, int this_dim) const
-//        {
-//            return total_res_[elem_gid*num_dim_ + this_dim];
-//        }
-
-//        inline real_t& limited_res(int elem_gid, int vertex, int this_dim) const
-//        {
-//            return limited_res_[elem_gid*num_basis_*num_dim_ + vertex*num_dim_ + this_dim];
-//        }
-
-//        inline real_t& psi_coeffs(int elem_gid, int vertex, int this_dim) const
-//        {
-//            return psi_coeffs_[elem_gid*num_basis_*num_dim_ + vertex*num_dim_ + this_dim];
-//        }
+        inline real_t& kinematic_L2(int correction_step, int node_gid, int dim) const
+	{
+	    return kinematic_L2_[ correction_step*num_nodes_*num_dim_ + node_gid*num_dim_ + dim];
+	}
+        
+	inline real_t& thermodynamic_L2(int correction_step, int node_gid) const
+	{
+	    return kinematic_L2_[ correction_step*num_nodes_ + node_gid];
+	}
         //---- **** end RD allocation **** ----//
 	
         // were are the dims?
@@ -772,11 +759,10 @@ class elem_state_t {
 	    delete[] vel_coeffs_;
             delete[] pos_coeffs_;
 	    delete[] sie_coeffs_;
-	   // delete[] nodal_res_;
-	   // delete[] total_res_;
-	   // delete[] limited_res_;
-	   // delete[] psi_coeffs_;
-        }
+            delete[] kinematic_L2_;
+	    delete[] thermodynamic_L2_;
+
+	}
 };
 
 
@@ -1256,9 +1242,6 @@ void calc_average_specific_vol();
 void rd_hydro();
 void update_position();
 void update_velocity(int t_step);
-//void get_total_res();
-//void get_betas();
-//void get_limited_res();
 void track_rdh(real_t &x, real_t &y);
 void BV_inv();
 void get_control_coeffs();
@@ -1271,5 +1254,6 @@ void boundary_rdh();
 void interp_vel(int t_step);
 //void interp_pos(int step);
 void interp_ie(int t_step);
-
+void get_kinematic_L2(int t_step);
+void get_thermodynamic_L2(int t_step);
 #endif 
