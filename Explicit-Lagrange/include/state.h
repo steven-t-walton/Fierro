@@ -577,6 +577,7 @@ class elem_state_t {
 	//int num_cells_;
 	int num_nodes_in_elem_;
 	int num_nodes_;
+	int num_gauss_;
 
         // **** Element State **** //
         int num_elem_;
@@ -606,6 +607,9 @@ class elem_state_t {
 	real_t *sie_coeffs_ = NULL;
 	real_t *kinematic_L2_ = NULL;
 	real_t *thermodynamic_L2_ = NULL;
+	real_t *force_tensor_ = NULL;
+	real_t *stress_tensor_ = NULL;
+	real_t *alpha_E_ = NULL;
 	// *** end RD *** //
 	
     public:
@@ -624,6 +628,7 @@ class elem_state_t {
             //num_cells_ = mesh.num_cells();
             num_nodes_in_elem_ = mesh.num_nodes_in_elem();
             num_nodes_ = mesh.num_nodes();
+            num_gauss_ = mesh.num_gauss_pts();
 
             mat_id_ = new int[num_elem_]();
             bad_ = new int[num_elem_]();
@@ -648,6 +653,9 @@ class elem_state_t {
 	    sie_coeffs_ = new real_t[num_corrections_*num_elem_*num_dual_basis_]();
 	    kinematic_L2_ = new real_t[num_corrections_*num_nodes_*num_dim_]();
 	    thermodynamic_L2_ = new real_t[num_corrections_*num_nodes_]();
+	    force_tensor_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dual_basis_*num_dim_]();
+	    stress_tensor_ = new real_t[num_corrections_*num_gauss_*num_dim_*num_dim_]();
+	    alpha_E_ = new real_t[num_elem_]();
 	    // *** end RD *** //
         }
 
@@ -703,6 +711,23 @@ class elem_state_t {
 	{
 	    return kinematic_L2_[ correction_step*num_nodes_ + node_gid];
 	}
+
+	inline real_t& force_tensor(int correction_step, int elem_gid, int basis_id, int dual_basis_id, int dim) const
+	{
+	    return force_tensor_[ correction_step*num_elem_*num_basis_*num_dual_basis_*num_dim_ + elem_gid*num_basis_*num_dual_basis_*num_dim_ + basis_id*num_dual_basis_*num_dim_ + dual_basis_id*num_dim_ + dim];
+	}
+	
+	inline real_t& stress_tensor(int correction_step, int gauss_id, int dim_i, int dim_j) const
+	{
+	    return stress_tensor_[ correction_step*num_gauss_*num_dim_*num_dim_ + gauss_id*num_dim_*num_dim_ + dim_i*num_dim_ + dim_j];
+	}
+
+	inline real_t& alpha_E(int elem_gid ) const
+	{
+	    return alpha_E_[elem_gid];
+	}
+
+
         //---- **** end RD allocation **** ----//
 	
         // were are the dims?
@@ -761,7 +786,9 @@ class elem_state_t {
 	    delete[] sie_coeffs_;
             delete[] kinematic_L2_;
 	    delete[] thermodynamic_L2_;
-
+	    delete[] force_tensor_;
+            delete[] stress_tensor_;
+	    delete[] alpha_E_;
 	}
 };
 
@@ -1247,7 +1274,6 @@ void BV_inv();
 void get_control_coeffs();
 void get_state();
 void update_energy(int t_step);
-void get_stress();
 void update_coeffs();
 void setup_rdh(char *MESH);
 void boundary_rdh();
@@ -1256,4 +1282,8 @@ void interp_vel(int t_step);
 void interp_ie(int t_step);
 void get_kinematic_L2(int t_step);
 void get_thermodynamic_L2(int t_step);
+void get_force_tensor();
+void get_stress_tensor(int t_step);
+void get_alpha_E();
+void get_strong_mass();
 #endif 

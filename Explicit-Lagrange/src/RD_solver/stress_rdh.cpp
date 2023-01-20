@@ -7,21 +7,28 @@
 
 using namespace utils;
 
-void get_stress(){
+void get_stress_tensor(int t_step){
 
-#pragma omp simd
-  auto pressure = ViewCArray <real_t> (&cell_state.pressure(0), mesh.num_cells() );
-  for ( int cell_gid = 0; cell_gid < mesh.num_cells(); cell_gid++){
-    for (int j = 0; j < mesh.num_dim(); j++){
-      for (int i = 0; i < mesh.num_dim(); i++){
-        if (i == j){
-          cell_state.stress(1, cell_gid, i, j) = -pressure(cell_gid);  
+  for (int gauss_gid = 0; gauss_gid < mesh.num_gauss_pts(); gauss_gid++){
+    for (int dim_i = 0; dim_i < mesh.num_dim(); dim_i++){
+      for (int dim_j = 0; dim_j < mesh.num_dim(); dim_j++){
+        elem_state.stress_tensor(t_step, gauss_gid, dim_i, dim_j) = 0.0;
+      }
+    }
+  }
+  for (int gauss_gid = 0; gauss_gid < mesh.num_gauss_pts(); gauss_gid++){
+    for (int dim_i = 0; dim_i < mesh.num_dim(); dim_i++){
+      for (int dim_j = 0; dim_j < mesh.num_dim(); dim_j++){
+
+     	if ( dim_i == dim_j ){
+	  elem_state.stress_tensor(t_step, gauss_gid, dim_i, dim_j) = -1.0*mat_pt.pressure(gauss_gid);
 	}// end if
-	else if ( i != j ){
-	  cell_state.stress(1,cell_gid, i, j) = 0.0;
-	};
-      }// end loop over i
-    }// end loop over j
+	else if ( dim_i != dim_j){
+	  elem_state.stress_tensor(t_step, gauss_gid, dim_i, dim_j) = 0.0;
+	}// end else if
 
-  }// end loop over cell_gid
-}// end sub-routine
+      }// end loop over dim_j
+    }// end loop over dim_i
+  }// end loop over gaus_gid
+
+}// end get_stress

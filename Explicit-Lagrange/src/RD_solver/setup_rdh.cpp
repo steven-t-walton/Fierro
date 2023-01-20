@@ -342,7 +342,7 @@ void setup_rdh(char *MESH){
 		   mat_pt.pressure(gauss_gid) = 0.25*(cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;
                    
                    // save the internal energy contribution to the total energy
-                   mat_pt.sie(t_step,gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((5.0/3.0) - 1.0)));// + source;
+                   mat_pt.sie(t_step,gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((5.0/3.0) - 1.0))) + source;
                    
 		   mat_pt.ie(gauss_gid) = mat_pt.sie(t_step, gauss_gid);
 		   //cell_state.ie(t_step, cell_gid) = 0.0;

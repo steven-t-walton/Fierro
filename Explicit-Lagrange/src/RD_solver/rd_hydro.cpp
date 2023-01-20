@@ -46,30 +46,34 @@ void rd_hydro(){
 
       // DeC update //
 
-      int current = 0;
+      //int current = 0;
       
       for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
           
-	if (current == correction_storage-1){
-	  current = 0;
-	}
-        get_kinematic_L2( current );
-	update_velocity( current );
+	//if (current == correction_storage-1){
+	//  current = 0;
+	//}
+	get_strong_mass();
+	get_alpha_E();
+	get_stress_tensor( correction_step );
+	get_force_tensor( );
+        get_kinematic_L2( correction_step );
+	update_velocity( correction_step );
         
 	// Update internal energy //
-	get_thermodynamic_L2( current );
-	update_energy( current );
+	get_thermodynamic_L2( correction_step );
+	update_energy( correction_step );
       
 	// Update position coefficients //
         for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
 	  for (int dof = 0; dof < ref_elem.num_basis(); dof++){
 	    for (int dim = 0; dim < mesh.num_dim(); dim++){
-	      elem_state.pos_coeffs(current+1, elem_gid, dof, dim) = elem_state.pos_coeffs(0, elem_gid,dof, dim)
-		             + 0.5*dt*(elem_state.vel_coeffs(current, elem_gid, dof, dim) + elem_state.vel_coeffs(0,elem_gid, dof, dim) );
+	      elem_state.pos_coeffs(correction_step+1, elem_gid, dof, dim) = elem_state.pos_coeffs(0, elem_gid,dof, dim)
+		             + 0.5*dt*(elem_state.vel_coeffs(correction_step, elem_gid, dof, dim) + elem_state.vel_coeffs(0,elem_gid, dof, dim) );
 	    }
 	  }
 	}
-        current++;
+        //current++;
       }//end correction steps
       
       // intepolate the velocity with evolved coeffs and save to nodes  //
@@ -84,7 +88,6 @@ void rd_hydro(){
       // update position //
       update_position();   
 
-   
       get_gauss_pt_jacobian(mesh, ref_elem);
     
       get_gauss_cell_pt_jacobian(mesh, ref_elem);
@@ -94,8 +97,6 @@ void rd_hydro(){
       get_vol_jacobi(mesh, ref_elem);
       
       get_state();
-
-      get_stress(); 
 
       //for(int gauss_gid=0; gauss_gid<mesh.num_gauss_pts(); gauss_gid++){
       //  gauss_properties(gauss_gid);
