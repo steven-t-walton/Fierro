@@ -82,7 +82,7 @@ void get_thermodynamic_L2( int t_step ){
       //--- end Artificial Viscosity ---//
 
       real_t source_int = 0.0;
-
+      /*
       for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
         int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
 	int node_gid = mesh.nodes_in_elem(elem_gid, gauss_lid);
@@ -94,7 +94,7 @@ void get_thermodynamic_L2( int t_step ){
 	    
         source_int += (source)*ref_elem.ref_nodal_dual_basis(gauss_lid,t_dof) * mesh.gauss_pt_det_j(gauss_gid)* ref_elem.ref_node_g_weights(gauss_lid);
       }// end loop over gauss_lid 
-     
+      */ 
       //std::cout << source_int << std::endl;
       
       energy_res(elem_gid, t_dof) =  M_dot_e/dt - force - source_int + Q;

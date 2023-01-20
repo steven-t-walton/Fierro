@@ -25,20 +25,20 @@ Before initial mesh connectivity
 refine mesh
 Before actual mesh connectivity!!!
 Min_dist = 0.33
-Hash dist = 0.0157143
-p_order = 3
+Hash dist = 0.0117857
+p_order = 4
 after closing file
 
-Num nodes in mesh = 2527
-Num cells in mesh = 1944
+Num nodes in mesh = 5625
+Num cells in mesh = 4608
 Num elements in mesh = 9
 
 
 Allocate and Initialize
 Number of correction steps = 2
-Num cells in element reference  = 216
-  patch_rid = 756  num_patches = 756
-  num cells * 6 = 1296 and num_cells_1D = 6
+Num cells in element reference  = 512
+  patch_rid = 1728  num_patches = 1728
+  num cells * 6 = 3072 and num_cells_1D = 8
 Node state allocated and initialized
 
 Corner state allocated and initialized
@@ -49,44 +49,44 @@ Material point state allocated and initialized
 
 Element state allocated and initialized
 
-number of patches = 6372
-number of bdy patches = 1080
+number of patches = 14784
+number of bdy patches = 1920
 Number of Boundaries = 6
  tagged boundary patches 
 Boundary number 0
 tagged a set 
 boundary value = 0
-number of bdy patches in this set = 108
+number of bdy patches in this set = 192
 
  tagged boundary patches 
 Boundary number 1
 tagged a set 
 boundary value = 0
-number of bdy patches in this set = 108
+number of bdy patches in this set = 192
 
  tagged boundary patches 
 Boundary number 2
 tagged a set 
 boundary value = 0
-number of bdy patches in this set = 324
+number of bdy patches in this set = 576
 
  tagged boundary patches 
 Boundary number 3
 tagged a set 
 boundary value = 1
-number of bdy patches in this set = 108
+number of bdy patches in this set = 192
 
  tagged boundary patches 
 Boundary number 4
 tagged a set 
 boundary value = 1
-number of bdy patches in this set = 108
+number of bdy patches in this set = 192
 
  tagged boundary patches 
 Boundary number 5
 tagged a set 
 boundary value = 0.33
-number of bdy patches in this set = 324
+number of bdy patches in this set = 576
 
 Calculating Jacobian at gauss points
 Calculating Jacobian at gauss pts in cells
@@ -94,7 +94,7 @@ Before volume from Jacobian
 Fill instruction NF = 1
 Num cells read in = 9
 Num elements in mesh = 9
-Num cells in mesh = 1944
+Num cells in mesh = 4608
 After first timestep call
 First Time Step = 1.1e-05
 
@@ -112,32 +112,3 @@ cycle = 1
  ie at t0 = 0.495
 E_tot at t0 = 0.5775
 
-cycle = 2
-cycle = 3
-cycle = 4
-cycle = 5
-cycle = 6
-cycle = 7
-cycle = 8
-cycle = 9
-cycle = 10
-Percent complete = 0.05 
-cycle = 11
-cycle = 12
-cycle = 13
-cycle = 14
-cycle = 15
-cycle = 16
-cycle = 17
-cycle = 18
-cycle = 19
-cycle = 20
-Percent complete = 0.16 
-cycle = 21
-cycle = 22
-cycle = 23
-cycle = 24
-cycle = 25
-slurmstepd: error: *** STEP 14861718.0 ON cn198 CANCELLED AT 2023-01-20T15:15:29 ***
-srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
-slurmstepd: error: *** JOB 14861718 ON cn198 CANCELLED AT 2023-01-20T15:15:29 ***

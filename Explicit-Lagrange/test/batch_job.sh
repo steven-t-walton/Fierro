@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH --time=600
-#SBATCH -o TG_3x3x1_p3.out
+#SBATCH -o TG_3x3x1_p4.out
 #SBATCH --mail-user stevenw@lanl.gov
 #SBATCH --mail-type=ALL
 

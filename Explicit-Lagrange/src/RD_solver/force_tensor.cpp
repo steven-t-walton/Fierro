@@ -44,7 +44,7 @@ void get_force_tensor( ){
 	      }
 
 	      for (int l = 0; l < mesh.num_dim(); l++){
-	        sigma_dot_grad_phi = elem_state.stress_tensor(t_step,gauss_gid, dim, l)*J_inv_dot_grad_phi(l); 
+	        sigma_dot_grad_phi += elem_state.stress_tensor(t_step,gauss_gid, dim, l)*J_inv_dot_grad_phi(l); 
 	      }
 
 	      elem_state.force_tensor(t_step, elem_gid, k_dof, t_dof, dim) += sigma_dot_grad_phi 
