@@ -16,6 +16,7 @@ void get_stress_tensor(int t_step){
       }
     }
   }
+
   for (int gauss_gid = 0; gauss_gid < mesh.num_gauss_pts(); gauss_gid++){
     for (int dim_i = 0; dim_i < mesh.num_dim(); dim_i++){
       for (int dim_j = 0; dim_j < mesh.num_dim(); dim_j++){

@@ -28,12 +28,7 @@ void get_state(){
     cell_state.ie(1,cell_gid) = 0.0;    
     for (int node_lid = 0; node_lid < mesh.num_nodes_in_cell(); node_lid++){
       int gauss_gid = mesh.gauss_in_cell(cell_gid, node_lid);
-/*       
-      real_t source = 0.0;
-
-      source = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * elem_coords_x )  * cos( 3.141592653589 * elem_coords_y ) - cos( 3.141592653589 *elem_coords_x ) * cos( 3.0*3.141592653589 * elem_coords_y) );
-*/      
-      cell_state.ie(1, cell_gid) += 0.125 * mat_pt.ie(gauss_gid);// + 0.125*source;
+      cell_state.ie(1, cell_gid) = (1.0/mesh.num_nodes_in_cell())*mat_pt.ie(gauss_gid);
     }
 
     real_t ie = 0.0;

@@ -120,8 +120,8 @@ void get_kinematic_L2(int t_step){
       real_t surface_int_a[ num_dim ];
       auto surface_int = ViewCArray <real_t> (&surface_int_a[0], num_dim);
       for (int i = 0; i < num_dim; i++) surface_int(i) = 0.0;        
-      /*
-      build_corner_normals(); 	
+      
+      //build_corner_normals(); 	
       // Surface integral
       for(int cell_lid = 0; cell_lid < mesh.num_cells_in_elem(); cell_lid++){
 
@@ -145,7 +145,7 @@ void get_kinematic_L2(int t_step){
 	  }// end loop over dim
         }// end loop over nodes/corners in a cell
       } // end loop over cells in an element
-    */ 
+      
       //--- Assign Values to Galerkin/Rusanov Residual ---//
       for (int dim = 0; dim < num_dim; dim++){
         // Assign values to nodal res
@@ -153,7 +153,6 @@ void get_kinematic_L2(int t_step){
 	//std::cout << nodal_res(node_gid, elem_gid, dim ) << std::endl;
       }// end loop over dim
 
-  
     }// end loop over vertex
   }// end loop over elem_gid
       
@@ -250,8 +249,8 @@ void get_kinematic_L2(int t_step){
       for (int dim = 0; dim < num_dim; dim++){
         for (int elems_in_vert = 0; elems_in_vert < num_elems_in_vert; elems_in_vert++){
           int elems_in_vert_gid = mesh.elems_in_node(node_gid, elems_in_vert);
-          elem_state.kinematic_L2(t_step, node_gid, dim) += nodal_res(node_gid, elems_in_vert_gid, dim);
-          //elem_state.kinematic_L2(t_step, node_gid, dim) += limited_res(elems_in_vert_gid, vertex, dim);       
+          //elem_state.kinematic_L2(t_step, node_gid, dim) += nodal_res(node_gid, elems_in_vert_gid, dim);
+          elem_state.kinematic_L2(t_step, node_gid, dim) += limited_res(elems_in_vert_gid, vertex, dim);       
         }// end loop over elems_in_vert
       }// end loop over dim
     

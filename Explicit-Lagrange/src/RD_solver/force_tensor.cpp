@@ -35,7 +35,6 @@ void get_force_tensor( ){
               real_t sigma_dot_grad_phi = 0.0;
               
 	      int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
-	      //int node_gid = mesh.nodes_in_elem(elem_gid, gauss_lid);
 	      
 	      for (int l =0; l < mesh.num_dim(); l++){
 	        for (int k = 0; k < mesh.num_dim(); k++){
@@ -61,22 +60,3 @@ void get_force_tensor( ){
 
 }// end get_force_tensor
 
-
-             /*
-	     auto J_inv_dot_sigma = CArray <real_t> ( mesh.num_dim(), mesh.num_dim() );
-              
-	      for (int l = 0; l < mesh.num_dim(); l++){
-	        for (int j = 0; j < mesh.num_dim(); j++){
-	          for (int k = 0; k < mesh.num_dim(); k++){
-	            J_inv_dot_sigma(l,j) += mesh.gauss_pt_jacobian_inverse(gauss_gid, k, l) * elem_state.stress_tensor(t_step, gauss_gid, k, j);
-	            // J_inv_dot_grad_phi += mesh.gauss_pt_jacobian_inverse(gauss_gid, k, dim) * ref_elem.ref_nodal_gradient(gauss_lid, k_dof, k);
-	          }// end loop over k
-	        }
-              }
-              
-	      real_t Jsigma_dot_grad_phi = 0.0;
-
-	      for (int i = 0; i < mesh.num_dim(); i++){
-	        Jsigma_dot_grad_phi += J_inv_dot_sigma(dim, i) * ref_elem.ref_nodal_gradient(gauss_lid, k_dof, i);
-	      }
-              */

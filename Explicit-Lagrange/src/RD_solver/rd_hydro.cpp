@@ -10,9 +10,10 @@ using namespace utils;
 
 void rd_hydro(){
   
-    real_t ke0 = 0.0;
-    real_t ie0 = 0.0;
+  real_t ke0 = 0.0;
+  real_t ie0 = 0.0;
 
+  
   for (cycle = 1; cycle <= cycle_stop; cycle++){
         
     std::cout<<"cycle = "<<cycle<<std::endl;
@@ -34,14 +35,15 @@ void rd_hydro(){
       std::cout << std::endl;
     };// end if
     
-
+    build_corner_normals();
+    
     get_timestep();
 
     dt = fmin(dt, (graphics_time - TIME)+fuzz);
 
     { // Time integration scope //
       
-      //update_coeffs();
+      update_coeffs();
 #pragma omp simd
 
       // DeC update //
@@ -57,6 +59,8 @@ void rd_hydro(){
 	get_alpha_E();
 	get_stress_tensor( correction_step );
 	get_force_tensor( );
+
+	// Update momentum //
         get_kinematic_L2( correction_step );
 	update_velocity( correction_step );
         
@@ -69,7 +73,8 @@ void rd_hydro(){
 	  for (int dof = 0; dof < ref_elem.num_basis(); dof++){
 	    for (int dim = 0; dim < mesh.num_dim(); dim++){
 	      elem_state.pos_coeffs(correction_step+1, elem_gid, dof, dim) = elem_state.pos_coeffs(0, elem_gid,dof, dim)
-		             + 0.5*dt*(elem_state.vel_coeffs(correction_step, elem_gid, dof, dim) + elem_state.vel_coeffs(0,elem_gid, dof, dim) );
+		                                                             + 0.5*dt*( elem_state.vel_coeffs(correction_step, elem_gid, dof, dim)
+								             + elem_state.vel_coeffs(0,elem_gid, dof, dim) );
 	    }
 	  }
 	}
@@ -102,7 +107,6 @@ void rd_hydro(){
       //  gauss_properties(gauss_gid);
       //}// end loop over gauss_gid
 
-      update_coeffs();
        
     }// end time integration scope
        
