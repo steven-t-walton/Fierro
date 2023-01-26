@@ -70,7 +70,7 @@ void get_alpha_E(){
     elem_state.alpha_E(elem_gid) = max_length*elem_state.alpha_E(elem_gid); 
     
     // FOR TG multiply by small coefficient //
-    elem_state.alpha_E(elem_gid) = 0.0*0.001*elem_state.alpha_E(elem_gid);
+    elem_state.alpha_E(elem_gid) = 0.001*elem_state.alpha_E(elem_gid);
     //std::cout << elem_state.alpha_E(elem_gid) << std::endl;
 
   }// end loop over elem_gid

@@ -26,18 +26,16 @@ void get_control_coeffs(){
 
 #pragma omp simd     
  for (int t_step = 0; t_step < correction_storage; t_step++){ 
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-    for (int dim = 0; dim < mesh.num_dim(); dim++){
-      for (int basis_id = 0; basis_id < ref_elem.num_basis(); basis_id++){
-      	for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
-	  int node_lid = elem.vert_node_map(vertex);
-    	  int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
-	  elem_state.vel_coeffs(t_step, elem_gid, basis_id, dim) += elem_state.BV_mat_inv( basis_id, vertex ) * node.vel( 0, node_gid, dim );
-	  elem_state.pos_coeffs(t_step, elem_gid, basis_id, dim) += elem_state.BV_mat_inv( basis_id, vertex ) * node.coords( 0, node_gid, dim );
-	}// end loop over vertex
-      }// end loop over basis
-    }// end loop over dim 
-  }// end loop over elem_gid
+   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+     for (int dim = 0; dim < mesh.num_dim(); dim++){
+       for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
+         int node_lid = elem.vert_node_map(vertex);
+       	 int node_gid = mesh.nodes_in_elem( elem_gid, node_lid );
+	 elem_state.vel_coeffs(t_step, elem_gid, vertex, dim) = node.vel( 0, node_gid, dim );
+	 elem_state.pos_coeffs(t_step, elem_gid, vertex, dim) = node.coords( 0, node_gid, dim );
+       }// end loop over vertex
+     }// end loop over dim 
+   }// end loop over elem_gid
  }// end loop over t_step
   
 /*
@@ -76,15 +74,11 @@ void get_control_coeffs(){
     }// end loop over t_step
 
     for (int t_step = 0; t_step < correction_storage; t_step++){
-      for (int basis_id = 0; basis_id < ref_elem.num_dual_basis(); basis_id++){
-      	//for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
-	//  int gauss_gid = mesh.gauss_in_elem( elem_gid, node_lid );
-      	for (int vertex = 0; vertex < ref_elem.num_dual_basis(); vertex++){
-	  int node_lid = elem.dual_vert_node_map(vertex);
-    	  int gauss_gid = mesh.gauss_in_elem( elem_gid, node_lid );
-    	  elem_state.sie_coeffs(t_step, elem_gid, basis_id) += elem_state.dual_BV_mat_inv( basis_id, node_lid ) * mat_pt.sie(0,gauss_gid);
-        }// end loop over node_lid
-      }// end loop over basis
+      for (int vertex = 0; vertex < ref_elem.num_dual_basis(); vertex++){
+	int node_lid = elem.dual_vert_node_map(vertex);
+    	int gauss_gid = mesh.gauss_in_elem( elem_gid, node_lid );
+    	elem_state.sie_coeffs(t_step, elem_gid, vertex) = mat_pt.sie(0,gauss_gid);
+      }// end loop over vertex
     }// end loop over t_step 
     
   }// end loop over elem_gid

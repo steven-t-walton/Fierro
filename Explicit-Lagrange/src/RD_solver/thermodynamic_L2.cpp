@@ -202,8 +202,8 @@ void get_thermodynamic_L2( int t_step ){
 
       for (int elem_node_lid = 0; elem_node_lid < mesh.num_elems_in_node(node_gid); elem_node_lid++){
         int elem_node_gid = mesh.elems_in_node(node_gid, elem_node_lid);
-	//elem_state.thermodynamic_L2(t_step, node_gid) += energy_res(elem_node_gid, t_dof);
-	elem_state.thermodynamic_L2(t_step, node_gid) += limited_energy_res(elem_node_gid, t_dof);
+	elem_state.thermodynamic_L2(t_step, node_gid) += energy_res(elem_node_gid, t_dof);
+	//elem_state.thermodynamic_L2(t_step, node_gid) += limited_energy_res(elem_node_gid, t_dof);
       }// end loop over elem_node_lid
 
     }// end loop over t_dof

@@ -16,17 +16,15 @@ void rd_hydro(){
   
   for (cycle = 1; cycle <= cycle_stop; cycle++){
         
-    std::cout<<"cycle = "<<cycle<<std::endl;
+    std::cout<<" cycle = "<<cycle<<std::endl;
 
     if (stop_calc == 1) break;
 
     
     if (cycle == 1){
 
-      BV_inv();
-      get_control_coeffs();
-      //interp_vel(0);
-      //interp_ie(0);
+      interp_vel(0);
+      interp_ie(0);
       track_rdh(ke0, ie0);
       te_0 = ie0 + ke0;
       std::cout << " ke at t0 = " << ke0 << std::endl;
@@ -43,22 +41,25 @@ void rd_hydro(){
 
     { // Time integration scope //
       
-      update_coeffs();
 #pragma omp simd
 
       // DeC update //
 
       //int current = 0;
       
+      update_coeffs();
+       
+      //get_control_coeffs();
+      
       for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
           
 	//if (current == correction_storage-1){
 	//  current = 0;
 	//}
-	get_strong_mass();
+	
 	get_alpha_E();
 	get_stress_tensor( correction_step );
-	get_force_tensor( );
+	get_force_tensor( correction_step );
 
 	// Update momentum //
         get_kinematic_L2( correction_step );
@@ -101,13 +102,10 @@ void rd_hydro(){
 
       get_vol_jacobi(mesh, ref_elem);
       
+      get_strong_mass();
+      
       get_state();
-
-      //for(int gauss_gid=0; gauss_gid<mesh.num_gauss_pts(); gauss_gid++){
-      //  gauss_properties(gauss_gid);
-      //}// end loop over gauss_gid
-
-       
+      
     }// end time integration scope
        
     // Increment time //
@@ -122,10 +120,10 @@ void rd_hydro(){
   track_rdh( ke, ie );
 
   std::cout << " ke at t0 = " << ke0 << std::endl;
-  std::cout << " ie at t0 = " << ie0 << std::endl;
+  //std::cout << " ie at t0 = " << ie0 << std::endl;
   std::cout << " ke at t_final = " << ke << std::endl;
-  std::cout << " ie at t_final = " << ie << std::endl;
-  std::cout << "E_tot final is "<< ke+ie << std::endl;
+  //std::cout << " ie at t_final = " << ie << std::endl;
+  std::cout << "E_tot final is "<< ke/*+ie*/ << std::endl;
 
 }// end rd_hydro
 

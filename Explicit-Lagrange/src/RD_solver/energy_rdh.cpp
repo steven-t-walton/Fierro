@@ -36,7 +36,9 @@ void update_energy( int t_step ){
 			 * mesh.gauss_pt_det_j(g_gid);
 	}// end loop over g_lid
       }// end loop over elem_node_lid
-      
+      if (lumped_mass <= 0.0){
+        std::cout << " thermodynamic lumped mass is negative " << lumped_mass << std::endl;
+      }      
       
       // L^1(e^{k+1}) = L^1(e^k) - L^2(e^k) //
       elem_state.sie_coeffs(update, elem_gid, t_dof) = elem_state.sie_coeffs(t_step,elem_gid,t_dof) 

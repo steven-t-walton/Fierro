@@ -32,7 +32,14 @@ void update_position(){
       }
 
     }// end loop over gauss_lid
-  }// end loop over elem_gid
+/*
+    for (int basis = 0; basis < ref_elem.num_basis(); basis++){
+      for (int dim = 0; dim < mesh.num_dim(); dim++){
+        elem_state.pos_coeffs( 0, elem_gid, basis, dim ) = elem_state.vel_coeffs( correction_storage-1, elem_gid, basis, dim );
+      }// end loop over dim
+    }// end loop over basis
+*/
+ }// end loop over elem_gid
 
 /* 
   for (int node_gid = 0; node_gid <mesh.num_nodes(); node_gid++){
