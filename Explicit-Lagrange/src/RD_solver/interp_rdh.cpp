@@ -28,7 +28,13 @@ void interp_vel(int t_step){
         for (int dim = 0; dim < num_dim; dim++){
           node.vel(1, node_gid, dim) = interp(dim);
         }
-
+/*
+        for (int basis = 0; basis < ref_elem.num_basis(); basis++){
+          for (int dim = 0; dim < mesh.num_dim(); dim++){
+            elem_state.vel_coeffs( 0, elem_gid, basis, dim ) = elem_state.vel_coeffs( t_step, elem_gid, basis, dim );
+          }// end loop over dim
+        }// end loop over basis
+*/      
 /*      
         node.vel(1, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
         node.vel(1, node_gid, 1) = -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));
@@ -83,7 +89,11 @@ void interp_ie(int t_step){
       //std::cout<< mat_pt.sie(1,gauss_gid) << std::endl;
 
       mat_pt.ie(gauss_gid) = mat_pt.sie(1,gauss_gid);   
-    
+      /*
+      for (int t_basis = 0; t_basis < ref_elem.num_dual_basis(); t_basis++){
+        elem_state.sie_coeffs( 0, elem_gid, t_basis ) = elem_state.sie_coeffs( t_step, elem_gid, t_basis);
+      }
+      */
     }// end loop over gauss_lid
   }// end loop over elem_gid
 

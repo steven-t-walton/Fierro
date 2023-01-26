@@ -1282,7 +1282,7 @@ void interp_vel(int t_step);
 void interp_ie(int t_step);
 void get_kinematic_L2(int t_step);
 void get_thermodynamic_L2(int t_step);
-void get_force_tensor();
+void get_force_tensor(int t_step);
 void get_stress_tensor(int t_step);
 void get_alpha_E();
 void get_strong_mass();

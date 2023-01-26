@@ -77,8 +77,6 @@ void get_control_coeffs(){
 
     for (int t_step = 0; t_step < correction_storage; t_step++){
       for (int basis_id = 0; basis_id < ref_elem.num_dual_basis(); basis_id++){
-      	//for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
-	//  int gauss_gid = mesh.gauss_in_elem( elem_gid, node_lid );
       	for (int vertex = 0; vertex < ref_elem.num_dual_basis(); vertex++){
 	  int node_lid = elem.dual_vert_node_map(vertex);
     	  int gauss_gid = mesh.gauss_in_elem( elem_gid, node_lid );

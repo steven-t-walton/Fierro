@@ -39,13 +39,15 @@ void update_velocity(int t_step){
         int elems_in_vert_gid = mesh.elems_in_node(node_gid, elems_in_vert);
         for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
 	  int gauss_gid = mesh.gauss_in_elem(elems_in_vert_gid, gauss_lid);
-	  lumped_mass +=  ref_elem.ref_node_g_weights(gauss_lid)
+	  lumped_mass += ref_elem.ref_node_g_weights(gauss_lid)
 		         * mat_pt.density(gauss_gid)
 			 * mesh.gauss_pt_det_j(gauss_gid)
-	                 *ref_elem.ref_nodal_basis(gauss_lid, vertex);
+	                 * ref_elem.ref_nodal_basis(gauss_lid, vertex);
         }// end loop over gauss_lid
       }// end loop over elems_in_node_lid
-
+      if (lumped_mass <= 0.0){
+        std::cout << " kinematic lumped mass is negative " << lumped_mass << std::endl;
+      }
       // L^1(u^{k+1}) = L^1(u^k) - L^2(u^k) //
       for (int dim = 0; dim < num_dim; dim++){
         elem_state.vel_coeffs(update, elem_gid, vertex, dim) = elem_state.vel_coeffs(current,elem_gid, vertex, dim) 
