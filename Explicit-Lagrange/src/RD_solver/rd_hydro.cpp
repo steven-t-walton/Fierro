@@ -50,8 +50,6 @@ void rd_hydro(){
       //int current = 0;
 
       get_alpha_E();
-      get_stress_tensor(0);
-      get_force_tensor(0);
       
       for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
           
@@ -59,6 +57,9 @@ void rd_hydro(){
 	//  current = 0;
 	//}
 	
+        get_stress_tensor(correction_step);
+        get_force_tensor(correction_step);
+
 
 	// Update momentum //
         get_kinematic_L2( correction_step );

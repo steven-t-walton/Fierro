@@ -51,7 +51,7 @@ void get_force_tensor(int t_step){
 	        for (int l = 0; l < mesh.num_dim(); l++){
 	          elem_state.force_tensor(t_step, elem_gid, k_dof, t_dof, dim) += ref_elem.ref_nodal_gradient(gauss_lid, k_dof,k)
 		                                                              * mesh.gauss_pt_jacobian_inverse(gauss_gid, k, l)
-									      * elem_state.stress_tensor(t_step, gauss_gid, dim, l) 
+									      * elem_state.stress_tensor(t_step, gauss_gid, dim, l)
 								              * ref_elem.ref_nodal_dual_basis(gauss_lid, t_dof) 
 								              * mesh.gauss_pt_det_j(gauss_gid) 
 								              * ref_elem.ref_node_g_weights(gauss_lid);

@@ -10,9 +10,6 @@ void get_kinematic_L2(int t_step){
   int num_basis = ref_elem.num_basis();
   int num_dim = mesh.num_dim();
 
-  get_stress_tensor(t_step);
-  get_force_tensor(t_step);
-      
 #pragma omp simd
 
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
@@ -142,16 +139,11 @@ void get_kinematic_L2(int t_step){
           int node_rid = ref_elem.cell_nodes_in_elem(cell_lid, node_lid);
 	  
           for (int dim = 0; dim < num_dim; dim ++){
-	    //real_t sigma_dot_n = 0.0;
-/*
+
             for (int k = 0; k < num_dim; k++){
-	      surface_int(dim) += ref_elem.ref_nodal_basis(nod_rid, vertex)*0.5*(elem_state.stress_tensor(0,gauss_gid, dim, k) + elem_state.stress_tensor(t_step, gauss_gid, dim, k))*corner.normal(corner_gid, k);
+	      surface_int(dim) += ref_elem.ref_nodal_basis(node_rid, vertex)*0.5*(elem_state.stress_tensor(0,gauss_gid, dim, k) + elem_state.stress_tensor(t_step, gauss_gid, dim, k))*corner.normal(corner_gid, k);
 	    }
-*/
-            for (int k = 0; k < num_dim; k++){
-	      surface_int(dim) += ref_elem.ref_nodal_basis(node_rid, vertex)*elem_state.stress_tensor(t_step, gauss_gid, k, dim)*corner.normal(corner_gid, k);
-	    }
-            //surface_int(dim) += ref_elem.ref_nodal_basis(node_rid, vertex)*sigma_dot_n;
+        
 	  }// end loop over dim
         }// end loop over nodes/corners in a cell
       } // end loop over cells in an element

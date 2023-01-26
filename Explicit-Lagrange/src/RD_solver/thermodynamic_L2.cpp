@@ -16,9 +16,6 @@ void get_thermodynamic_L2( int t_step ){
     }
   }
 
-  get_stress_tensor(t_step);
-  get_force_tensor(t_step);
-
   auto energy_res = CArray <real_t> ( mesh.num_elems(), ref_elem.num_dual_basis() );// mesh.num_nodes() );
   
   for (int i = 0; i < mesh.num_elems(); i++){
@@ -101,10 +98,9 @@ void get_thermodynamic_L2( int t_step ){
 	    
         source_int += (source)*ref_elem.ref_nodal_dual_basis(gauss_lid,t_dof) * mesh.gauss_pt_det_j(gauss_gid)* ref_elem.ref_node_g_weights(gauss_lid);
       }// end loop over gauss_lid 
-       
-      //std::cout << source_int << std::endl;
+      std::cout << source_int << std::endl;
       
-      energy_res(elem_gid, t_dof) =  M_dot_e/dt - force - source_int + Q;
+      energy_res(elem_gid, t_dof) =  M_dot_e/dt - force - 0.0*source_int + Q;
 
     }// end loop over t_dof
 
