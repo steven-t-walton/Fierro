@@ -29,8 +29,8 @@ void get_thermodynamic_L2( int t_step ){
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
   
     for (int t_dof = 0; t_dof < ref_elem.num_dual_basis(); t_dof++){
-      //int node_lid = ref_elem.dual_vert_node_map(t_dof);
-      //int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+      int g_lid = ref_elem.dual_vert_node_map(t_dof);
+      int g_gid = mesh.gauss_in_elem(elem_gid, g_lid);
 
       auto res_mass = CArray <real_t> (ref_elem.num_dual_basis());
       for (int i = 0; i < ref_elem.num_dual_basis(); i++) res_mass(i) = 0.0;
@@ -48,8 +48,9 @@ void get_thermodynamic_L2( int t_step ){
       
       real_t M_dot_e = 0.0;
       for (int basis_id = 0; basis_id < ref_elem.num_dual_basis(); basis_id++){
-	//std::cout <<  elem_state.sie_coeffs(t_step, elem_gid, basis_id) - elem_state.sie_coeffs(0, elem_gid, basis_id) << std::endl;
-        M_dot_e += res_mass(basis_id)*elem_state.sie_coeffs(t_step, elem_gid, basis_id) - res_mass(basis_id)*elem_state.sie_coeffs(0, elem_gid, basis_id);
+	int gauss_lid = ref_elem.dual_vert_node_map(basis_id);
+	int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+        M_dot_e += res_mass(basis_id)*(mat_pt.sie(t_step, gauss_gid) - mat_pt.sie(0, g_gid));
       }// end loop over basis id
       
       auto force_vec = CArray <real_t> (mesh.num_dim());
@@ -58,8 +59,11 @@ void get_thermodynamic_L2( int t_step ){
        
       for (int dim = 0; dim < mesh.num_dim(); dim++){
         for (int k_dof = 0; k_dof < ref_elem.num_basis(); k_dof++){
-          force_vec(dim) += 0.5*elem_state.force_tensor(0, elem_gid, k_dof, t_dof, dim) * elem_state.vel_coeffs(0, elem_gid, k_dof, dim)
-		     + 0.5*elem_state.force_tensor(t_step, elem_gid, k_dof, t_dof, dim) * elem_state.vel_coeffs(t_step,elem_gid,k_dof,dim);	  
+	  int gauss_lid = ref_elem.vert_node_map(k_dof);
+	  int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+          
+	  force_vec(dim) += 0.5*elem_state.force_tensor(0, elem_gid, k_dof, t_dof, dim) * mat_pt.velocity(0, gauss_gid, dim)
+		     + 0.5*elem_state.force_tensor(t_step, elem_gid, k_dof, t_dof, dim) * mat_pt.velocity(t_step, gauss_gid, dim);	  
         }// end loop over k_dof
       }// end loop over dim
       
@@ -75,13 +79,16 @@ void get_thermodynamic_L2( int t_step ){
        
       // Compute sie_bar //
       for (int dof = 0; dof < ref_elem.num_dual_basis(); dof++){
-        sie_bar += elem_state.sie_coeffs(t_step, elem_gid, dof)/ref_elem.num_dual_basis(); 
-        sie_bar0 += elem_state.sie_coeffs(0, elem_gid, dof)/ref_elem.num_dual_basis(); 
+	   
+	int gauss_lid = ref_elem.dual_vert_node_map(dof);
+	int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+        sie_bar += mat_pt.sie(t_step, gauss_gid)/ref_elem.num_dual_basis(); 
+        sie_bar0 += mat_pt.sie(0, gauss_gid)/ref_elem.num_dual_basis(); 
       }
   
       // Fill Q //
-      Q = 0.5*elem_state.alpha_E(elem_gid)*(elem_state.sie_coeffs(t_step, elem_gid, t_dof) - sie_bar)
-	  + 0.5*elem_state.alpha_E(elem_gid)*(elem_state.sie_coeffs(0, elem_gid, t_dof) - sie_bar0);
+      Q = 0.5*elem_state.alpha_E(elem_gid)*(mat_pt.sie(t_step, g_gid) - sie_bar)
+	  + 0.5*elem_state.alpha_E(elem_gid)*(mat_pt.sie(0, g_gid) - sie_bar0);
   
       //--- end Artificial Viscosity ---//
 

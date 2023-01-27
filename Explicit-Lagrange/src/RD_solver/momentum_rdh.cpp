@@ -50,7 +50,7 @@ void update_velocity(int t_step){
       }
       // L^1(u^{k+1}) = L^1(u^k) - L^2(u^k) //
       for (int dim = 0; dim < num_dim; dim++){
-        elem_state.vel_coeffs(update, elem_gid, vertex, dim) = elem_state.vel_coeffs(current,elem_gid, vertex, dim) 
+        mat_pt.velocity(update, g_gid, dim) = mat_pt.velocity(current,g_gid, dim) 
 		                                               - (dt/lumped_mass)*elem_state.kinematic_L2(current, node_gid, dim);
       }
     }// end loop over vertex

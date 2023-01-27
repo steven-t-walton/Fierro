@@ -26,7 +26,7 @@ void get_kinematic_L2(int t_step){
   int nodal_res_size = mesh.num_elems()*mesh.num_nodes()*mesh.num_dim();
   real_t nodal_res_a[nodal_res_size];
   for (int i = 0; i < nodal_res_size; i++) nodal_res_a[i] = 0.0;
-  auto nodal_res = ViewCArray <real_t> ( &nodal_res_a[0], mesh.num_nodes(), mesh.num_elems(), mesh.num_dim() );
+  auto nodal_res = ViewCArray <real_t> ( &nodal_res_a[0], mesh.num_elems(), mesh.num_nodes(), mesh.num_dim() );
 
   for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
   
@@ -59,10 +59,11 @@ void get_kinematic_L2(int t_step){
 		               * ref_elem.ref_nodal_basis(gauss_lid, index);
 	}// end loop over gauss_lid
       }// end loop over index
+      /*
       for (int index = 0; index < num_basis; index++){
-        //std::cout << res_mass(index) << std::endl;
+        std::cout << res_mass(index) << std::endl;
       }
-      //--- end Mass Vector ---//
+      */
 
       //--- Artificial Viscosity ---//
       real_t vel_bar_a[num_dim];
@@ -79,20 +80,17 @@ void get_kinematic_L2(int t_step){
       // Compute vel_bar //
         for (int dim = 0; dim < num_dim; dim++){
           for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
-	      //int vert_lid = elem.vert_node_map(vertex);
-	      //int vert_gid = mesh.nodes_in_elem(elem_gid, vert_lid);
-	      //vel_bar(dim, current) += node.vel(0, vert_gid, dim)/ref_elem.num_basis();
-            vel_bar(dim) += elem_state.vel_coeffs(t_step, elem_gid, vertex, dim)/ref_elem.num_basis(); 
-            vel_bar0(dim) += elem_state.vel_coeffs(0, elem_gid, vertex, dim)/ref_elem.num_basis(); 
+	      int gauss_lid = elem.vert_node_map(vertex);
+	      int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+              vel_bar(dim) += mat_pt.velocity(t_step, gauss_gid, dim)/ref_elem.num_basis(); 
+              vel_bar0(dim) += mat_pt.velocity(0, gauss_gid, dim)/ref_elem.num_basis(); 
 	  }
 	}
       // Fill Q //
           
         for (int dim = 0; dim < num_dim; dim++){ 
-	  // Q = alpha_E*(vel - vel_bar) //
-          //Q(dim, current) = alpha*(node.vel(0, node_gid, dim) - vel_bar(dim, current)); 
-	  Q(dim) = 0.5*elem_state.alpha_E(elem_gid)*(elem_state.vel_coeffs(t_step,elem_gid, vertex,dim) - vel_bar(dim))
-		   + 0.5*elem_state.alpha_E(elem_gid)*(elem_state.vel_coeffs(0,elem_gid, vertex,dim) - vel_bar0(dim));
+	  Q(dim) = 0.5*elem_state.alpha_E(elem_gid)*(mat_pt.velocity(t_step, g_gid, dim) - vel_bar(dim))
+		   + 0.5*elem_state.alpha_E(elem_gid)*(mat_pt.velocity(0, g_gid, dim) - vel_bar0(dim));
           //std::cout <<  "Q at dim " << dim << " is " << Q(dim) << std::endl;  
         }// end loop over dim for Q 
       //--- end Artificial Viscosity ---//
@@ -100,7 +98,9 @@ void get_kinematic_L2(int t_step){
       //--- M_l.(v^{r}-v^{n}) ---/
       for (int dim = 0; dim < num_dim; dim++){
         for (int index = 0; index < num_basis; index++){
-	  Mv(dim) += res_mass( index )*elem_state.vel_coeffs( t_step, elem_gid, index, dim) - res_mass(index)*elem_state.vel_coeffs( 0, elem_gid, index, dim);
+          int gauss_lid = ref_elem.vert_node_map(index);
+	  int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+	  Mv(dim) += res_mass( index )*(mat_pt.velocity( t_step, gauss_gid, dim) - mat_pt.velocity( 0, gauss_gid, dim));
         }// end loop over index
 	//std::cout << " M.v at dim " << dim << " is " << Mv(dim) << std::endl;
       }// end loop over dim
@@ -120,7 +120,7 @@ void get_kinematic_L2(int t_step){
         //std::cout << " force at dim " << dim << " is " << force(dim) << std::endl;
       }// end loop over dim
       
-      /*
+      
       real_t surface_int_a[ num_dim ];
       auto surface_int = ViewCArray <real_t> (&surface_int_a[0], num_dim);
       for (int i = 0; i < num_dim; i++) surface_int(i) = 0.0;        
@@ -145,11 +145,11 @@ void get_kinematic_L2(int t_step){
 	  }// end loop over dim
         }// end loop over nodes/corners in a cell
       } // end loop over cells in an element
-     */
+    
       //--- Assign Values to Galerkin/Rusanov Residual ---//
       for (int dim = 0; dim < num_dim; dim++){
         // Assign values to nodal res
-        nodal_res(node_gid, elem_gid, dim ) = Mv(dim)/dt + Q(dim) + force(dim);// - surface_int(dim);
+        nodal_res(elem_gid, node_gid, dim ) = Mv(dim)/dt + Q(dim) + force(dim) - surface_int(dim);
 	//std::cout << "kinematic nodal res = "<< nodal_res(node_gid, elem_gid, dim )<< " at node "<< node_gid << " elem "<< elem_gid << " and dim " << dim << std::endl;
       }// end loop over dim
 
@@ -170,7 +170,7 @@ void get_kinematic_L2(int t_step){
       for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
         int node_lid = elem.vert_node_map( vertex);
         int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-        total_res(elem_gid, dim) += nodal_res(node_gid, elem_gid, dim);
+        total_res(elem_gid, dim) += nodal_res( elem_gid, node_gid, dim);
       }// end loop over node_lid
     }// end loop over dim
   }// end loop over elem_gid
@@ -195,12 +195,12 @@ void get_kinematic_L2(int t_step){
       int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
       for (int dim = 0; dim < mesh.num_dim(); dim++){
         real_t num = 0.0;
-        num = std::max( 0.0, nodal_res(node_gid, elem_gid, dim)/total_res(elem_gid, dim) );
+        num = std::max( 0.0, nodal_res(elem_gid, node_gid, dim)/total_res(elem_gid, dim) );
         real_t denom = 0.0;
         for (int k = 0; k < ref_elem.num_basis(); k++){
           int node_k_lid = elem.vert_node_map( k );
           int node_k_gid = mesh.nodes_in_elem(elem_gid, node_k_lid);
-          denom += std::max(0.0, nodal_res( node_k_gid, elem_gid, dim)/total_res(elem_gid,dim) );
+          denom += std::max(0.0, nodal_res(elem_gid,  node_k_gid, dim)/total_res(elem_gid,dim) );
         }// end loop over k
 
         psi_coeffs( elem_gid, vertex, dim ) = num/denom;
@@ -250,7 +250,7 @@ void get_kinematic_L2(int t_step){
       for (int dim = 0; dim < num_dim; dim++){
         for (int elems_in_vert = 0; elems_in_vert < num_elems_in_vert; elems_in_vert++){
           int elems_in_vert_gid = mesh.elems_in_node(node_gid, elems_in_vert);
-          elem_state.kinematic_L2(t_step, node_gid, dim) += nodal_res(node_gid, elems_in_vert_gid, dim);
+          elem_state.kinematic_L2(t_step, node_gid, dim) += nodal_res(elems_in_vert_gid, node_gid, dim);
           //elem_state.kinematic_L2(t_step, node_gid, dim) += limited_res(elems_in_vert_gid, vertex, dim);       
         }// end loop over elems_in_vert
       }// end loop over dim

@@ -1286,4 +1286,5 @@ void get_force_tensor(int t_step);
 void get_stress_tensor(int t_step);
 void get_alpha_E();
 void get_strong_mass();
+void test_basis();
 #endif 

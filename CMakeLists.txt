@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.17)
-project (Fierro NONE)
+project (RD_Lagrange NONE)
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo)

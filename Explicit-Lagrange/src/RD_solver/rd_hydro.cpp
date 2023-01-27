@@ -12,7 +12,8 @@ void rd_hydro(){
   
   real_t ke0 = 0.0;
   real_t ie0 = 0.0;
-
+  
+  //test_basis();
   
   for (cycle = 1; cycle <= cycle_stop; cycle++){
         
@@ -22,9 +23,6 @@ void rd_hydro(){
 
     
     if (cycle == 1){
-
-      interp_vel(0);
-      interp_ie(0);
       track_rdh(ke0, ie0);
       te_0 = ie0 + ke0;
       std::cout << " ke at t0 = " << ke0 << std::endl;
@@ -41,22 +39,21 @@ void rd_hydro(){
 
     { // Time integration scope //
       
-#pragma omp simd
-
-      // DeC update //
-
-      //int current = 0;
+      for(int gauss_gid = 0; gauss_gid < mesh.num_gauss_pts(); gauss_gid++){
+      		for(int i=0; i<mesh.num_dim(); i++) mat_pt.velocity(0, gauss_gid, i) = mat_pt.velocity(correction_storage-1, gauss_gid, i);
+      		mat_pt.sie(0, gauss_gid) = mat_pt.sie(correction_storage-1, gauss_gid);
+      }
       
       update_coeffs();
-       
-      //get_control_coeffs();
+    
+      get_strong_mass();
       
+      get_state();
+      
+#pragma omp simd
+
       for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
           
-	//if (current == correction_storage-1){
-	//  current = 0;
-	//}
-	
 	get_alpha_E();
 	get_stress_tensor( correction_step );
 	get_force_tensor( correction_step );
@@ -69,17 +66,7 @@ void rd_hydro(){
 	get_thermodynamic_L2( correction_step );
 	update_energy( correction_step );
       
-	// Update position coefficients //
-        for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-	  for (int dof = 0; dof < ref_elem.num_basis(); dof++){
-	    for (int dim = 0; dim < mesh.num_dim(); dim++){
-	      elem_state.pos_coeffs(correction_step+1, elem_gid, dof, dim) = elem_state.pos_coeffs(0, elem_gid,dof, dim)
-		                                                             + 0.5*dt*( elem_state.vel_coeffs(correction_step, elem_gid, dof, dim)
-								             + elem_state.vel_coeffs(0,elem_gid, dof, dim) );
-	    }
-	  }
-	}
-        //current++;
+
       }//end correction steps
       
       // intepolate the velocity with evolved coeffs and save to nodes  //
@@ -101,10 +88,6 @@ void rd_hydro(){
       get_gauss_patch_pt_jacobian(mesh, ref_elem);
 
       get_vol_jacobi(mesh, ref_elem);
-      
-      get_strong_mass();
-      
-      get_state();
       
     }// end time integration scope
        

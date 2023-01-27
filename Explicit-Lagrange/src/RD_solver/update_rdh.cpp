@@ -20,20 +20,20 @@ void update_coeffs(){
     }// end loop over dim
     
   }// end loop over node_gid 
-  // update ie, stress and total energy //
+
+
 #pragma omp simd     
   for (int cell_gid = 0; cell_gid < mesh.num_cells(); cell_gid++){
 
     cell_state.ie( 0, cell_gid ) = cell_state.ie( 1, cell_gid );
     cell_state.total_energy( 0, cell_gid ) = cell_state.total_energy( 1, cell_gid );
     
-    for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
-      int gauss_gid = mesh.gauss_in_cell(cell_gid, gauss_lid);
-      mat_pt.sie(0,gauss_gid) = mat_pt.sie(1,gauss_gid);
-    }
   }
 
-  get_control_coeffs(); 
+}// end update
+
+
+  //get_control_coeffs(); 
 
 /*
  // update control coeffs //
@@ -51,6 +51,3 @@ void update_coeffs(){
     }// end loop over elem_gid
   }
 */
-}// end update
-
-

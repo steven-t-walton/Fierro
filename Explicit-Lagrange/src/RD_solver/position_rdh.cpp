@@ -10,7 +10,7 @@ using namespace utils;
 void update_position(){
 
 #pragma omp simd  
-  
+/*  
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
       int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
@@ -32,15 +32,8 @@ void update_position(){
       }
 
     }// end loop over gauss_lid
-/*
-    for (int basis = 0; basis < ref_elem.num_basis(); basis++){
-      for (int dim = 0; dim < mesh.num_dim(); dim++){
-        elem_state.pos_coeffs( 0, elem_gid, basis, dim ) = elem_state.vel_coeffs( correction_storage-1, elem_gid, basis, dim );
-      }// end loop over dim
-    }// end loop over basis
-*/
  }// end loop over elem_gid
-
+*/
 /* 
   for (int node_gid = 0; node_gid <mesh.num_nodes(); node_gid++){
       for (int dim = 0; dim < mesh.num_dim(); dim++){
@@ -49,6 +42,17 @@ void update_position(){
       }// end loop over dim
   }// end loop over node_gid
 */
+for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+  for (int gauss_lid = 0; gauss_lid <mesh.num_gauss_in_elem(); gauss_lid++){
+      int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+      int node_gid = mesh.nodes_in_elem(elem_gid, gauss_lid);
+      for (int dim = 0; dim < mesh.num_dim(); dim++){
+        node.coords(1, node_gid, dim ) = node.coords(0, node_gid, dim) + 0.5*dt*( mat_pt.velocity(correction_storage-1, gauss_gid,  dim) + mat_pt.velocity(0, gauss_gid, dim) );
+        mesh.node_coords(node_gid, dim) = node.coords(1, node_gid, dim);
+	node.vel(1, node_gid, dim) = mat_pt.velocity(correction_storage-1, gauss_gid,  dim);
+      }// end loop over dim
+  }// end loop over node_gid
+}
 
 
 }// end get_position_rdh()

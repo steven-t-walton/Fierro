@@ -54,12 +54,12 @@ void setup_rdh(char *MESH){
   std::cout << std::endl;
   
   // ---- Material point initialization ---- //
-  mat_pt.init_mat_pt_state(num_dim, mesh, rk_storage);
+  mat_pt.init_mat_pt_state(num_dim, mesh, correction_storage);
   std::cout << "Material point state allocated and initialized"  << std::endl;
   std::cout << std::endl;
 
 
-  elem_state.init_elem_state( num_dim, mesh, correction_storage, ref_elem );
+  elem_state.init_elem_state( num_dim, mesh, rk_storage, ref_elem );
   std::cout << "Element state allocated and initialized" << std::endl;  std::cout<< std::endl;
 
   std::cout << "number of patches = " << mesh.num_patches() << std::endl;
@@ -123,7 +123,7 @@ void setup_rdh(char *MESH){
   // apply fill instruction over the elements //
   // for initialization, copy data to each substep //
   
-  for (int t_step = 0; t_step < rk_storage; t_step++){
+  for (int t_step = 0; t_step < correction_storage; t_step++){
     for (int f_id = 0; f_id < NF; f_id++){
       for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){        
 	// coords and radius of element //
@@ -194,7 +194,7 @@ void setup_rdh(char *MESH){
 
 
                         // --- Density and specific volume ---
-                        mat_pt.density(gauss_gid)  = 1.0;
+                        mat_pt.density(gauss_gid)  = mat_fill[f_id].r;//1.0;
 
                         mat_pt.mass(gauss_gid) = mat_pt.density(gauss_gid)*(mesh.gauss_pt_det_j(gauss_gid) * ref_elem.ref_node_g_weights(gauss_lid));
 
@@ -229,8 +229,9 @@ void setup_rdh(char *MESH){
              cell_state.mass(cell_gid) = cell_state.density(cell_gid)*mesh.cell_vol(cell_gid);
 
              // --- Internal energy ---
-             //cell_state.ie(t_step, cell_gid) = mat_fill[f_id].ie;
-             cell_state.total_energy(t_step, cell_gid) = mat_fill[f_id].ie;              
+             cell_state.total_energy(0, cell_gid) = mat_fill[f_id].ie;              
+             cell_state.total_energy(1, cell_gid) = mat_fill[f_id].ie;              
+
              
 
 
@@ -247,9 +248,18 @@ void setup_rdh(char *MESH){
                  case init_conds::cartesian:
                  {
 
-                   node.vel(t_step, node_gid, 0) = mat_fill[f_id].u;
-                   node.vel(t_step, node_gid, 1) = mat_fill[f_id].v;
-                   node.vel(t_step, node_gid, 2) = mat_fill[f_id].w;
+                   mat_pt.velocity(t_step, node_gid, 0) = mat_fill[f_id].u;
+                   mat_pt.velocity(t_step, node_gid, 1) = mat_fill[f_id].v;
+                   mat_pt.velocity(t_step, node_gid, 2) = mat_fill[f_id].w;
+                   
+		   node.vel(0, node_gid, 0) = mat_fill[f_id].u;
+                   node.vel(0, node_gid, 1) = mat_fill[f_id].v;
+                   node.vel(0, node_gid, 2) = mat_fill[f_id].w;
+
+		   node.vel(1, node_gid, 0) = mat_fill[f_id].u;
+                   node.vel(1, node_gid, 1) = mat_fill[f_id].v;
+                   node.vel(1, node_gid, 2) = mat_fill[f_id].w;
+
 
                    break;
                  }
@@ -273,9 +283,17 @@ void setup_rdh(char *MESH){
                        dir[dim] = 0.0;
                      }
                    } // end for
-                   node.vel(t_step, node_gid, 0) = mat_fill[f_id].speed*dir[0];
-                   node.vel(t_step, node_gid, 1) = mat_fill[f_id].speed*dir[1];
-                   node.vel(t_step, node_gid, 2) = 0.0;
+                   node.vel(0, node_gid, 0) = mat_fill[f_id].speed*dir[0];
+                   node.vel(0, node_gid, 1) = mat_fill[f_id].speed*dir[1];
+                   node.vel(0, node_gid, 2) = 0.0;
+
+                   node.vel(1, node_gid, 0) = mat_fill[f_id].speed*dir[0];
+                   node.vel(1, node_gid, 1) = mat_fill[f_id].speed*dir[1];
+                   node.vel(1, node_gid, 2) = 0.0;
+
+                   mat_pt.velocity(t_step, node_gid, 0) = mat_fill[f_id].speed*dir[0];
+                   mat_pt.velocity(t_step, node_gid, 1) = mat_fill[f_id].speed*dir[1];
+                   mat_pt.velocity(t_step, node_gid, 2) = 0.0;
 
                    break;
                  }
@@ -301,9 +319,17 @@ void setup_rdh(char *MESH){
                    } // end for
 
 
-                   node.vel(t_step, node_gid, 0) = mat_fill[f_id].speed*dir[0];
-                   node.vel(t_step, node_gid, 1) = mat_fill[f_id].speed*dir[1];
-                   node.vel(t_step, node_gid, 2) = mat_fill[f_id].speed*dir[2];
+                   node.vel(0, node_gid, 0) = mat_fill[f_id].speed*dir[0];
+                   node.vel(0, node_gid, 1) = mat_fill[f_id].speed*dir[1];
+                   node.vel(0, node_gid, 2) = mat_fill[f_id].speed*dir[2];
+
+                   node.vel(1, node_gid, 0) = mat_fill[f_id].speed*dir[0];
+                   node.vel(1, node_gid, 1) = mat_fill[f_id].speed*dir[1];
+                   node.vel(1, node_gid, 2) = mat_fill[f_id].speed*dir[2];
+
+                   mat_pt.velocity(t_step, node_gid, 0) = mat_fill[f_id].speed*dir[0];
+                   mat_pt.velocity(t_step, node_gid, 1) = mat_fill[f_id].speed*dir[1];
+                   mat_pt.velocity(t_step, node_gid, 2) = mat_fill[f_id].speed*dir[2];
 
                    break;
                  }
@@ -320,43 +346,47 @@ void setup_rdh(char *MESH){
                  case init_conds::tg_vortex:
                  {
                    
-                   node.vel(t_step, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
+                   node.vel(0, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
                    
-                   node.vel(t_step, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1)); 
+                   node.vel(0, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1)); 
                    
-		   node.vel(t_step, node_gid, 2) = 0.0; 
+		   node.vel(0, node_gid, 2) = 0.0; 
                   
-                  /* 
-                   node.vel(t_step, node_gid, 0) = sin(2.0*PI * mesh.node_coords(node_gid, 0)) * cos(2.0*PI * mesh.node_coords(node_gid, 1))*cos(6.0*PI * mesh.node_coords(node_gid,2));
+                   node.vel(1, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
                    
-                   node.vel(t_step, node_gid, 1) =  -1.0*cos(2.0*PI * mesh.node_coords(node_gid, 0)) * sin(2.0*PI * mesh.node_coords(node_gid, 1))*cos(6.0*PI * mesh.node_coords(node_gid,2)); 
+                   node.vel(1, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1)); 
                    
-		   node.vel(t_step, node_gid, 2) = 0.0; 
+		   node.vel(1, node_gid, 2) = 0.0; 
                   
-                  */
-                   real_t source = 0.0;
-                   source = 3.141592653589/(4.0*0.6666667)* ( cos(3.0*3.141592653589 * mesh.node_coords(node_gid,0)) * cos( 3.141592653589 * mesh.node_coords(node_gid,1)) - cos( 3.141592653589 * mesh.node_coords(node_gid,0) ) * cos( 3.0*3.141592653589 * mesh.node_coords(node_gid,1) ) );
-		   
-                   cell_state.pressure(cell_gid) = 0.25*(cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;//0.0625*((cos(6.0*PI*mesh.cell_coords(cell_gid,2)+2) ) * cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;
+                   mat_pt.velocity(t_step, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
                    
+                   mat_pt.velocity(t_step, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1)); 
+                   
+		   mat_pt.velocity(t_step, node_gid, 2) = 0.0; 
+                  
+                   cell_state.pressure(cell_gid) = 0.25*(cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;                   
 		   mat_pt.pressure(gauss_gid) = 0.25*(cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;
                    
                    // save the internal energy contribution to the total energy
                    mat_pt.sie(t_step,gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((5.0/3.0) - 1.0)));// + source;
                    
 		   mat_pt.ie(gauss_gid) = mat_pt.sie(t_step, gauss_gid);
-		   //cell_state.ie(t_step, cell_gid) = 0.0;
-                   
-		   cell_state.ie(t_step, cell_gid) += mat_pt.ie(gauss_gid)*0.125;// + 0.125*source;
 		   
 		   real_t x = 0.0;
 		   real_t y = 0.0;
 		   track_rdh(x,y);
-		   cell_state.total_energy(t_step, cell_gid) = cell_state.ie(t_step,cell_gid)+y;//+source;
-		   cell_state.total_energy(t_step, cell_gid) += 0.125*source;
+		   
+		   cell_state.ie(0, cell_gid) = 0.0;
                    
-		   mat_pt.specific_total_energy(t_step, gauss_gid) = mat_pt.ie(gauss_gid) + y;
-	           
+		   cell_state.ie(0, cell_gid) += mat_pt.ie(gauss_gid)*0.125;
+		   
+		   cell_state.total_energy(0, cell_gid) = x+y;
+                   
+		   cell_state.ie(1, cell_gid) = 0.0;
+                   
+		   cell_state.ie(1, cell_gid) += mat_pt.ie(gauss_gid)*0.125;
+		   
+		   cell_state.total_energy(1, cell_gid) = x+y;
                    
 		   break;
                  }
