@@ -10,8 +10,11 @@ void get_kinematic_L2(int t_step){
   int num_basis = ref_elem.num_basis();
   int num_dim = mesh.num_dim();
 
-#pragma omp simd
+  int current = t_step;
+  int update = t_step+1;
 
+#pragma omp simd
+/*
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
       int node_lid = elem.vert_node_map( vertex );
@@ -21,12 +24,12 @@ void get_kinematic_L2(int t_step){
       }// end loop over dim
     }// end loop over vertex
   }// end loop over elem_gid
-
+*/
   // Create Nodal Res Tensor//
   int nodal_res_size = mesh.num_elems()*mesh.num_nodes()*mesh.num_dim();
   real_t nodal_res_a[nodal_res_size];
   for (int i = 0; i < nodal_res_size; i++) nodal_res_a[i] = 0.0;
-  auto nodal_res = ViewCArray <real_t> ( &nodal_res_a[0], mesh.num_nodes(), mesh.num_elems(), mesh.num_dim() );
+  auto nodal_res = ViewCArray <real_t> ( &nodal_res_a[0],  mesh.num_nodes(), mesh.num_elems(), mesh.num_dim() );
 
   for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
   
@@ -172,7 +175,7 @@ void get_kinematic_L2(int t_step){
       for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
         int node_lid = elem.vert_node_map( vertex);
         int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-        total_res(elem_gid, dim) += nodal_res(node_gid, elem_gid, dim);
+        total_res(elem_gid, dim) += nodal_res( node_gid, elem_gid, dim);
       }// end loop over node_lid
     }// end loop over dim
   }// end loop over elem_gid
@@ -189,7 +192,7 @@ void get_kinematic_L2(int t_step){
   int psi_coeffs_size = num_dim*ref_elem.num_basis()*mesh.num_elems();
   real_t psi_coeffs_a[psi_coeffs_size];
   for (int i = 0; i < psi_coeffs_size; i++) psi_coeffs_a[i] = 0.0;
-  auto psi_coeffs = ViewCArray <real_t> ( &psi_coeffs_a[0], mesh.num_elems(), ref_elem.num_basis(), num_dim);
+  auto psi_coeffs = ViewCArray <real_t> ( &psi_coeffs_a[0], ref_elem.num_basis(),mesh.num_elems(), num_dim);
 
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
@@ -197,7 +200,7 @@ void get_kinematic_L2(int t_step){
       int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
       for (int dim = 0; dim < mesh.num_dim(); dim++){
         real_t num = 0.0;
-        num = std::max( 0.0, nodal_res(node_gid, elem_gid, dim)/total_res(elem_gid, dim) );
+        num = std::max( 0.0, nodal_res( node_gid, elem_gid, dim)/total_res(elem_gid, dim) );
         real_t denom = 0.0;
         for (int k = 0; k < ref_elem.num_basis(); k++){
           int node_k_lid = elem.vert_node_map( k );
@@ -205,7 +208,7 @@ void get_kinematic_L2(int t_step){
           denom += std::max(0.0, nodal_res( node_k_gid, elem_gid, dim)/total_res(elem_gid,dim) );
         }// end loop over k
 
-        psi_coeffs( elem_gid, vertex, dim ) = num/denom;
+        psi_coeffs( vertex, elem_gid, dim ) = num/denom;
 
       }// end loop over dim
     }// end loop over vertex
@@ -229,18 +232,18 @@ void get_kinematic_L2(int t_step){
   int limited_res_size = num_dim*ref_elem.num_basis()*mesh.num_elems();
   real_t limited_res_a[limited_res_size];
   for (int i = 0; i < limited_res_size; i++) limited_res_a[i] = 0.0;
-  auto limited_res = ViewCArray <real_t> ( &limited_res_a[0], mesh.num_elems(), ref_elem.num_basis(), num_dim);
+  auto limited_res = ViewCArray <real_t> ( &limited_res_a[0], ref_elem.num_basis(), mesh.num_elems(), num_dim);
 
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
       for (int dim = 0; dim < num_dim; dim++){
-        limited_res(elem_gid, vertex, dim) = psi_coeffs( elem_gid, vertex, dim)*total_res(elem_gid, dim);
+        limited_res(vertex, elem_gid, dim) = psi_coeffs( elem_gid, vertex, dim)*total_res(elem_gid, dim);
         //std::cout << limited_res(elem_gid, vertex, dim) << std::endl;
       }// end loop over dim
     }// end loop over vertex
   }// end loop over elem_gid
 
-
+/*
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
       
@@ -252,14 +255,54 @@ void get_kinematic_L2(int t_step){
       for (int dim = 0; dim < num_dim; dim++){
         for (int elems_in_vert = 0; elems_in_vert < num_elems_in_vert; elems_in_vert++){
           int elems_in_vert_gid = mesh.elems_in_node(node_gid, elems_in_vert);
-          elem_state.kinematic_L2(t_step, node_gid, dim) += nodal_res(node_gid, elems_in_vert_gid, dim);
+          elem_state.kinematic_L2(t_step, node_gid, dim) += nodal_res( elems_in_vert_gid, node_gid, dim);
           //elem_state.kinematic_L2(t_step, node_gid, dim) += limited_res(elems_in_vert_gid, vertex, dim);       
         }// end loop over elems_in_vert
       }// end loop over dim
     
     }// end loop over vertex
   }// end loop over elem_gid
+*/
+  /// update velocity coefficients //
+  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+    for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
+      int node_lid = elem.vert_node_map( vertex );
+      int g_gid = mesh.gauss_in_elem(elem_gid, node_lid);
+      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+      int num_elems_in_vert = mesh.num_elems_in_node(node_gid);
+      
+      // Compute lumped mass
+      real_t lumped_mass = 0.0;
+      
+      for (int elems_in_vert = 0; elems_in_vert < num_elems_in_vert; elems_in_vert++){
+        int elems_in_vert_gid = mesh.elems_in_node(node_gid, elems_in_vert);
+        for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+	  int gauss_gid = mesh.gauss_in_elem(elems_in_vert_gid, gauss_lid);
+	  lumped_mass += ref_elem.ref_node_g_weights(gauss_lid)
+		         * mat_pt.density(gauss_gid)
+			 * mesh.gauss_pt_det_j(gauss_gid)
+	                 * ref_elem.ref_nodal_basis(gauss_lid, vertex);
+        }// end loop over gauss_lid
+      }// end loop over elems_in_node_lid
+      if (lumped_mass <= 0.0){
+        std::cout << " kinematic lumped mass is negative " << lumped_mass << std::endl;
+      }
+      real_t sum_res = 0.0;
 
+      for (int dim = 0; dim < num_dim; dim++){
+        for (int elems_in_vert = 0; elems_in_vert < num_elems_in_vert; elems_in_vert++){
+          int elems_in_vert_gid = mesh.elems_in_node(node_gid, elems_in_vert);
+          sum_res += nodal_res( node_gid, elems_in_vert_gid, dim);
+          //sum_res += limited_res(elems_in_vert_gid, vertex, dim);       
+        }// end loop over elems_in_vert
+      }// end loop over dim
+      // L^1(u^{k+1}) = L^1(u^k) - L^2(u^k) //
+      for (int dim = 0; dim < num_dim; dim++){
+        elem_state.vel_coeffs(update, elem_gid, vertex, dim) = elem_state.vel_coeffs(current,elem_gid, vertex, dim) 
+		                                               - (dt/lumped_mass)*sum_res;
+      }
+    }// end loop over vertex
+  }// end loop over elem_gid
 }
 
 

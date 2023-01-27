@@ -43,7 +43,7 @@ void input(){
 
     // ---- time varaibles and cycle info ---- //
     // time step
-    TFINAL = 0.425;//1.0;
+    TFINAL = 1.0;
     
     //C1 = 1.0;
     //C2 = 1.333;
@@ -61,7 +61,7 @@ void input(){
     
     correction_storage = 3;//num_correction_steps + 1;
 
-    dt_cfl = 0.3;
+    dt_cfl = 0.03;
 
     // ---- graphics information ---- //
     graphics_cyc_ival = 1000000;
@@ -254,18 +254,18 @@ void input(){
         mat_fill[1].volume = region::box; // fill a box
         mat_fill[1].mat_id = 0;             // material id
         
-        mat_fill[1].x1 = 0.5;          // 
-        mat_fill[1].x2 = 1.0;           // 
+        mat_fill[1].x1 = 0.0;          // 
+        mat_fill[1].x2 = 6.0;           // 
 
 
         // mat_fill[1].x1 = 0.0;          // 
         // mat_fill[1].x2 = 8.0;           // 
         
         mat_fill[1].y1 = 0.0;          // 
-        mat_fill[1].y2 = 0.5;          // 
+        mat_fill[1].y2 = 2.0;          // 
         
         mat_fill[1].z1 = 0.0;          // 
-        mat_fill[1].z2 = 0.5;          // 
+        mat_fill[1].z2 = 1.0;          // 
         
         mat_fill[1].r = 0.125;            
         
@@ -301,17 +301,17 @@ void input(){
         // Tag X = 100 plane
         boundary[3].surface = bdy::x_plane; // planes, cylinder, spheres, or a files
         // boundary[3].value = 100.0;
-        boundary[3].value = 1.0;
+        boundary[3].value = 6.0;
         boundary[3].hydro_bc = bdy::reflected;
         
         // Tag Y = 1 plane
         boundary[4].surface = bdy::y_plane;
-        boundary[4].value = 0.5;
+        boundary[4].value = 2.0;
         boundary[4].hydro_bc = bdy::reflected;
         
         // Tag Z = 1 plane
         boundary[5].surface = bdy::z_plane;
-        boundary[5].value = 0.5;
+        boundary[5].value = 1.0;
         boundary[5].hydro_bc = bdy::reflected;
     
     }
@@ -661,14 +661,14 @@ void input(){
         mat_fill[1].volume = region::box; // fill a box
         mat_fill[1].mat_id = 0;             // material id
         
-        mat_fill[1].x1 = 1.0;          // 
+        mat_fill[1].x1 = 0.0;          // 
         mat_fill[1].x2 = 7.0;           // 
         
         mat_fill[1].y1 = 0.0;          // 
         mat_fill[1].y2 = 1.5;          // 
         
         mat_fill[1].z1 = 0.0;          // 
-        mat_fill[1].z2 = 1.0;          // 
+        mat_fill[1].z2 = 0.5;          // 
         
         mat_fill[1].r = 1.0;            
         
@@ -684,14 +684,14 @@ void input(){
         mat_fill[2].volume = region::box; // fill a box
         mat_fill[2].mat_id = 0;             // material id
         
-        mat_fill[2].x1 = 1.0;          // 
+        mat_fill[2].x1 = 0.0;          // 
         mat_fill[2].x2 = 7.0;           // 
         
         mat_fill[2].y1 = 1.5;          // 
         mat_fill[2].y2 = 3.0;          // 
         
         mat_fill[2].z1 = 0.0;          // 
-        mat_fill[2].z2 = 1.0;          // 
+        mat_fill[2].z2 = 0.5;          // 
         
         mat_fill[2].r = 0.1;            
         
@@ -741,7 +741,7 @@ void input(){
         
         // Tag Z = 1 plane
         boundary[5].surface = bdy::z_plane;
-        boundary[5].value = 1.0;
+        boundary[5].value = 0.5;
         boundary[5].hydro_bc = bdy::reflected;
         
 

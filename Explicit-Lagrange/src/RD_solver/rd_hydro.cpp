@@ -63,11 +63,11 @@ void rd_hydro(){
 
 	// Update momentum //
         get_kinematic_L2( correction_step );
-	update_velocity( correction_step );
+	//update_velocity( correction_step );
         
 	// Update internal energy //
 	get_thermodynamic_L2( correction_step );
-	update_energy( correction_step );
+	//update_energy( correction_step );
       
 	// Update position coefficients //
         for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){

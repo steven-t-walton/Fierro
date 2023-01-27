@@ -194,7 +194,7 @@ void setup_rdh(char *MESH){
 
 
                         // --- Density and specific volume ---
-                        mat_pt.density(gauss_gid)  = 1.0;
+                        mat_pt.density(gauss_gid)  = mat_fill[f_id].r;//1.0;
 
                         mat_pt.mass(gauss_gid) = mat_pt.density(gauss_gid)*(mesh.gauss_pt_det_j(gauss_gid) * ref_elem.ref_node_g_weights(gauss_lid));
 
@@ -210,7 +210,24 @@ void setup_rdh(char *MESH){
                         //mat_pt.ie(gauss_gid) = mat_fill[f_id].ie;
 
                         // elem_state.total_energy(rk_stage, elem_gid) = mat_fill[f_id].ie; // + initialization of kinetic energy
+ // --- Density and specific volume ---
+/*
+                        mat_pt.density(gauss_gid)  = mat_fill[f_id].r;
 
+                        mat_pt.mass(gauss_gid) = mat_pt.density(gauss_gid)
+                                                * (mesh.gauss_pt_det_j(gauss_gid) * mat_pt.weight(gauss_gid));
+
+                        mat_pt.mat_id(gauss_gid) = mat_fill[f_id].mat_id;
+
+                        elem_state.mat_id(elem_gid) =  mat_fill[f_id].mat_id;
+
+                        mat_pt.specific_volume(t_step, gauss_gid) = 1.0/mat_pt.density(gauss_gid);
+
+
+                        // --- Internal energy ---
+                        mat_pt.specific_total_energy(t_step, gauss_gid) = mat_fill[f_id].ie;  // kinetic energy is added later
+                        mat_pt.ie(gauss_gid) = mat_fill[f_id].ie;
+*/
 
                         // --- Pressure ---
                         gauss_properties(gauss_gid);
@@ -326,37 +343,21 @@ void setup_rdh(char *MESH){
                    
 		   node.vel(t_step, node_gid, 2) = 0.0; 
                   
-                  /* 
-                   node.vel(t_step, node_gid, 0) = sin(2.0*PI * mesh.node_coords(node_gid, 0)) * cos(2.0*PI * mesh.node_coords(node_gid, 1))*cos(6.0*PI * mesh.node_coords(node_gid,2));
-                   
-                   node.vel(t_step, node_gid, 1) =  -1.0*cos(2.0*PI * mesh.node_coords(node_gid, 0)) * sin(2.0*PI * mesh.node_coords(node_gid, 1))*cos(6.0*PI * mesh.node_coords(node_gid,2)); 
-                   
-		   node.vel(t_step, node_gid, 2) = 0.0; 
-                  
-                  */
-                   real_t source = 0.0;
-                   source = 3.141592653589/(4.0*0.6666667)* ( cos(3.0*3.141592653589 * mesh.node_coords(node_gid,0)) * cos( 3.141592653589 * mesh.node_coords(node_gid,1)) - cos( 3.141592653589 * mesh.node_coords(node_gid,0) ) * cos( 3.0*3.141592653589 * mesh.node_coords(node_gid,1) ) );
-		   
-                   cell_state.pressure(cell_gid) = 0.25*(cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;//0.0625*((cos(6.0*PI*mesh.cell_coords(cell_gid,2)+2) ) * cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;
-                   
+                   cell_state.pressure(cell_gid) = 0.25*(cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;                   
 		   mat_pt.pressure(gauss_gid) = 0.25*(cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;
                    
-                   // save the internal energy contribution to the total energy
-                   mat_pt.sie(t_step,gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((5.0/3.0) - 1.0)));// + source;
+                   mat_pt.sie(t_step,gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((5.0/3.0) - 1.0)));
                    
 		   mat_pt.ie(gauss_gid) = mat_pt.sie(t_step, gauss_gid);
-		   //cell_state.ie(t_step, cell_gid) = 0.0;
+		   
+		   cell_state.ie(t_step, cell_gid) = 0.0;
                    
-		   cell_state.ie(t_step, cell_gid) += mat_pt.ie(gauss_gid)*0.125;// + 0.125*source;
+		   cell_state.ie(t_step, cell_gid) += mat_pt.ie(gauss_gid)*0.125;
 		   
 		   real_t x = 0.0;
 		   real_t y = 0.0;
 		   track_rdh(x,y);
-		   cell_state.total_energy(t_step, cell_gid) = cell_state.ie(t_step,cell_gid)+y;//+source;
-		   cell_state.total_energy(t_step, cell_gid) += 0.125*source;
-                   
-		   mat_pt.specific_total_energy(t_step, gauss_gid) = mat_pt.ie(gauss_gid) + y;
-	           
+		   cell_state.total_energy(t_step, cell_gid) = x+y;
                    
 		   break;
                  }

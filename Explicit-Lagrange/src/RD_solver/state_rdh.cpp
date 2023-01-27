@@ -16,7 +16,10 @@ void get_state(){
 // /*
 
   for( int cell_gid = 0; cell_gid < mesh.num_cells(); cell_gid++){
-    //cell_properties(cell_gid);
+    cell_properties(cell_gid);
+  }
+}
+  /*
     real_t elem_coords_x = 0.0;
     real_t elem_coords_y = 0.0;
     elem_coords_x = mesh.cell_coords(cell_gid,0);
@@ -52,6 +55,7 @@ void get_state(){
             );
   }
 }
+*/
 // */  
  /*
   real_t det_J0_a[mesh.num_cells()];
