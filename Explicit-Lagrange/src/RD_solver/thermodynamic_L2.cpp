@@ -135,7 +135,7 @@ void get_thermodynamic_L2( int t_step, int dof_gid, real_t& sum_res ){
     auto limited_energy_res = CArray <real_t> (ref_elem.num_dual_basis());
   
     for(int dof=0; dof < ref_elem.num_dual_basis(); dof++){
-       limited_energy_res(elem_gid, dof) = 0.0; 
+       limited_energy_res(dof) = 0.0; 
     }
     
     for(int dof=0; dof < ref_elem.num_dual_basis(); dof++){

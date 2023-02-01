@@ -49,42 +49,42 @@ void rd_hydro(){
 
       get_alpha_E();
       
-      for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
+      //for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
         
-        get_stress_tensor(correction_step);
+        get_stress_tensor(0);//correction_step);
 
-	get_force_tensor(correction_step);
+	get_force_tensor(0);//correction_step);
 
 	// Update momentum //
-	update_velocity( correction_step );
+	update_velocity(0);// correction_step );
 	
         
 	// Update internal energy //
-	update_energy( correction_step );
+	update_energy(0);// correction_step );
       
 	// Update position coefficients //
         for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
 	  for (int dof = 0; dof < ref_elem.num_basis(); dof++){
 	    for (int dim = 0; dim < mesh.num_dim(); dim++){
-	      elem_state.pos_coeffs(correction_step+1, elem_gid, dof, dim) = elem_state.pos_coeffs(0, elem_gid,dof, dim)
-		                                                             + 0.5*dt*( elem_state.vel_coeffs(correction_step, elem_gid, dof, dim)
+	      elem_state.pos_coeffs(/*correction_step+*/ 1, elem_gid, dof, dim) = elem_state.pos_coeffs(0, elem_gid,dof, dim)
+		                                                             + 0.5*dt*( elem_state.vel_coeffs(/*correction_step*/1, elem_gid, dof, dim)
 								             + elem_state.vel_coeffs(0,elem_gid, dof, dim) );
 	    }
 	  }
 	}
-      }//end correction steps
+      //}//end correction steps
       
       // intepolate the velocity with evolved coeffs and save to nodes  //
-      interp_vel(correction_storage-1);
+      interp_vel(1);//correction_storage-1);
       
       // update boundary vel vals //
       boundary_rdh();
      
       // interpolate energy coeffs //
-      interp_ie(correction_storage-1);
+      interp_ie(1);//correction_storage-1);
 
-      // update position //
-      update_position();   
+      // interpolate and update update position //
+      interp_position(1);   
 
       get_gauss_pt_jacobian(mesh, ref_elem);
     

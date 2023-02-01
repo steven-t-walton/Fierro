@@ -7,7 +7,7 @@
 
 using namespace utils;
 
-void update_position(){
+void interp_position(int t_step){
 
 #pragma omp simd  
   
@@ -22,7 +22,7 @@ void update_position(){
 
       for (int dim = 0; dim < mesh.num_dim(); dim++){
         for (int vert = 0; vert < ref_elem.num_basis(); vert++){
-          interp(dim) += ref_elem.ref_nodal_basis( gauss_lid, vert ) * elem_state.pos_coeffs(correction_storage-1, elem_gid, vert, dim);
+          interp(dim) += ref_elem.ref_nodal_basis( gauss_lid, vert ) * elem_state.pos_coeffs(t_step, elem_gid, vert, dim);
         }// end loop over vertex
       }// end loop over dim
       

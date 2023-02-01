@@ -57,9 +57,9 @@ void input(){
 
     rk_storage = 2;
 
-    num_correction_steps = 2;
+    num_correction_steps = 1;
     
-    correction_storage = 3;//num_correction_steps + 1;
+    correction_storage = 2;//num_correction_steps + 1;
 
     dt_cfl = 0.03;
 

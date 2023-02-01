@@ -1268,7 +1268,7 @@ void calc_average_specific_vol();
 
 // RD code
 void rd_hydro();
-void update_position();
+void interp_position(int t_step);
 void update_velocity(int t_step);
 void track_rdh(real_t &x, real_t &y);
 void BV_inv();
@@ -1279,7 +1279,6 @@ void update_coeffs();
 void setup_rdh(char *MESH);
 void boundary_rdh();
 void interp_vel(int t_step);
-//void interp_pos(int step);
 void interp_ie(int t_step);
 void get_alpha_E();
 void get_strong_mass();
