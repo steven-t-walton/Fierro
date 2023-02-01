@@ -85,7 +85,7 @@ void get_kinematic_L2(int t_step, int dof_gid, int dim, real_t& sum_res){
 	force += ones(dof)*0.5*(elem_state.force_tensor(t_step,elem_gid, vertex, dof, dim) + elem_state.force_tensor(0, elem_gid, vertex, dof, dim));
       }// end loop over dof
       //std::cout << " force at dim " << dim << " is " << force(dim) << std::endl;
-      
+     /* 
       real_t surface_int = 0.0;
       
       // Surface integral
@@ -113,11 +113,11 @@ void get_kinematic_L2(int t_step, int dof_gid, int dim, real_t& sum_res){
 	  }// end loop over dim
         }// end loop over nodes/corners in a cell
       } // end loop over cells in an element
-      
+      */
       //--- Assign Values to Galerkin/Rusanov Residual ---//
       for (int dim = 0; dim < num_dim; dim++){
         // Assign values to nodal res
-        galerkin_res(vertex) = Mv/dt + Q + force - surface_int;
+        galerkin_res(vertex) = Mv/dt + 0.0*Q + force;
 	//std::cout << "kinematic nodal res = "<< galerkin_res(vertex)<< " at node "<< node_gid << " elem "<< elem_gid << " and dim " << dim << std::endl;
       }// end loop over dim
 

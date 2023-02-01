@@ -40,7 +40,7 @@ void update_energy( int t_step ){
         std::cout << " thermodynamic lumped mass is negative " << lumped_mass << std::endl;
       }      
 
-      real_t sum_res;
+      real_t sum_res = 0.0;
       get_thermodynamic_L2( t_step, node_gid, sum_res); 
       // L^1(e^{k+1}) = L^1(e^k) - L^2(e^k) //
       elem_state.sie_coeffs(update, elem_gid, t_dof) = elem_state.sie_coeffs(t_step,elem_gid,t_dof) 

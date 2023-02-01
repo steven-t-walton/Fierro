@@ -802,7 +802,7 @@ void input(){
         
         // Tag Z = 1 plane
         boundary[5].surface = bdy::z_plane;
-        boundary[5].value = 0.33;
+        boundary[5].value = 0.1;
         boundary[5].hydro_bc = bdy::reflected;
         
 
