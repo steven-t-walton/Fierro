@@ -30,6 +30,7 @@ void update_coeffs(){
     for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_cell(); gauss_lid++){
       int gauss_gid = mesh.gauss_in_cell(cell_gid, gauss_lid);
       mat_pt.sie(0,gauss_gid) = mat_pt.sie(1,gauss_gid);
+      //gauss_properties(gauss_gid);
     }
   }
 

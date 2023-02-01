@@ -10,13 +10,13 @@ using namespace utils;
 
 
 // -----------------------------------------------------------------------------
-// This function writes out the data to an ensight case file
+// This function write outs the data to an ensight case file
 //------------------------------------------------------------------------------
 
 void ensight() {
     
     std::cout<<"in ensight writer"<<std::endl;
-    const int num_scalar_vars = 32; //23;
+    const int num_scalar_vars = 23;
     const int num_vec_vars = 7;
 
     // const char name[10] = {"Outputs"};
@@ -27,9 +27,9 @@ void ensight() {
     if(CCH == true) name_tmp = "Outputs_CCH";
     if(DGH == true) name_tmp = "Outputs_DGH";
     if(RDH == true) name_tmp = "Outputs_RDH";
-
-    char *name = new char [name_tmp.length()+1];
-    std::strcpy(name, name_tmp.c_str());
+    
+    char * name = new char [name_tmp.length()+1];
+    std::strcpy (name, name_tmp.c_str());
 
 
 
@@ -97,22 +97,10 @@ void ensight() {
             cell_fields(cell_gid, 18) = cell_state.den_phi(cell_gid);
             cell_fields(cell_gid, 19) = cell_state.vel_phi(cell_gid);
             cell_fields(cell_gid, 20) = cell_state.te_phi(cell_gid);
-	    
-	    // added for RD //
-            cell_fields(cell_gid, 21) = cell_state.stress(1, cell_gid, 0, 0);
-	    cell_fields(cell_gid, 22) = cell_state.stress(1, cell_gid, 0, 1);
-	    cell_fields(cell_gid, 23) = cell_state.stress(1, cell_gid, 0, 2);
-            cell_fields(cell_gid, 24) = cell_state.stress(1, cell_gid, 1, 0);
-            cell_fields(cell_gid, 25) = cell_state.stress(1, cell_gid, 1, 1);
-            cell_fields(cell_gid, 26) = cell_state.stress(1, cell_gid, 1, 2);
-            cell_fields(cell_gid, 27) = cell_state.stress(1, cell_gid, 2, 0);
-            cell_fields(cell_gid, 28) = cell_state.stress(1, cell_gid, 2, 1);
-            cell_fields(cell_gid, 29) = cell_state.stress(1, cell_gid, 2, 2);
-	    // end RD additions //		    
             
-	    cell_fields(cell_gid, 30) = elem_switch;
+            cell_fields(cell_gid, 21) = elem_switch;
 
-            cell_fields(cell_gid, 31) = elem_state.bad(elem_gid); //0.0;
+            cell_fields(cell_gid, 22) = 0.0;  //elem_state.bad(elem_gid);
 
 
         } // end for k over cells
@@ -123,13 +111,6 @@ void ensight() {
     
     // save the vertex vector fields to an array for exporting to graphics files
     auto vec_fields = CArray <real_t> (mesh.num_nodes(), num_vec_vars, 3);
-    for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
-      for (int vars_id = 0; vars_id < num_vec_vars; vars_id++){
-        for (int dim = 0; dim < 3; dim++){
-	  vec_fields(node_gid, vars_id, dim) = 0.0;
-	}
-      }
-    }
 
     for (int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
         

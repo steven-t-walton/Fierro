@@ -25,8 +25,8 @@ void rd_hydro(){
 
       BV_inv();
       get_control_coeffs();
-      interp_vel(0);
-      interp_ie(0);
+      //interp_vel(0);
+      //interp_ie(0);
       track_rdh(ke0, ie0);
       te_0 = ie0 + ke0;
       std::cout << " ke at t0 = " << ke0 << std::endl;
@@ -99,10 +99,6 @@ void rd_hydro(){
       get_state();
       
       update_coeffs();
-      //for(int gauss_gid=0; gauss_gid<mesh.num_gauss_pts(); gauss_gid++){
-      //  gauss_properties(gauss_gid);
-      //}// end loop over gauss_gid
-
        
     }// end time integration scope
        
