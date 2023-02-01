@@ -1,0 +1,1298 @@
+MAIN START
+CCH = 0
+SGH = 0
+DGH = 0
+RDH = 1
+Setting up RD Solver
+before reading file
+This is the 1st description line of the EnSight Gold geometry example
+This is the 2nd description line of the EnSight Gold geometry example
+node id assign
+element id assign
+part
+         1
+Mesh
+coordinates
+2178
+Num points read in = 2178
+
+hexa8
+Num elements read in 1024
+before initial mesh initialization
+Before converting index
+Before loop
+Before initial mesh connectivity
+refine mesh
+Before actual mesh connectivity!!!
+Min_dist = 0.03125
+Hash dist = 0.00223214
+p_order = 2
+after closing file
+
+Num nodes in mesh = 83205
+Num cells in mesh = 65536
+Num elements in mesh = 1024
+
+
+Allocate and Initialize
+Number of correction steps = 2
+Num cells in element reference  = 64
+  patch_rid = 240  num_patches = 240
+  num cells * 6 = 384 and num_cells_1D = 4
+Node state allocated and initialized
+
+Corner state allocated and initialized
+
+Cell state allocated and initialized
+
+Material point state allocated and initialized
+
+Element state allocated and initialized
+
+number of patches = 214016
+number of bdy patches = 34816
+Number of Boundaries = 6
+ tagged boundary patches 
+Boundary number 0
+tagged a set 
+boundary value = 0
+number of bdy patches in this set = 512
+
+ tagged boundary patches 
+Boundary number 1
+tagged a set 
+boundary value = 0
+number of bdy patches in this set = 512
+
+ tagged boundary patches 
+Boundary number 2
+tagged a set 
+boundary value = 0
+number of bdy patches in this set = 16384
+
+ tagged boundary patches 
+Boundary number 3
+tagged a set 
+boundary value = 1
+number of bdy patches in this set = 512
+
+ tagged boundary patches 
+Boundary number 4
+tagged a set 
+boundary value = 1
+number of bdy patches in this set = 512
+
+ tagged boundary patches 
+Boundary number 5
+tagged a set 
+boundary value = 0.1
+number of bdy patches in this set = 16384
+
+Calculating Jacobian at gauss points
+Calculating Jacobian at gauss pts in cells
+Before volume from Jacobian
+Fill instruction NF = 1
+Num cells read in = 1024
+Num elements in mesh = 1024
+Num cells in mesh = 65536
+After first timestep call
+First Time Step = 1.1e-05
+
+Before first ensight 
+in ensight writer
+Open files
+write geo
+After first ensight 
+
+Calling Hydro Solver
+
+
+cycle = 1
+ ke at t0 = 0.025
+ ie at t0 = 0.15
+E_tot at t0 = 0.175
+
+cycle = 2
+cycle = 3
+cycle = 4
+cycle = 5
+cycle = 6
+cycle = 7
+cycle = 8
+cycle = 9
+cycle = 10
+Percent complete = 0.03 
+cycle = 11
+cycle = 12
+cycle = 13
+cycle = 14
+cycle = 15
+cycle = 16
+cycle = 17
+cycle = 18
+cycle = 19
+cycle = 20
+Percent complete = 0.09 
+cycle = 21
+cycle = 22
+cycle = 23
+cycle = 24
+cycle = 25
+cycle = 26
+cycle = 27
+cycle = 28
+cycle = 29
+cycle = 30
+Percent complete = 0.27 
+cycle = 31
+cycle = 32
+cycle = 33
+cycle = 34
+cycle = 35
+cycle = 36
+cycle = 37
+cycle = 38
+cycle = 39
+cycle = 40
+Percent complete = 0.71 
+cycle = 41
+cycle = 42
+cycle = 43
+cycle = 44
+cycle = 45
+cycle = 46
+cycle = 47
+cycle = 48
+cycle = 49
+cycle = 50
+Percent complete = 1.88 
+Step = 50   dt = 1.291299e-03  time = 1.408329e-02  
+ cycle = 51
+cycle = 52
+cycle = 53
+cycle = 54
+cycle = 55
+cycle = 56
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 57
+cycle = 58
+cycle = 59
+cycle = 60
+Percent complete = 4.86 
+cycle = 61
+cycle = 62
+cycle = 63
+cycle = 64
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 65
+cycle = 66
+cycle = 67
+cycle = 68
+cycle = 69
+cycle = 70
+Percent complete = 8.45 
+cycle = 71
+cycle = 72
+cycle = 73
+cycle = 74
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 75
+cycle = 76
+cycle = 77
+cycle = 78
+cycle = 79
+cycle = 80
+Percent complete = 11.70 
+cycle = 81
+cycle = 82
+cycle = 83
+cycle = 84
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 85
+cycle = 86
+cycle = 87
+cycle = 88
+cycle = 89
+cycle = 90
+Percent complete = 16.23 
+cycle = 91
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 92
+cycle = 93
+cycle = 94
+cycle = 95
+cycle = 96
+cycle = 97
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 98
+cycle = 99
+cycle = 100
+Percent complete = 21.37 
+Step = 100   dt = 3.746159e-03  time = 1.602478e-01  
+ cycle = 101
+cycle = 102
+cycle = 103
+cycle = 104
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 105
+cycle = 106
+cycle = 107
+cycle = 108
+cycle = 109
+cycle = 110
+Percent complete = 24.59 
+cycle = 111
+cycle = 112
+cycle = 113
+cycle = 114
+cycle = 115
+cycle = 116
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 117
+cycle = 118
+cycle = 119
+cycle = 120
+Percent complete = 28.25 
+cycle = 121
+cycle = 122
+cycle = 123
+cycle = 124
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 125
+cycle = 126
+cycle = 127
+cycle = 128
+cycle = 129
+cycle = 130
+Percent complete = 30.86 
+cycle = 131
+cycle = 132
+cycle = 133
+cycle = 134
+cycle = 135
+cycle = 136
+cycle = 137
+cycle = 138
+cycle = 139
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 140
+Percent complete = 33.58 
+cycle = 141
+cycle = 142
+cycle = 143
+cycle = 144
+cycle = 145
+cycle = 146
+cycle = 147
+cycle = 148
+cycle = 149
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 150
+Percent complete = 36.84 
+Step = 150   dt = 1.316791e-03  time = 2.763168e-01  
+ cycle = 151
+cycle = 152
+cycle = 153
+cycle = 154
+cycle = 155
+cycle = 156
+cycle = 157
+cycle = 158
+cycle = 159
+cycle = 160
+Percent complete = 39.71 
+cycle = 161
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 162
+cycle = 163
+cycle = 164
+cycle = 165
+cycle = 166
+cycle = 167
+cycle = 168
+cycle = 169
+cycle = 170
+Percent complete = 42.50 
+cycle = 171
+cycle = 172
+cycle = 173
+cycle = 174
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 175
+cycle = 176
+cycle = 177
+cycle = 178
+cycle = 179
+cycle = 180
+Percent complete = 44.43 
+cycle = 181
+cycle = 182
+cycle = 183
+cycle = 184
+cycle = 185
+cycle = 186
+cycle = 187
+cycle = 188
+cycle = 189
+cycle = 190
+Percent complete = 45.94 
+cycle = 191
+cycle = 192
+cycle = 193
+cycle = 194
+cycle = 195
+cycle = 196
+cycle = 197
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 198
+cycle = 199
+cycle = 200
+Percent complete = 46.89 
+Step = 200   dt = 6.239295e-04  time = 3.517068e-01  
+ cycle = 201
+cycle = 202
+cycle = 203
+cycle = 204
+cycle = 205
+cycle = 206
+cycle = 207
+cycle = 208
+cycle = 209
+cycle = 210
+Percent complete = 47.56 
+cycle = 211
+cycle = 212
+cycle = 213
+cycle = 214
+cycle = 215
+cycle = 216
+cycle = 217
+cycle = 218
+cycle = 219
+cycle = 220
+Percent complete = 47.93 
+cycle = 221
+cycle = 222
+cycle = 223
+cycle = 224
+cycle = 225
+cycle = 226
+cycle = 227
+cycle = 228
+cycle = 229
+cycle = 230
+Percent complete = 48.09 
+cycle = 231
+cycle = 232
+cycle = 233
+cycle = 234
+cycle = 235
+cycle = 236
+cycle = 237
+cycle = 238
+cycle = 239
+cycle = 240
+Percent complete = 48.13 
+cycle = 241
+cycle = 242
+cycle = 243
+cycle = 244
+cycle = 245
+cycle = 246
+cycle = 247
+cycle = 248
+cycle = 249
+cycle = 250
+Percent complete = 48.15 
+Step = 250   dt = 2.570140e-05  time = 3.611351e-01  
+ cycle = 251
+cycle = 252
+cycle = 253
+cycle = 254
+cycle = 255
+cycle = 256
+cycle = 257
+cycle = 258
+cycle = 259
+cycle = 260
+Percent complete = 48.21 
+cycle = 261
+cycle = 262
+cycle = 263
+cycle = 264
+cycle = 265
+cycle = 266
+cycle = 267
+cycle = 268
+cycle = 269
+cycle = 270
+Percent complete = 48.37 
+cycle = 271
+cycle = 272
+cycle = 273
+cycle = 274
+cycle = 275
+cycle = 276
+cycle = 277
+cycle = 278
+cycle = 279
+cycle = 280
+Percent complete = 48.48 
+cycle = 281
+cycle = 282
+cycle = 283
+cycle = 284
+cycle = 285
+cycle = 286
+cycle = 287
+cycle = 288
+cycle = 289
+cycle = 290
+Percent complete = 48.52 
+cycle = 291
+cycle = 292
+cycle = 293
+cycle = 294
+cycle = 295
+cycle = 296
+cycle = 297
+cycle = 298
+cycle = 299
+cycle = 300
+Percent complete = 48.59 
+Step = 300   dt = 3.834066e-05  time = 3.644216e-01  
+ cycle = 301
+cycle = 302
+cycle = 303
+cycle = 304
+cycle = 305
+cycle = 306
+cycle = 307
+cycle = 308
+cycle = 309
+cycle = 310
+Percent complete = 48.61 
+cycle = 311
+cycle = 312
+cycle = 313
+cycle = 314
+cycle = 315
+cycle = 316
+cycle = 317
+cycle = 318
+cycle = 319
+cycle = 320
+Percent complete = 48.65 
+cycle = 321
+cycle = 322
+cycle = 323
+cycle = 324
+cycle = 325
+cycle = 326
+cycle = 327
+cycle = 328
+cycle = 329
+cycle = 330
+Percent complete = 48.75 
+cycle = 331
+cycle = 332
+cycle = 333
+cycle = 334
+cycle = 335
+cycle = 336
+cycle = 337
+cycle = 338
+cycle = 339
+cycle = 340
+Percent complete = 48.90 
+cycle = 341
+cycle = 342
+cycle = 343
+cycle = 344
+cycle = 345
+cycle = 346
+cycle = 347
+cycle = 348
+cycle = 349
+cycle = 350
+Percent complete = 48.94 
+Step = 350   dt = 1.966601e-05  time = 3.670855e-01  
+ cycle = 351
+cycle = 352
+cycle = 353
+cycle = 354
+cycle = 355
+cycle = 356
+cycle = 357
+cycle = 358
+cycle = 359
+cycle = 360
+Percent complete = 48.96 
+cycle = 361
+cycle = 362
+cycle = 363
+cycle = 364
+cycle = 365
+cycle = 366
+cycle = 367
+cycle = 368
+cycle = 369
+cycle = 370
+Percent complete = 49.01 
+cycle = 371
+cycle = 372
+cycle = 373
+cycle = 374
+cycle = 375
+cycle = 376
+cycle = 377
+cycle = 378
+cycle = 379
+cycle = 380
+Percent complete = 49.09 
+cycle = 381
+cycle = 382
+cycle = 383
+cycle = 384
+cycle = 385
+cycle = 386
+cycle = 387
+cycle = 388
+cycle = 389
+cycle = 390
+Percent complete = 49.12 
+cycle = 391
+cycle = 392
+cycle = 393
+cycle = 394
+cycle = 395
+cycle = 396
+cycle = 397
+cycle = 398
+cycle = 399
+cycle = 400
+Percent complete = 49.16 
+Step = 400   dt = 3.032945e-05  time = 3.686656e-01  
+ cycle = 401
+cycle = 402
+cycle = 403
+cycle = 404
+cycle = 405
+cycle = 406
+cycle = 407
+cycle = 408
+cycle = 409
+cycle = 410
+Percent complete = 49.23 
+cycle = 411
+cycle = 412
+cycle = 413
+cycle = 414
+cycle = 415
+cycle = 416
+cycle = 417
+cycle = 418
+cycle = 419
+cycle = 420
+Percent complete = 49.28 
+cycle = 421
+cycle = 422
+cycle = 423
+cycle = 424
+cycle = 425
+cycle = 426
+cycle = 427
+cycle = 428
+cycle = 429
+cycle = 430
+Percent complete = 49.30 
+cycle = 431
+cycle = 432
+cycle = 433
+cycle = 434
+cycle = 435
+cycle = 436
+cycle = 437
+cycle = 438
+cycle = 439
+cycle = 440
+Percent complete = 49.36 
+cycle = 441
+cycle = 442
+cycle = 443
+cycle = 444
+cycle = 445
+cycle = 446
+cycle = 447
+cycle = 448
+cycle = 449
+cycle = 450
+Percent complete = 49.41 
+Step = 450   dt = 1.426067e-05  time = 3.705846e-01  
+ cycle = 451
+cycle = 452
+cycle = 453
+cycle = 454
+cycle = 455
+cycle = 456
+cycle = 457
+cycle = 458
+cycle = 459
+cycle = 460
+Percent complete = 49.43 
+cycle = 461
+cycle = 462
+cycle = 463
+cycle = 464
+cycle = 465
+cycle = 466
+cycle = 467
+cycle = 468
+cycle = 469
+cycle = 470
+Percent complete = 49.49 
+cycle = 471
+cycle = 472
+cycle = 473
+cycle = 474
+cycle = 475
+cycle = 476
+cycle = 477
+cycle = 478
+cycle = 479
+cycle = 480
+Percent complete = 49.63 
+cycle = 481
+cycle = 482
+cycle = 483
+cycle = 484
+cycle = 485
+cycle = 486
+cycle = 487
+cycle = 488
+cycle = 489
+cycle = 490
+Percent complete = 49.82 
+cycle = 491
+cycle = 492
+cycle = 493
+cycle = 494
+cycle = 495
+cycle = 496
+cycle = 497
+cycle = 498
+cycle = 499
+cycle = 500
+Percent complete = 49.85 
+Step = 500   dt = 3.228995e-05  time = 3.739065e-01  
+ cycle = 501
+cycle = 502
+cycle = 503
+cycle = 504
+cycle = 505
+cycle = 506
+cycle = 507
+cycle = 508
+cycle = 509
+cycle = 510
+Percent complete = 49.93 
+cycle = 511
+cycle = 512
+cycle = 513
+cycle = 514
+cycle = 515
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 516
+cycle = 517
+cycle = 518
+cycle = 519
+cycle = 520
+Percent complete = 50.09 
+cycle = 521
+cycle = 522
+cycle = 523
+cycle = 524
+cycle = 525
+cycle = 526
+cycle = 527
+cycle = 528
+cycle = 529
+cycle = 530
+Percent complete = 50.17 
+cycle = 531
+cycle = 532
+cycle = 533
+cycle = 534
+cycle = 535
+cycle = 536
+cycle = 537
+cycle = 538
+cycle = 539
+cycle = 540
+Percent complete = 50.19 
+cycle = 541
+cycle = 542
+cycle = 543
+cycle = 544
+cycle = 545
+cycle = 546
+cycle = 547
+cycle = 548
+cycle = 549
+cycle = 550
+Percent complete = 50.24 
+Step = 550   dt = 5.565650e-05  time = 3.767957e-01  
+ cycle = 551
+cycle = 552
+cycle = 553
+cycle = 554
+cycle = 555
+cycle = 556
+cycle = 557
+cycle = 558
+cycle = 559
+cycle = 560
+Percent complete = 50.34 
+cycle = 561
+cycle = 562
+cycle = 563
+cycle = 564
+cycle = 565
+cycle = 566
+cycle = 567
+cycle = 568
+cycle = 569
+cycle = 570
+Percent complete = 50.37 
+cycle = 571
+cycle = 572
+cycle = 573
+cycle = 574
+cycle = 575
+cycle = 576
+cycle = 577
+cycle = 578
+cycle = 579
+cycle = 580
+Percent complete = 50.40 
+cycle = 581
+cycle = 582
+cycle = 583
+cycle = 584
+cycle = 585
+cycle = 586
+cycle = 587
+cycle = 588
+cycle = 589
+cycle = 590
+Percent complete = 50.49 
+cycle = 591
+cycle = 592
+cycle = 593
+cycle = 594
+cycle = 595
+cycle = 596
+cycle = 597
+cycle = 598
+cycle = 599
+cycle = 600
+Percent complete = 50.72 
+Step = 600   dt = 2.528395e-04  time = 3.803846e-01  
+ cycle = 601
+cycle = 602
+cycle = 603
+cycle = 604
+cycle = 605
+cycle = 606
+cycle = 607
+cycle = 608
+cycle = 609
+cycle = 610
+Percent complete = 50.88 
+cycle = 611
+cycle = 612
+cycle = 613
+cycle = 614
+cycle = 615
+cycle = 616
+cycle = 617
+cycle = 618
+cycle = 619
+cycle = 620
+Percent complete = 50.92 
+cycle = 621
+cycle = 622
+cycle = 623
+cycle = 624
+cycle = 625
+cycle = 626
+cycle = 627
+cycle = 628
+cycle = 629
+cycle = 630
+Percent complete = 51.01 
+cycle = 631
+cycle = 632
+cycle = 633
+cycle = 634
+cycle = 635
+cycle = 636
+cycle = 637
+cycle = 638
+cycle = 639
+cycle = 640
+Percent complete = 51.15 
+cycle = 641
+cycle = 642
+cycle = 643
+cycle = 644
+cycle = 645
+cycle = 646
+cycle = 647
+cycle = 648
+cycle = 649
+cycle = 650
+Percent complete = 51.19 
+Step = 650   dt = 1.289943e-05  time = 3.839102e-01  
+ cycle = 651
+cycle = 652
+cycle = 653
+cycle = 654
+cycle = 655
+cycle = 656
+cycle = 657
+cycle = 658
+cycle = 659
+cycle = 660
+Percent complete = 51.21 
+cycle = 661
+cycle = 662
+cycle = 663
+cycle = 664
+cycle = 665
+cycle = 666
+cycle = 667
+cycle = 668
+cycle = 669
+cycle = 670
+Percent complete = 51.26 
+cycle = 671
+cycle = 672
+cycle = 673
+cycle = 674
+cycle = 675
+cycle = 676
+cycle = 677
+cycle = 678
+cycle = 679
+cycle = 680
+Percent complete = 51.35 
+cycle = 681
+cycle = 682
+cycle = 683
+cycle = 684
+cycle = 685
+cycle = 686
+cycle = 687
+cycle = 688
+cycle = 689
+cycle = 690
+Percent complete = 51.38 
+cycle = 691
+cycle = 692
+cycle = 693
+cycle = 694
+cycle = 695
+cycle = 696
+cycle = 697
+cycle = 698
+cycle = 699
+cycle = 700
+Percent complete = 51.46 
+Step = 700   dt = 8.487738e-05  time = 3.859218e-01  
+ cycle = 701
+cycle = 702
+cycle = 703
+cycle = 704
+cycle = 705
+cycle = 706
+cycle = 707
+cycle = 708
+cycle = 709
+cycle = 710
+Percent complete = 51.57 
+cycle = 711
+cycle = 712
+cycle = 713
+cycle = 714
+cycle = 715
+cycle = 716
+cycle = 717
+cycle = 718
+cycle = 719
+cycle = 720
+Percent complete = 51.60 
+cycle = 721
+cycle = 722
+cycle = 723
+cycle = 724
+cycle = 725
+cycle = 726
+cycle = 727
+cycle = 728
+cycle = 729
+cycle = 730
+Percent complete = 51.66 
+cycle = 731
+cycle = 732
+cycle = 733
+cycle = 734
+cycle = 735
+cycle = 736
+cycle = 737
+cycle = 738
+cycle = 739
+cycle = 740
+Percent complete = 51.75 
+cycle = 741
+cycle = 742
+cycle = 743
+cycle = 744
+cycle = 745
+cycle = 746
+cycle = 747
+cycle = 748
+cycle = 749
+cycle = 750
+Percent complete = 51.77 
+Step = 750   dt = 1.095764e-05  time = 3.882735e-01  
+ cycle = 751
+cycle = 752
+cycle = 753
+cycle = 754
+cycle = 755
+cycle = 756
+cycle = 757
+cycle = 758
+cycle = 759
+cycle = 760
+Percent complete = 51.80 
+cycle = 761
+cycle = 762
+cycle = 763
+cycle = 764
+cycle = 765
+cycle = 766
+cycle = 767
+cycle = 768
+cycle = 769
+cycle = 770
+Percent complete = 51.84 
+cycle = 771
+cycle = 772
+cycle = 773
+cycle = 774
+cycle = 775
+cycle = 776
+cycle = 777
+cycle = 778
+cycle = 779
+cycle = 780
+Percent complete = 51.89 
+cycle = 781
+cycle = 782
+cycle = 783
+cycle = 784
+cycle = 785
+cycle = 786
+cycle = 787
+cycle = 788
+cycle = 789
+cycle = 790
+Percent complete = 52.03 
+cycle = 791
+cycle = 792
+cycle = 793
+cycle = 794
+cycle = 795
+cycle = 796
+cycle = 797
+cycle = 798
+cycle = 799
+cycle = 800
+Percent complete = 52.33 
+Step = 800   dt = 2.213966e-04  time = 3.924770e-01  
+ cycle = 801
+cycle = 802
+cycle = 803
+cycle = 804
+cycle = 805
+cycle = 806
+cycle = 807
+cycle = 808
+cycle = 809
+cycle = 810
+Percent complete = 52.51 
+cycle = 811
+cycle = 812
+cycle = 813
+cycle = 814
+cycle = 815
+cycle = 816
+cycle = 817
+cycle = 818
+cycle = 819
+cycle = 820
+Percent complete = 52.56 
+cycle = 821
+cycle = 822
+cycle = 823
+cycle = 824
+cycle = 825
+cycle = 826
+cycle = 827
+cycle = 828
+cycle = 829
+cycle = 830
+Percent complete = 52.59 
+cycle = 831
+cycle = 832
+cycle = 833
+cycle = 834
+cycle = 835
+cycle = 836
+cycle = 837
+cycle = 838
+cycle = 839
+cycle = 840
+Percent complete = 52.66 
+cycle = 841
+cycle = 842
+cycle = 843
+cycle = 844
+cycle = 845
+cycle = 846
+cycle = 847
+cycle = 848
+cycle = 849
+cycle = 850
+Percent complete = 52.79 
+Step = 850   dt = 6.425810e-05  time = 3.959136e-01  
+ cycle = 851
+cycle = 852
+cycle = 853
+cycle = 854
+cycle = 855
+cycle = 856
+cycle = 857
+cycle = 858
+cycle = 859
+cycle = 860
+Percent complete = 52.82 
+cycle = 861
+cycle = 862
+cycle = 863
+cycle = 864
+cycle = 865
+cycle = 866
+cycle = 867
+cycle = 868
+cycle = 869
+cycle = 870
+Percent complete = 52.86 
+cycle = 871
+cycle = 872
+cycle = 873
+cycle = 874
+cycle = 875
+cycle = 876
+cycle = 877
+cycle = 878
+cycle = 879
+cycle = 880
+Percent complete = 52.94 
+cycle = 881
+cycle = 882
+cycle = 883
+cycle = 884
+cycle = 885
+cycle = 886
+cycle = 887
+cycle = 888
+cycle = 889
+cycle = 890
+Percent complete = 53.17 
+cycle = 891
+cycle = 892
+cycle = 893
+cycle = 894
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+cycle = 895
+cycle = 896
+cycle = 897
+cycle = 898
+cycle = 899
+cycle = 900
+Percent complete = 53.61 
+Step = 900   dt = 2.378930e-04  time = 4.020480e-01  
+ cycle = 901
+cycle = 902
+cycle = 903
+cycle = 904
+cycle = 905
+cycle = 906
+cycle = 907
+cycle = 908
+cycle = 909
+cycle = 910
+Percent complete = 53.72 
+cycle = 911
+cycle = 912
+cycle = 913
+cycle = 914
+cycle = 915
+cycle = 916
+cycle = 917
+cycle = 918
+cycle = 919
+cycle = 920
+Percent complete = 53.77 
+cycle = 921
+cycle = 922
+cycle = 923
+cycle = 924
+cycle = 925
+cycle = 926
+cycle = 927
+cycle = 928
+cycle = 929
+cycle = 930
+Percent complete = 53.88 
+cycle = 931
+cycle = 932
+cycle = 933
+cycle = 934
+cycle = 935
+cycle = 936
+cycle = 937
+cycle = 938
+cycle = 939
+cycle = 940
+Percent complete = 54.17 
+cycle = 941
+cycle = 942
+cycle = 943
+cycle = 944
+cycle = 945
+cycle = 946
+cycle = 947
+cycle = 948
+cycle = 949
+cycle = 950
+Percent complete = 54.75 
+Step = 950   dt = 3.213403e-04  time = 4.106007e-01  
+ cycle = 951
+cycle = 952
+cycle = 953
+cycle = 954
+cycle = 955
+cycle = 956
+cycle = 957
+cycle = 958
+cycle = 959
+cycle = 960
+Percent complete = 54.93 
+cycle = 961
+cycle = 962
+cycle = 963
+cycle = 964
+cycle = 965
+cycle = 966
+cycle = 967
+cycle = 968
+cycle = 969
+cycle = 970
+Percent complete = 54.96 
+cycle = 971
+cycle = 972
+cycle = 973
+cycle = 974
+cycle = 975
+cycle = 976
+cycle = 977
+cycle = 978
+cycle = 979
+cycle = 980
+Percent complete = 55.06 
+cycle = 981
+cycle = 982
+cycle = 983
+cycle = 984
+cycle = 985
+cycle = 986
+cycle = 987
+cycle = 988
+cycle = 989
+cycle = 990
+Percent complete = 55.31 
+cycle = 991
+cycle = 992
+cycle = 993
+cycle = 994
+cycle = 995
+cycle = 996
+cycle = 997
+cycle = 998
+cycle = 999
+cycle = 1000
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** STEP 14868801.0 ON cn194 CANCELLED AT 2023-01-24T20:24:06 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 14868801 ON cn194 CANCELLED AT 2023-01-24T20:24:06 DUE TO TIME LIMIT ***

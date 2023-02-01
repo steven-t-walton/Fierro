@@ -1,0 +1,1 @@
+/usr/bin/c++ -O2 -g -DNDEBUG CMakeFiles/fierro.dir/driver.cpp.o -o fierro  ../../Elements/elements/libelements.a ../../Elements/swage/libswage.a ../../Elements/geometry/libgeometry.a ../../Elements/slam/libslam.a ../src/libHydro.a ../../Elements/elements/libelements.a ../../Elements/common/libcommon.a ../../Elements/geometry/libgeometry.a ../../Elements/slam/libslam.a 

@@ -1,0 +1,2 @@
+srun: error: cn197: task 0: Exited with exit code 2
+slurmstepd: error: execve(): /vast/home/stevenw/Fierro/./fierro: No such file or directory
