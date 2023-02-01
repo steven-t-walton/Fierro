@@ -605,8 +605,8 @@ class elem_state_t {
         real_t *vel_coeffs_ = NULL;
 	real_t *pos_coeffs_ = NULL;
 	real_t *sie_coeffs_ = NULL;
-	real_t *kinematic_L2_ = NULL;
-	real_t *thermodynamic_L2_ = NULL;
+	//real_t *kinematic_L2_ = NULL;
+	//real_t *thermodynamic_L2_ = NULL;
 	real_t *force_tensor_ = NULL;
 	real_t *stress_tensor_ = NULL;
 	real_t *alpha_E_ = NULL;
@@ -651,8 +651,8 @@ class elem_state_t {
             vel_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
 	    pos_coeffs_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dim_]();
 	    sie_coeffs_ = new real_t[num_corrections_*num_elem_*num_dual_basis_]();
-	    kinematic_L2_ = new real_t[num_corrections_*num_nodes_*num_dim_]();
-	    thermodynamic_L2_ = new real_t[num_corrections_*num_nodes_]();
+	    //kinematic_L2_ = new real_t[num_corrections_*num_nodes_*num_dim_]();
+	    //thermodynamic_L2_ = new real_t[num_corrections_*num_nodes_]();
 	    force_tensor_ = new real_t[num_corrections_*num_elem_*num_basis_*num_dual_basis_*num_dim_]();
 	    stress_tensor_ = new real_t[num_corrections_*num_gauss_*num_dim_*num_dim_]();
 	    alpha_E_ = new real_t[num_elem_]();
@@ -702,6 +702,7 @@ class elem_state_t {
 	{
 	    return sie_coeffs_[ correction_step*num_elem_*num_dual_basis_ + elem_gid*num_dual_basis_ + basis_m];
 	}
+	/*
         inline real_t& kinematic_L2(int correction_step, int node_gid, int dim) const
 	{
 	    return kinematic_L2_[ correction_step*num_nodes_*num_dim_ + node_gid*num_dim_ + dim];
@@ -711,7 +712,7 @@ class elem_state_t {
 	{
 	    return kinematic_L2_[ correction_step*num_nodes_ + node_gid];
 	}
-
+*/
 	inline real_t& force_tensor(int correction_step, int elem_gid, int basis_id, int dual_basis_id, int dim) const
 	{
 	    return force_tensor_[ correction_step*num_elem_*num_basis_*num_dual_basis_*num_dim_ + elem_gid*num_basis_*num_dual_basis_*num_dim_ + basis_id*num_dual_basis_*num_dim_ + dual_basis_id*num_dim_ + dim];
@@ -721,7 +722,7 @@ class elem_state_t {
 	{
 	    return stress_tensor_[ correction_step*num_gauss_*num_dim_*num_dim_ + gauss_id*num_dim_*num_dim_ + dim_i*num_dim_ + dim_j];
 	}
-
+        
 	inline real_t& alpha_E(int elem_gid ) const
 	{
 	    return alpha_E_[elem_gid];
@@ -784,8 +785,8 @@ class elem_state_t {
 	    delete[] vel_coeffs_;
             delete[] pos_coeffs_;
 	    delete[] sie_coeffs_;
-            delete[] kinematic_L2_;
-	    delete[] thermodynamic_L2_;
+           // delete[] kinematic_L2_;
+	   // delete[] thermodynamic_L2_;
 	    delete[] force_tensor_;
             delete[] stress_tensor_;
 	    delete[] alpha_E_;
@@ -1280,11 +1281,12 @@ void boundary_rdh();
 void interp_vel(int t_step);
 //void interp_pos(int step);
 void interp_ie(int t_step);
-void get_kinematic_L2(int t_step);
-void get_thermodynamic_L2(int t_step);
-void get_force_tensor(int t_step);
-void get_stress_tensor(int t_step);
 void get_alpha_E();
 void get_strong_mass();
-void build_corner_normals();
+void test_basis();
+void get_kinematic_L2(int t_step, int node_gid, int dim, real_t& res_sum);
+void get_thermodynamic_L2(int t_step, int node_gid, real_t& res_sum);
+void get_force_tensor(int t_step);
+void get_stress_tensor(int t_step);
+
 #endif 

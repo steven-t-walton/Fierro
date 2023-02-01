@@ -6,29 +6,18 @@
 
 using namespace utils;
 
-void get_thermodynamic_L2( int t_step ){
+void get_thermodynamic_L2( int t_step, int dof_gid, real_t& sum_res ){
   
-  int current = t_step;
-  int update = t_step+1;
-
-  for (int elem_gid = 0; elem_gid <  mesh.num_elems(); elem_gid++){
-    for (int t_dof = 0; t_dof < ref_elem.num_dual_basis(); t_dof++){
-      int node_lid = ref_elem.dual_vert_node_map(t_dof);
-      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-      elem_state.thermodynamic_L2(t_step, node_gid) = 0.0;
-    }
-  }
-
-  auto energy_res = CArray <real_t> ( mesh.num_elems(), ref_elem.num_dual_basis() );// mesh.num_nodes() );
+  int num_elems_in_dof = mesh.num_elems_in_node(dof_gid);
   
-  for (int i = 0; i < mesh.num_elems(); i++){
+  for (int elem_lid = 0; elem_lid < num_elems_in_dof; elem_lid++){
+    int elem_gid = mesh.elems_in_node(dof_gid, elem_lid);
+
+    auto energy_res = CArray <real_t> ( ref_elem.num_dual_basis() );
+  
     for (int j = 0; j < ref_elem.num_dual_basis(); j++){
-      energy_res(i,j) = 0.0;
+      energy_res(j) = 0.0;
     }// end loop over j
-  }// end loop over i
-  
-
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
   
     for (int t_dof = 0; t_dof < ref_elem.num_dual_basis(); t_dof++){
       //int node_lid = ref_elem.dual_vert_node_map(t_dof);
@@ -54,20 +43,15 @@ void get_thermodynamic_L2( int t_step ){
         M_dot_e += res_mass(basis_id)*elem_state.sie_coeffs(t_step, elem_gid, basis_id) - res_mass(basis_id)*elem_state.sie_coeffs(0, elem_gid, basis_id);
       }// end loop over basis id
       
-      auto force_vec = CArray <real_t> (mesh.num_dim());
       real_t force = 0.0;
       
-       
       for (int dim = 0; dim < mesh.num_dim(); dim++){
         for (int k_dof = 0; k_dof < ref_elem.num_basis(); k_dof++){
-          force_vec(dim) += 0.5*elem_state.force_tensor(0, elem_gid, k_dof, t_dof, dim) * elem_state.vel_coeffs(0, elem_gid, k_dof, dim)
-		     + 0.5*elem_state.force_tensor(t_step, elem_gid, k_dof, t_dof, dim) * elem_state.vel_coeffs(t_step,elem_gid,k_dof,dim);	  
+          force += 0.5*(0.5*elem_state.force_tensor(t_step, elem_gid, k_dof, t_dof, dim)
+		      * (elem_state.vel_coeffs(0, elem_gid, k_dof, dim) + elem_state.vel_coeffs(t_step,elem_gid,k_dof,dim)) 
+		       + elem_state.force_tensor(0, elem_gid, k_dof, t_dof, dim)*elem_state.vel_coeffs(0, elem_gid, k_dof, dim));
         }// end loop over k_dof
       }// end loop over dim
-      
-      for (int dim = 0; dim < mesh.num_dim(); dim++){
-        force += force_vec(dim);
-      }
       
       //--- Artificial Viscosity ---//
       real_t sie_bar = 0.0;
@@ -103,151 +87,79 @@ void get_thermodynamic_L2( int t_step ){
       }// end loop over gauss_lid 
       //std::cout << source_int << std::endl;
       
-      energy_res(elem_gid, t_dof) =  M_dot_e/dt - force - 0.0*source_int + Q;
+      energy_res(t_dof) =  M_dot_e/dt - force - source_int + Q;
 
     }// end loop over t_dof
 
-  }// end loop over elem_gid
  
  /* 
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for (int t_dof = 0; t_dof< ref_elem.num_dual_basis(); t_dof++){
-      std::cout << energy_res(elem_gid, t_dof) << std::endl;
+      std::cout << energy_res(t_dof) << std::endl;
     }
   } 
  */ 
-  auto total_energy_res = CArray <real_t> (mesh.num_elems());
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-       total_energy_res(elem_gid) = 0.0;
-  }
+    real_t total_energy_res = 0.0;
 
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for (int dof = 0; dof < ref_elem.num_dual_basis(); dof++){
-      //int node_lid = ref_elem.dual_vert_node_map(t_dof);
-      //int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-      total_energy_res(elem_gid) += energy_res(elem_gid, dof);
+      total_energy_res += energy_res( dof);
     }
-  }
 
   /*
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-    std::cout << " total thermo residual in elem " << elem_gid << " is " << total_energy_res(elem_gid) << std::endl;
-  }
+    std::cout << " total thermo residual in elem " << elem_gid << " is " << total_energy_res << std::endl;
   */
 
-  auto betas = CArray <real_t> (mesh.num_elems(), ref_elem.num_dual_basis());
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+    auto betas = CArray <real_t> ( ref_elem.num_dual_basis());
     for(int dof = 0; dof < ref_elem.num_dual_basis(); dof++){
-       betas(elem_gid, dof) = 0.0; 
+       betas(dof) = 0.0; 
     }
-  }
  
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for(int dof = 0; dof < ref_elem.num_dual_basis(); dof++){
-      //int node_lid = ref_elem.dual_vert_node_map(t_dof);
-      //int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
       real_t numerator = 0.0;
-      numerator = std::max(0.0,( energy_res(elem_gid, dof)/total_energy_res(elem_gid) ) );
+      numerator = std::max(0.0,( energy_res(dof)/total_energy_res ) );
       real_t denom = 0.0;
       for (int dof_id = 0; dof_id < ref_elem.num_dual_basis(); dof_id++){
-	//int dof_lid = ref_elem.dual_vert_node_map(dof_id);
-	//int dof_gid = mesh.nodes_in_elem(elem_gid, dof_lid);
-        denom += std::max( 0.0, ( energy_res(elem_gid, dof_id)/total_energy_res(elem_gid) ) ); 
+        denom += std::max( 0.0, ( energy_res(dof_id)/total_energy_res ) ); 
       }
-      betas(elem_gid, dof) = numerator/denom; 
+      betas( dof) = numerator/denom; 
     }
-  }
  
   /* 
   // check that betas sum to 1 //
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     real_t sum = 0.0;
     for (int vertex = 0; vertex < ref_elem.num_dual_basis(); vertex++){
-      sum += betas( elem_gid, vertex);
+      sum += betas(vertex);
     }// end loop over vertex
     std::cout << " sum of betas in elem "<< elem_gid << " is " << sum << std::endl;
-  }// end loop over elem_gid
   */
 
-  auto limited_energy_res = CArray <real_t> (mesh.num_elems(), ref_elem.num_dual_basis());
+    auto limited_energy_res = CArray <real_t> (ref_elem.num_dual_basis());
   
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for(int dof=0; dof < ref_elem.num_dual_basis(); dof++){
        limited_energy_res(elem_gid, dof) = 0.0; 
     }
-  }
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+    
     for(int dof=0; dof < ref_elem.num_dual_basis(); dof++){
 
-      //int node_lid = ref_elem.dual_vert_node_map(dof);
-      //int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-      
-      limited_energy_res(elem_gid, dof) = betas(elem_gid, dof)*total_energy_res(elem_gid);
+      limited_energy_res(dof) = betas(dof)*total_energy_res;
 
     }
-  }    
 
 /*
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
     for(int dof=0; dof < ref_elem.num_dual_basis(); dof++){
-      std::cout << " limited thermo residual in elem " << elem_gid << " at node " << dof << " is " << limited_energy_res(elem_gid,dof) << std::endl;
+      std::cout << " limited thermo residual in elem " << elem_gid << " at node " << dof << " is " << limited_energy_res(dof) << std::endl;
     }
-  }
 */
-/*
-  for (int elem_gid = 0; elem_gid <  mesh.num_elems(); elem_gid++){
-    for (int t_dof = 0; t_dof < ref_elem.num_dual_basis(); t_dof++){
-      
-      int node_lid = ref_elem.dual_vert_node_map(t_dof);
+    for (int dof = 0; dof < ref_elem.num_dual_basis(); dof++){
+      int node_lid = ref_elem.dual_vert_node_map(dof);
       int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
-      for (int elem_node_lid = 0; elem_node_lid < mesh.num_elems_in_node(node_gid); elem_node_lid++){
-        int elem_node_gid = mesh.elems_in_node(node_gid, elem_node_lid);
-	elem_state.thermodynamic_L2(t_step, node_gid) += energy_res(elem_node_gid, t_dof);
-	//elem_state.thermodynamic_L2(t_step, node_gid) += limited_energy_res(elem_node_gid, t_dof);
-      }// end loop over elem_node_lid
-
-    }// end loop over t_dof
-  }// end loop over elem_gid
-*/  
-  for (int elem_gid = 0; elem_gid <  mesh.num_elems(); elem_gid++){
-    for (int t_dof = 0; t_dof < ref_elem.num_dual_basis(); t_dof++){
-      
-      int node_lid = ref_elem.dual_vert_node_map(t_dof);
-      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-
-      real_t lumped_mass = 0.0;
-      
-      //std::cout << mesh.num_elems_in_node(node_gid) << std::endl;
-
-      for (int elem_node_lid = 0; elem_node_lid < mesh.num_elems_in_node(node_gid); elem_node_lid++){
-        int elem_node_gid = mesh.elems_in_node(node_gid, elem_node_lid);
-	for (int g_lid = 0; g_lid < mesh.num_gauss_in_elem(); g_lid++){
-	  int g_gid = mesh.gauss_in_elem(elem_node_gid, g_lid);
-	  lumped_mass += mat_pt.density(g_gid)
-		         * ref_elem.ref_nodal_dual_basis(g_lid, t_dof)
-			 * ref_elem.ref_node_g_weights(g_lid)
-			 * mesh.gauss_pt_det_j(g_gid);
-	}// end loop over g_lid
-      }// end loop over elem_node_lid
-      if (lumped_mass <= 0.0){
-        std::cout << " thermodynamic lumped mass is negative " << lumped_mass << std::endl;
-      }      
-      real_t sum_res = 0.0;
-
-      for (int elem_node_lid = 0; elem_node_lid < mesh.num_elems_in_node(node_gid); elem_node_lid++){
-        int elem_node_gid = mesh.elems_in_node(node_gid, elem_node_lid);
-	sum_res += energy_res(elem_node_gid, t_dof);
-	//sum_res += limited_energy_res(elem_node_gid, t_dof);
-      }// end loop over elem_node_lid
-      // L^1(e^{k+1}) = L^1(e^k) - L^2(e^k) //
-      elem_state.sie_coeffs(update, elem_gid, t_dof) = elem_state.sie_coeffs(t_step,elem_gid,t_dof) 
-	                                                - (dt/lumped_mass)*sum_res;
-/*
-      if (elem_state.sie_coeffs(update, elem_gid, t_dof) <= 0.0){
-        std::cout << " sie is negative in elem "<< elem_gid << " and dof "<< t_dof << "with value "<< elem_state.sie_coeffs(update, elem_gid, t_dof) << std::endl; 
+      if (dof_gid == node_gid){
+        sum_res += energy_res(dof);
+	//sum_res += limited_energy_res(dof);
       }
-*/
-    }// end loop over t_dof
-  }// end loop over elem_gid
+
+    }
+  
+  }// end loop over elem_lid
+  
 } // end subroutine

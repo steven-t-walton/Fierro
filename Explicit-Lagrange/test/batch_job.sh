@@ -2,7 +2,7 @@
 #SBATCH -N 1
 #SBATCH --time=600
 #SBATCH --mem=2500G
-#SBATCH -o TG_3x3x1_p4.out
+#SBATCH -o TG_3x3x1.out
 #SBATCH --mail-user stevenw@lanl.gov
 #SBATCH --mail-type=ALL
 

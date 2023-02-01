@@ -47,27 +47,20 @@ void rd_hydro(){
 
       // DeC update //
 
-      //int current = 0;
-
       get_alpha_E();
       
       for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
-          
-	//if (current == correction_storage-1){
-	//  current = 0;
-	//}
-	
+        
         get_stress_tensor(correction_step);
-        get_force_tensor(correction_step);
 
+	get_force_tensor(correction_step);
 
 	// Update momentum //
-        get_kinematic_L2( correction_step );
-	//update_velocity( correction_step );
+	update_velocity( correction_step );
+	
         
 	// Update internal energy //
-	get_thermodynamic_L2( correction_step );
-	//update_energy( correction_step );
+	update_energy( correction_step );
       
 	// Update position coefficients //
         for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
@@ -79,7 +72,6 @@ void rd_hydro(){
 	    }
 	  }
 	}
-        //current++;
       }//end correction steps
       
       // intepolate the velocity with evolved coeffs and save to nodes  //
