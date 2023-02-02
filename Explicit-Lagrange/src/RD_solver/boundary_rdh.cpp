@@ -25,7 +25,6 @@ void boundary_rdh(){
 
                 int node_gid = mesh.node_in_patch(patch_gid, node_lid);
                 auto vel = ViewCArray <real_t> ( &node.vel(1, node_gid,0), mesh.num_dim() );
-                // Set nodal force to zero
                 vel( direction ) = 0.0;
                 
 
