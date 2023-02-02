@@ -10,11 +10,9 @@ using namespace utils;
 void interp_vel(int t_step){
 
    for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-        for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
+        for(int node_lid = 0; node_lid < mesh.num_gauss_in_elem(); node_lid++){
 
-            int node_gid = mesh.nodes_in_elem(elem_gid, gauss_lid);
-
-            int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+            int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
             real_t interp_vel[mesh.num_dim()]; 
             for(int i=0; i<mesh.num_dim(); i++) interp_vel[i] = 0.0;
@@ -23,14 +21,13 @@ void interp_vel(int t_step){
     	        for(int basis_id = 0; basis_id < elem.num_basis(); basis_id++){
   
                     int node_basis_id = ref_elem.vert_node_map(basis_id);
-                    int interp_gid = mesh.gauss_in_elem(elem_gid, node_basis_id);
-                    interp_vel[dim] += mat_pt.velocity(t_step, interp_gid, dim) * ref_elem.ref_nodal_basis(gauss_lid, basis_id);
+                    int interp_gid = mesh.nodes_in_elem(elem_gid, node_basis_id);
+                    interp_vel[dim] += node.vel(t_step, interp_gid, dim) * ref_elem.ref_nodal_basis(node_lid, basis_id);
                 }// end loop over basis_id
             }// end loop over dim
             
             for (int dim = 0; dim < mesh.num_dim(); dim++){   
-                mat_pt.velocity(t_step, gauss_gid, dim) = interp_vel[dim];
-                //node.vel(1, node_gid, dim) =  interp_vel[dim];
+                node.vel(1, node_gid, dim) =  interp_vel[dim];
             }// end loop over dim
 
    	}//end loop over gauss_lid

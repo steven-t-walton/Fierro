@@ -26,15 +26,6 @@ scalar per element: limiter_vel data/Outputs_RDH.*****.limiter_vel
 scalar per element: limiter_te data/Outputs_RDH.*****.limiter_te
 scalar per element: elem_id data/Outputs_RDH.*****.elem_id
 scalar per element: bad_boi data/Outputs_RDH.*****.bad_boi
-scalar per element:  data/Outputs_RDH.*****.
-scalar per element:  data/Outputs_RDH.*****.
-scalar per element:  data/Outputs_RDH.*****.
-scalar per element:  data/Outputs_RDH.*****.
-scalar per element:  data/Outputs_RDH.*****.
-scalar per element:  data/Outputs_RDH.*****.
-scalar per element:  data/Outputs_RDH.*****.
-scalar per element:  data/Outputs_RDH.*****.
-scalar per element:  data/Outputs_RDH.*****.
 vector per node: pos data/Outputs_RDH.*****.pos
 vector per node: vel data/Outputs_RDH.*****.vel
 vector per node: force data/Outputs_RDH.*****.force
@@ -44,7 +35,7 @@ vector per node: norm_sum data/Outputs_RDH.*****.norm_sum
 vector per node: mass data/Outputs_RDH.*****.mass
 TIME
 time set: 1
-number of steps:    5
+number of steps:   24
 filename start number: 0
 filename increment: 1
 time values: 
@@ -53,3 +44,22 @@ time values:
  5.00000e-02
  7.50000e-02
  1.00000e-01
+ 1.25000e-01
+ 1.50000e-01
+ 1.75000e-01
+ 2.00000e-01
+ 2.25000e-01
+ 2.50000e-01
+ 2.75000e-01
+ 3.00000e-01
+ 3.25000e-01
+ 3.50000e-01
+ 3.75000e-01
+ 4.00000e-01
+ 4.25000e-01
+ 4.50000e-01
+ 4.75000e-01
+ 5.00000e-01
+ 5.25000e-01
+ 5.50000e-01
+ 5.75000e-01

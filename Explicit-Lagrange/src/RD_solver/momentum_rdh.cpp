@@ -48,13 +48,16 @@ void update_velocity(int t_step){
       if (lumped_mass <= 0.0){
         std::cout << " kinematic lumped mass is negative " << lumped_mass << std::endl;
       }
+      
+
       // L^1(u^{k+1}) = L^1(u^k) - L^2(u^k) //
       for (int dim = 0; dim < num_dim; dim++){
-        mat_pt.velocity(update, g_gid, dim) = mat_pt.velocity(current,g_gid, dim) 
-		                                               - (dt/lumped_mass)*elem_state.kinematic_L2(current, node_gid, dim);
+        real_t sum_res = 0.0;
+	get_kinematic_L2(t_step, node_gid, dim, sum_res);
+      	node.vel(update, node_gid, dim) = node.vel(current, node_gid, dim) 
+		                                               - (dt/lumped_mass)*sum_res;
       }
     }// end loop over vertex
   }// end loop over elem_gid
 
 }// end get_nodal_res
-

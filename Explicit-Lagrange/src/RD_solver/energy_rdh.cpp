@@ -21,7 +21,7 @@ void update_energy( int t_step ){
       
       int node_lid = ref_elem.dual_vert_node_map(t_dof);
       int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-      int g_gid = mesh.gauss_in_elem(elem_gid, node_lid);
+      int gauss_gid = mesh.gauss_in_elem(elem_gid, node_lid);
       real_t lumped_mass = 0.0;
       
       //std::cout << mesh.num_elems_in_node(node_gid) << std::endl;
@@ -39,11 +39,18 @@ void update_energy( int t_step ){
       if (lumped_mass <= 0.0){
         std::cout << " thermodynamic lumped mass is negative " << lumped_mass << std::endl;
       }      
-      
+
+      real_t sum_res = 0.0;
+      get_thermodynamic_L2( t_step, node_gid, sum_res); 
       // L^1(e^{k+1}) = L^1(e^k) - L^2(e^k) //
-      mat_pt.sie(update, g_gid) = mat_pt.sie(t_step,g_gid) 
-	                                                - (dt/lumped_mass)*elem_state.thermodynamic_L2(t_step,node_gid);
+      mat_pt.sie(update, gauss_gid) = mat_pt.sie(t_step, gauss_gid) - (dt/lumped_mass)*sum_res;
+/*
+      if (elem_state.sie_coeffs(update, elem_gid, t_dof) <= 0.0){
+        std::cout << " sie is negative in elem "<< elem_gid << " and dof "<< t_dof << "with value "<< elem_state.sie_coeffs(update, elem_gid, t_dof) << std::endl; 
+      }
+*/
     }// end loop over t_dof
   }// end loop over elem_gid
   
 } // end subroutine
+

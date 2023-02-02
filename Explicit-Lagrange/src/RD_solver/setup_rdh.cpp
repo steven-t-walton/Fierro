@@ -248,10 +248,6 @@ void setup_rdh(char *MESH){
                  case init_conds::cartesian:
                  {
 
-                   mat_pt.velocity(t_step, node_gid, 0) = mat_fill[f_id].u;
-                   mat_pt.velocity(t_step, node_gid, 1) = mat_fill[f_id].v;
-                   mat_pt.velocity(t_step, node_gid, 2) = mat_fill[f_id].w;
-                   
 		   node.vel(0, node_gid, 0) = mat_fill[f_id].u;
                    node.vel(0, node_gid, 1) = mat_fill[f_id].v;
                    node.vel(0, node_gid, 2) = mat_fill[f_id].w;
@@ -291,10 +287,6 @@ void setup_rdh(char *MESH){
                    node.vel(1, node_gid, 1) = mat_fill[f_id].speed*dir[1];
                    node.vel(1, node_gid, 2) = 0.0;
 
-                   mat_pt.velocity(t_step, node_gid, 0) = mat_fill[f_id].speed*dir[0];
-                   mat_pt.velocity(t_step, node_gid, 1) = mat_fill[f_id].speed*dir[1];
-                   mat_pt.velocity(t_step, node_gid, 2) = 0.0;
-
                    break;
                  }
                  case init_conds::spherical:
@@ -327,10 +319,6 @@ void setup_rdh(char *MESH){
                    node.vel(1, node_gid, 1) = mat_fill[f_id].speed*dir[1];
                    node.vel(1, node_gid, 2) = mat_fill[f_id].speed*dir[2];
 
-                   mat_pt.velocity(t_step, node_gid, 0) = mat_fill[f_id].speed*dir[0];
-                   mat_pt.velocity(t_step, node_gid, 1) = mat_fill[f_id].speed*dir[1];
-                   mat_pt.velocity(t_step, node_gid, 2) = mat_fill[f_id].speed*dir[2];
-
                    break;
                  }
                  case init_conds::radial_linear:
@@ -357,12 +345,6 @@ void setup_rdh(char *MESH){
                    node.vel(1, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1)); 
                    
 		   node.vel(1, node_gid, 2) = 0.0; 
-                  
-                   mat_pt.velocity(t_step, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
-                   
-                   mat_pt.velocity(t_step, node_gid, 1) =  -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1)); 
-                   
-		   mat_pt.velocity(t_step, node_gid, 2) = 0.0; 
                   
                    cell_state.pressure(cell_gid) = 0.25*(cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;                   
 		   mat_pt.pressure(gauss_gid) = 0.25*(cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;

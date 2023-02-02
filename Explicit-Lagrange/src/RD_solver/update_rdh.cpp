@@ -33,21 +33,3 @@ void update_coeffs(){
 }// end update
 
 
-  //get_control_coeffs(); 
-
-/*
- // update control coeffs //
-  for (int t_step = 0; t_step < correction_storage-1; t_step++){
-    for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-      for (int basis = 0; basis < ref_elem.num_basis(); basis++){
-        for (int dim = 0; dim < mesh.num_dim(); dim++){
-          elem_state.vel_coeffs( t_step, elem_gid, basis, dim ) = elem_state.vel_coeffs( correction_storage-1, elem_gid, basis, dim );
-          elem_state.pos_coeffs( t_step, elem_gid, basis, dim ) = elem_state.vel_coeffs( correction_storage-1, elem_gid, basis, dim );
-        }// end loop over dim
-      }// end loop over basis
-      for (int t_basis = 0; t_basis < ref_elem.num_dual_basis(); t_basis++){
-        elem_state.sie_coeffs( t_step, elem_gid, t_basis ) = elem_state.sie_coeffs( correction_storage-1, elem_gid, t_basis);
-      }
-    }// end loop over elem_gid
-  }
-*/

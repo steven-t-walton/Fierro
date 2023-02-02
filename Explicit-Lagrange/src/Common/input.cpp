@@ -43,7 +43,7 @@ void input(){
 
     // ---- time varaibles and cycle info ---- //
     // time step
-    TFINAL = 0.425;//1.0;
+    TFINAL = 1.0;
     
     //C1 = 1.0;
     //C2 = 1.333;
@@ -61,7 +61,7 @@ void input(){
     
     correction_storage = 3;//num_correction_steps + 1;
 
-    dt_cfl = 0.03;
+    dt_cfl = 0.4;
 
     // ---- graphics information ---- //
     graphics_cyc_ival = 1000000;

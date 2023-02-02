@@ -7,7 +7,7 @@
 
 using namespace utils;
 
-void update_position(){
+void update_position(int t_step){
 
 #pragma omp simd  
 /*  
@@ -34,67 +34,15 @@ void update_position(){
     }// end loop over gauss_lid
  }// end loop over elem_gid
 */
-/* 
-  for (int node_gid = 0; node_gid <mesh.num_nodes(); node_gid++){
-      for (int dim = 0; dim < mesh.num_dim(); dim++){
-        node.coords(1, node_gid, dim ) = node.coords(0, node_gid, dim) + 0.5*dt*( node.vel(1, node_gid,  dim) + node.vel(0, node_gid, dim) );
-        mesh.node_coords(node_gid, dim) = node.coords(1, node_gid, dim);
-      }// end loop over dim
-  }// end loop over node_gid
-*/
+
 for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-  for (int gauss_lid = 0; gauss_lid <mesh.num_gauss_in_elem(); gauss_lid++){
-      int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
-      int node_gid = mesh.nodes_in_elem(elem_gid, gauss_lid);
+  for (int node_lid = 0; node_lid <mesh.num_nodes_in_elem(); node_lid++){
+      int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
       for (int dim = 0; dim < mesh.num_dim(); dim++){
-        node.coords(1, node_gid, dim ) = node.coords(0, node_gid, dim) + 0.5*dt*( mat_pt.velocity(correction_storage-1, gauss_gid,  dim) + mat_pt.velocity(0, gauss_gid, dim) );
+        node.coords(1, node_gid, dim ) = node.coords(0, node_gid, dim) + 0.5*dt*( node.vel(t_step, node_gid,  dim) + node.vel(0, node_gid, dim) );
         mesh.node_coords(node_gid, dim) = node.coords(1, node_gid, dim);
-	node.vel(1, node_gid, dim) = mat_pt.velocity(correction_storage-1, gauss_gid,  dim);
       }// end loop over dim
   }// end loop over node_gid
 }
-
-
 }// end get_position_rdh()
 
-
-
-/*
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-    for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
-      for (int dim = 0; dim < mesh.num_dim(); dim++){
-        elem_state.pos_coeffs(num_correction_steps, elem_gid, vertex, dim) = elem_state.pos_coeffs(0, elem_gid, vertex, dim)
-	                                                                     + 0.5*dt*( elem_state.vel_coeffs(num_correction_steps, elem_gid, vertex, dim) + elem_state.vel_coeffs(0, elem_gid, vertex, dim) );
-      }// end loop over dim
-    }// end loop over vertex
-  }// end loop over elem_gid
-
-
-      for (int dim = 0; dim < num_dim; dim++){
-        node.coords(1, node_gid, dim) = interp(dim);
-	mesh.node_coords(node_gid, dim) = node.coords(1,node_gid, dim);
-      }
-
-
-
-*/
-
-  //int update = correction_step + 1;
-  //int current = correction_step;
-  //for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
-  //
-
-   // for (int vert = 0; vert < ref_elem.num_basis(); vert++){
-     // int node_lid = elem.vert_node_map(vert);
-     // int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
-
-      //auto vel_update = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( current, elem_gid, vert, 0), mesh.num_dim() );
-      //auto vel_n = ViewCArray <real_t> ( &elem_state.BV_vel_coeffs( 0, elem_gid, vert, 0), mesh.num_dim() );
-      //
-      
-      //auto pos_update = ViewCArray <real_t> ( &elem_state.BV_pos_coeffs( update, elem_gid, vert, 0), mesh.num_dim() );
-      //auto pos_n = ViewCArray <real_t> ( &elem_state.BV_pos_coeffs( current, elem_gid, vert, 0), mesh.num_dim() );
-      //
-
- // }// end loop over vert
- // }// end loop over elem_gid

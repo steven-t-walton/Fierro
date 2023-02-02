@@ -1267,7 +1267,7 @@ void calc_average_specific_vol();
 
 // RD code
 void rd_hydro();
-void update_position();
+void update_position(int t_step);
 void update_velocity(int t_step);
 void track_rdh(real_t &x, real_t &y);
 void BV_inv();
@@ -1280,11 +1280,12 @@ void boundary_rdh();
 void interp_vel(int t_step);
 //void interp_pos(int step);
 void interp_ie(int t_step);
-void get_kinematic_L2(int t_step);
-void get_thermodynamic_L2(int t_step);
-void get_force_tensor(int t_step);
-void get_stress_tensor(int t_step);
 void get_alpha_E();
 void get_strong_mass();
 void test_basis();
+void get_kinematic_L2(int t_step, int node_gid, int dim, real_t& sum_res);
+void get_thermodynamic_L2(int t_step, int node_gid, real_t& sum_res);
+void get_force_tensor(int t_step);
+void get_stress_tensor(int t_step);
+
 #endif 

@@ -39,47 +39,30 @@ void rd_hydro(){
 
     { // Time integration scope //
       
-      for(int gauss_gid = 0; gauss_gid < mesh.num_gauss_pts(); gauss_gid++){
-      		for(int i=0; i<mesh.num_dim(); i++) mat_pt.velocity(0, gauss_gid, i) = mat_pt.velocity(correction_storage-1, gauss_gid, i);
-      		mat_pt.sie(0, gauss_gid) = mat_pt.sie(correction_storage-1, gauss_gid);
-      }
-      
-      update_coeffs();
-    
-      get_strong_mass();
-      
-      get_state();
-      
 #pragma omp simd
 
-      for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
           
-	get_alpha_E();
-	get_stress_tensor( correction_step );
-	get_force_tensor( correction_step );
+        get_alpha_E();
+	get_stress_tensor( 0 );
+	get_force_tensor( 0 );
 
 	// Update momentum //
-        get_kinematic_L2( correction_step );
-	update_velocity( correction_step );
+	update_velocity( 0 );
         
 	// Update internal energy //
-	get_thermodynamic_L2( correction_step );
-	update_energy( correction_step );
-      
-
-      }//end correction steps
+	update_energy( 0 );
       
       // intepolate the velocity with evolved coeffs and save to nodes  //
-      interp_vel(correction_storage-1);
+      interp_vel(1);
       
       // update boundary vel vals //
       boundary_rdh();
      
       // interpolate energy coeffs //
-      interp_ie(correction_storage-1);
+      interp_ie(1);
 
       // update position //
-      update_position();   
+      update_position(1);   
 
       get_gauss_pt_jacobian(mesh, ref_elem);
     
@@ -89,6 +72,15 @@ void rd_hydro(){
 
       get_vol_jacobi(mesh, ref_elem);
       
+      get_strong_mass();
+      
+      get_state();
+      
+      update_coeffs();
+      
+      for (int gauss_gid = 0; gauss_gid < mesh.num_gauss_pts(); gauss_gid++){
+          gauss_properties(gauss_gid);
+      }
     }// end time integration scope
        
     // Increment time //
@@ -97,16 +89,6 @@ void rd_hydro(){
     if (TIME>=TFINAL) break;
     run_info(cycle);
   };// end loop over time integration cycles
-
-
-  // final E_tot //
-  track_rdh( ke, ie );
-
-  std::cout << " ke at t0 = " << ke0 << std::endl;
-  //std::cout << " ie at t0 = " << ie0 << std::endl;
-  std::cout << " ke at t_final = " << ke << std::endl;
-  //std::cout << " ie at t_final = " << ie << std::endl;
-  std::cout << "E_tot final is "<< ke/*+ie*/ << std::endl;
 
 }// end rd_hydro
 
