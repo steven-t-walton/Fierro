@@ -49,6 +49,8 @@ void rd_hydro(){
 	// Update momentum //
 	update_velocity( 0 );
         
+        boundary_rdh();
+	
 	// Update internal energy //
 	update_energy( 0 );
       
