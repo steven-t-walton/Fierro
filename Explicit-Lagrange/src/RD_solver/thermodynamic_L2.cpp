@@ -9,7 +9,8 @@ using namespace utils;
 void get_thermodynamic_L2( int t_step, int dof_gid, real_t& sum_res ){
   
   int num_elems_in_dof = mesh.num_elems_in_node(dof_gid);
-  
+  real_t inv_num_dual_basis = 1.0/ref_elem.num_dual_basis();
+  real_t inv_dt = 1.0/dt;
   for (int elem_lid = 0; elem_lid < num_elems_in_dof; elem_lid++){
     int elem_gid = mesh.elems_in_node(dof_gid, elem_lid);
 
@@ -40,7 +41,7 @@ void get_thermodynamic_L2( int t_step, int dof_gid, real_t& sum_res ){
       real_t M_dot_e = 0.0;
       for (int basis_id = 0; basis_id < ref_elem.num_dual_basis(); basis_id++){
 	//std::cout <<  elem_state.sie_coeffs(t_step, elem_gid, basis_id) - elem_state.sie_coeffs(0, elem_gid, basis_id) << std::endl;
-        M_dot_e += res_mass(basis_id)*elem_state.sie_coeffs(t_step, elem_gid, basis_id) - res_mass(basis_id)*elem_state.sie_coeffs(0, elem_gid, basis_id);
+        M_dot_e += res_mass(basis_id)*(elem_state.sie_coeffs(t_step, elem_gid, basis_id) - elem_state.sie_coeffs(0, elem_gid, basis_id));
       }// end loop over basis id
       
       real_t force = 0.0;
@@ -58,11 +59,12 @@ void get_thermodynamic_L2( int t_step, int dof_gid, real_t& sum_res ){
       real_t sie_bar0 = 0.0;
 
       real_t Q = 0.0;
+      
        
       // Compute sie_bar //
       for (int dof = 0; dof < ref_elem.num_dual_basis(); dof++){
-        sie_bar += elem_state.sie_coeffs(t_step, elem_gid, dof)/ref_elem.num_dual_basis(); 
-        sie_bar0 += elem_state.sie_coeffs(0, elem_gid, dof)/ref_elem.num_dual_basis(); 
+        sie_bar += elem_state.sie_coeffs(t_step, elem_gid, dof)*inv_num_dual_basis; 
+        sie_bar0 += elem_state.sie_coeffs(0, elem_gid, dof)*inv_num_dual_basis; 
       }
   
       // Fill Q //
@@ -87,7 +89,7 @@ void get_thermodynamic_L2( int t_step, int dof_gid, real_t& sum_res ){
       }// end loop over gauss_lid 
       //std::cout << source_int << std::endl;
       
-      energy_res(t_dof) =  M_dot_e/dt - force - source_int + Q;
+      energy_res(t_dof) =  M_dot_e*inv_dt - force - source_int + Q;
 
     }// end loop over t_dof
 
@@ -107,7 +109,7 @@ void get_thermodynamic_L2( int t_step, int dof_gid, real_t& sum_res ){
   /*
     std::cout << " total thermo residual in elem " << elem_gid << " is " << total_energy_res << std::endl;
   */
-
+/*
     auto betas = CArray <real_t> ( ref_elem.num_dual_basis());
     for(int dof = 0; dof < ref_elem.num_dual_basis(); dof++){
        betas(dof) = 0.0; 
@@ -122,7 +124,7 @@ void get_thermodynamic_L2( int t_step, int dof_gid, real_t& sum_res ){
       }
       betas( dof) = numerator/denom; 
     }
- 
+ */
   /* 
   // check that betas sum to 1 //
     real_t sum = 0.0;
@@ -131,7 +133,7 @@ void get_thermodynamic_L2( int t_step, int dof_gid, real_t& sum_res ){
     }// end loop over vertex
     std::cout << " sum of betas in elem "<< elem_gid << " is " << sum << std::endl;
   */
-
+/*
     auto limited_energy_res = CArray <real_t> (ref_elem.num_dual_basis());
   
     for(int dof=0; dof < ref_elem.num_dual_basis(); dof++){
@@ -143,19 +145,29 @@ void get_thermodynamic_L2( int t_step, int dof_gid, real_t& sum_res ){
       limited_energy_res(dof) = betas(dof)*total_energy_res;
 
     }
-
+*/
 /*
     for(int dof=0; dof < ref_elem.num_dual_basis(); dof++){
       std::cout << " limited thermo residual in elem " << elem_gid << " at node " << dof << " is " << limited_energy_res(dof) << std::endl;
     }
 */
+    real_t inv_total_res = 1.0/total_energy_res;
+
     for (int dof = 0; dof < ref_elem.num_dual_basis(); dof++){
+      
+      real_t numerator = 0.0;
+      numerator = std::max(0.0,( energy_res(dof)*inv_total_res ) );
+      real_t denom = 0.0;
+      for (int dof_id = 0; dof_id < ref_elem.num_dual_basis(); dof_id++){
+        denom += std::max( 0.0, ( energy_res(dof_id)*inv_total_res ) ); 
+      }
+
       int node_lid = ref_elem.dual_vert_node_map(dof);
       int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
       if (dof_gid == node_gid){
         sum_res += energy_res(dof);
-	//sum_res += limited_energy_res(dof);
+	//sum_res += numerator/denom*total_res(dof);
       }
 
     }

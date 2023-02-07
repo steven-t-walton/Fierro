@@ -138,14 +138,14 @@ int main(int argc, char *argv[]){
     FILE *out_cell_state;  // cell state values
     FILE *out_energy;      // energy and partiion as a function of time
     FILE *out_matpt_state; // matpt state
-	FILE *out_elem_state;  //element average state
+    FILE *out_elem_state;  //element average state
 
     
     // output files
     out_energy      = fopen("energy_file","w");
     out_cell_state  = fopen("cell_state_file", "w");
     out_matpt_state = fopen("matpt_state_file","w");
-	out_elem_state  = fopen("elem_state_file", "w");
+    out_elem_state  = fopen("elem_state_file", "w");
 
     
     real_t te_0, ke, ie;
@@ -198,10 +198,6 @@ int main(int argc, char *argv[]){
     graphics_times[0] = 0.0;
     graphics_time = graphics_dt_ival;  // the times for writing graphics dump
     
-
-    
-
-
     std::cout<<"Before first ensight "<<std::endl;
     
     ensight();
@@ -226,7 +222,6 @@ int main(int argc, char *argv[]){
     // graphics output after end of hydro solve
     ensight();
 
-
     if(CCH == true){
 
         // print to file energy diagonostics
@@ -250,8 +245,6 @@ int main(int argc, char *argv[]){
             y = mesh.cell_coords(cell_gid, 1);
             z = mesh.cell_coords(cell_gid, 2);
 
-
-            
             fprintf(out_cell_state, "%i, %e, %e, %e, %e, %e, %e, %e, %e\n",
                     cell_gid,
                     x, y, z,
@@ -315,7 +308,6 @@ int main(int argc, char *argv[]){
 
 
         fprintf(out_elem_state, "#x, y, z, r, den, pres, sie, ske, ste \n");
-
 
         for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++) {
             
@@ -387,7 +379,6 @@ int main(int argc, char *argv[]){
     }
     
     
-    // copied from SGH. -------  NEEDS TO BE FIXED ------//
     if (RDH==true){
        // print to file energy diagonostics
         fprintf(out_energy,
@@ -453,6 +444,43 @@ int main(int argc, char *argv[]){
             }
         }
 
+        fprintf(out_elem_state, "#x, y, z, r, den, pres, sie, ske, ste \n");
+
+
+        for(int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++) {
+            
+            real_t xe = 0.0, ye = 0.0, ze = 0.0;
+            real_t sie = 0.0, ske = 0.0;  // partitions of specific total energy
+            real_t pres = 0.0;
+            
+            real_t num = (real_t)mesh.num_nodes_in_elem();
+            for (int node_lid = 0; node_lid < mesh.num_nodes_in_elem(); node_lid++){
+                
+                int gauss_lid = node_lid;  // they overlap inside an element
+                int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
+                int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
+
+                xe += mesh.node_coords(node_gid, 0)/num;
+                ye += mesh.node_coords(node_gid, 1)/num;
+                ze += mesh.node_coords(node_gid, 2)/num;
+                
+                sie += mat_pt.ie(gauss_gid)/num;
+                ske += mat_pt.ke(gauss_gid)/num;
+                pres += mat_pt.pressure(gauss_gid)/num;
+            }
+            
+            real_t r = sqrt( xe*xe + ye*ye + ze*ze);
+
+            fprintf(out_elem_state, "%e, %e, %e, %e, %e, %e, %e, %e, %e \n",
+                    xe, ye, ze, r,
+                    elem_state.avg_density(elem_gid),
+                    pres,
+                    sie,
+                    ske,
+                    elem_state.avg_specific_total_energy(elem_gid)
+                    );
+
+		} //end loop over elements
     };
 
     fclose(out_energy);      // energy and partion as a function of time

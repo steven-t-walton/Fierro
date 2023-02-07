@@ -22,10 +22,8 @@ void update_velocity(int t_step){
   int current = t_step;
   int update = t_step+1;
 
-#pragma omp simd
-
   /// update velocity coefficients //
-  for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
+  FOR_ALL (elem_gid, 0, mesh.num_elems(), {
     for (int vertex = 0; vertex < ref_elem.num_basis(); vertex++){
       int node_lid = elem.vert_node_map( vertex );
       int g_gid = mesh.gauss_in_elem(elem_gid, node_lid);
@@ -58,6 +56,6 @@ void update_velocity(int t_step){
 		                                               - (dt/lumped_mass)*sum_res;
       }
     }// end loop over vertex
-  }// end loop over elem_gid
+  });// end FOR_ALL
 
 }// end get_nodal_res

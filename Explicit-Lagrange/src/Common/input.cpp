@@ -59,7 +59,7 @@ void input(){
 
     num_correction_steps = 2;
     
-    correction_storage = 3;//num_correction_steps + 1;
+    correction_storage = num_correction_steps + 1;
 
     dt_cfl = 0.4;
 

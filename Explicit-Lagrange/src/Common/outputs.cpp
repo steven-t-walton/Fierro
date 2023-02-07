@@ -98,9 +98,9 @@ void ensight() {
             cell_fields(cell_gid, 19) = cell_state.vel_phi(cell_gid);
             cell_fields(cell_gid, 20) = cell_state.te_phi(cell_gid);
 	    
-	    cell_fields(cell_gid, 30) = elem_switch;
+	    cell_fields(cell_gid, 21) = elem_switch;
 
-            cell_fields(cell_gid, 31) = elem_state.bad(elem_gid); //0.0;
+            cell_fields(cell_gid, 22) = elem_state.bad(elem_gid); //0.0;
 
 
         } // end for k over cells

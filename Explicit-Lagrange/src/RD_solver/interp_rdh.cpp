@@ -14,20 +14,20 @@ void interp_vel(int t_step){
 
             int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
-            real_t interp_vel[mesh.num_dim()]; 
-            for(int i=0; i<mesh.num_dim(); i++) interp_vel[i] = 0.0;
+	    auto interp_vel = CArray <real_t> (mesh.num_dim());
+            for(int i=0; i<mesh.num_dim(); i++) interp_vel(i) = 0.0;
          
             for (int dim = 0; dim < mesh.num_dim(); dim++){
     	        for(int basis_id = 0; basis_id < elem.num_basis(); basis_id++){
   
                     int node_basis_id = ref_elem.vert_node_map(basis_id);
                     int interp_gid = mesh.nodes_in_elem(elem_gid, node_basis_id);
-                    interp_vel[dim] += node.vel(t_step, interp_gid, dim) * ref_elem.ref_nodal_basis(node_lid, basis_id);
+                    interp_vel(dim) += node.vel(t_step, interp_gid, dim) * ref_elem.ref_nodal_basis(node_lid, basis_id);
                 }// end loop over basis_id
             }// end loop over dim
             
             for (int dim = 0; dim < mesh.num_dim(); dim++){   
-                node.vel(1, node_gid, dim) =  interp_vel[dim];
+                node.vel(t_step, node_gid, dim) =  interp_vel(dim);
             }// end loop over dim
 
    	}//end loop over gauss_lid

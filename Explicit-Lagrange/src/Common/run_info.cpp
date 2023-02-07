@@ -11,7 +11,7 @@
 
 void run_info(int cycle){
 
-// std::cout<<"(TIME-graphics_time)"<<(TIME-graphics_time)<<std::endl;
+ //std::cout<<"(TIME-graphics_time)"<<(TIME-graphics_time)<<std::endl;
 	if ((cycle%10) == 0) {
         real_t percent_comp = (TIME/TFINAL)*100.;
         printf("Percent complete = %.2f \n", percent_comp); 

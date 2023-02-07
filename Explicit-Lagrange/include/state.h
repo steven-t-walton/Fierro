@@ -1267,7 +1267,7 @@ void calc_average_specific_vol();
 
 // RD code
 void rd_hydro();
-void update_position(int t_step);
+void interp_position(int t_step);
 void update_velocity(int t_step);
 void track_rdh(real_t &x, real_t &y);
 void BV_inv();

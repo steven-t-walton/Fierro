@@ -15,8 +15,9 @@ using namespace utils;
 void update_energy( int t_step ){
   
   int update = t_step + 1;
-  
-  for (int elem_gid = 0; elem_gid <  mesh.num_elems(); elem_gid++){
+
+ 
+  FOR_ALL( elem_gid , 0, mesh.num_elems(),{
     for (int t_dof = 0; t_dof < ref_elem.num_dual_basis(); t_dof++){
       
       int node_lid = ref_elem.dual_vert_node_map(t_dof);
@@ -50,7 +51,7 @@ void update_energy( int t_step ){
       }
 */
     }// end loop over t_dof
-  }// end loop over elem_gid
+  });// end loop over elem_gid
   
 } // end subroutine
 

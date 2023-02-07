@@ -11,6 +11,7 @@ void get_kinematic_L2(int t_step, int dof_gid, int dim, real_t& sum_res){
   int num_dim = mesh.num_dim();
   
   int num_elems_in_dof = mesh.num_elems_in_node(dof_gid);
+  real_t inv_dt = 1.0/dt;
 
   for(int elem_lid = 0; elem_lid < num_elems_in_dof; elem_lid++){
     
@@ -28,9 +29,8 @@ void get_kinematic_L2(int t_step, int dof_gid, int dim, real_t& sum_res){
       int g_gid = mesh.gauss_in_elem(elem_gid, node_lid);
 	
       // View for mass_vector //
-      real_t res_mass_a[num_basis];
-      for (int i = 0; i < num_basis; i++) res_mass_a[i] = 0.0;
-      auto res_mass = ViewCArray <real_t> ( &res_mass_a[0], num_basis );
+      CArray <real_t> res_mass(  num_basis );
+      for (int i = 0; i < num_basis; i++) res_mass(i) = 0.0;
 
       // Create view for \sum_{q} M_{pq} \delta u^r_q //      
       real_t Mv = 0.0;
@@ -61,7 +61,7 @@ void get_kinematic_L2(int t_step, int dof_gid, int dim, real_t& sum_res){
       
       //-- end M_l.(v^{r}-v^{n}) ---//
 
-      auto ones = CArray <real_t> (ref_elem.num_dual_basis());
+      CArray <real_t> ones(ref_elem.num_dual_basis());
       for (int i = 0; i < ref_elem.num_dual_basis(); i++) ones(i) = 1.0;
       
       real_t force = 0.0;      
@@ -72,11 +72,9 @@ void get_kinematic_L2(int t_step, int dof_gid, int dim, real_t& sum_res){
       //std::cout << " force at dim " << dim << " is " << force(dim) << std::endl;
       
       //--- Assign Values to Galerkin/Rusanov Residual ---//
-      for (int dim = 0; dim < num_dim; dim++){
-        // Assign values to nodal res
-        galerkin_res(vertex) = Mv/dt + force;
-	//std::cout << "kinematic nodal res = "<< galerkin_res(vertex)<< " at node "<< node_gid << " elem "<< elem_gid << " and dim " << dim << std::endl;
-      }// end loop over dim
+      galerkin_res(vertex) = Mv*inv_dt + force;
+      
+      //std::cout << "kinematic nodal res = "<< galerkin_res(vertex)<< " at node "<< node_gid << " elem "<< elem_gid << " and dim " << dim << std::endl;
 
     }// end loop over vertex
       
@@ -91,7 +89,7 @@ void get_kinematic_L2(int t_step, int dof_gid, int dim, real_t& sum_res){
     }// end loop over dof 
 
     //std::cout << total_res << std::endl;
-
+/*
     // compute psi coeffs //
     auto psi_coeffs = CArray <real_t> (ref_elem.num_basis());
     for (int i = 0; i < num_basis; i++) psi_coeffs(i) = 0.0;
@@ -107,7 +105,7 @@ void get_kinematic_L2(int t_step, int dof_gid, int dim, real_t& sum_res){
       psi_coeffs( dof ) = num/denom;
  
     }// end loop over dof
- 
+*/ 
 /* 
   // check that betas sum to 1 //
       real_t sum = 0.0;
@@ -117,7 +115,7 @@ void get_kinematic_L2(int t_step, int dof_gid, int dim, real_t& sum_res){
       std::cout << " sum of betas in elem "<< elem_gid << " in dim " << dim<< " is " << sum << std::endl;
 */ 
 
-
+/*
     // compute limited residual //
     auto limited_res = CArray <real_t> ( ref_elem.num_basis() );
     for (int i = 0; i < num_basis; i++) limited_res(i) = 0.0;
@@ -126,14 +124,22 @@ void get_kinematic_L2(int t_step, int dof_gid, int dim, real_t& sum_res){
       limited_res(dof) = psi_coeffs(dof)*total_res;
       //std::cout << limited_res(dof) << std::endl;
     }// end loop over dof
-    
-    
+*/    
+    real_t inv_total_res = 1.0/total_res;
     for (int dof = 0; dof < ref_elem.num_basis(); dof++){
+      
+      real_t num = 0.0;
+      num = std::max( 0.0, galerkin_res( dof )*inv_total_res );
+      real_t denom = 0.0;
+      for (int k = 0; k < ref_elem.num_basis(); k++){
+        denom += std::max(0.0, galerkin_res(k)*inv_total_res );
+      }// end loop over k
+      
       int node_lid = ref_elem.vert_node_map(dof);
       int node_gid = mesh.nodes_in_elem(elem_gid,node_lid);
       if (node_gid == dof_gid){
         sum_res += galerkin_res(dof);
-        //sum_res += limited_res(dof);
+        //sum_res += (num/denom)*total_res;
       }
     }// end loop over dof
 
