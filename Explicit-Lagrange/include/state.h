@@ -1274,7 +1274,7 @@ void BV_inv();
 void get_control_coeffs();
 void get_state();
 void update_energy(int t_step);
-void update_coeffs();
+void update_tn();
 void setup_rdh(char *MESH);
 void boundary_rdh();
 void interp_vel(int t_step);

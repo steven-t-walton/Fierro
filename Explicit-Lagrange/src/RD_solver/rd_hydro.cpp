@@ -43,42 +43,42 @@ void rd_hydro(){
 
           
       get_alpha_E();
-      //for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
+      for (int correction_step = 0; correction_step < num_correction_steps; correction_step++){
 	
-	//int update = correction_step + 1;
+	int update = correction_step + 1;
 	
-	get_stress_tensor(0);// correction_step );
-	get_force_tensor(0);// correction_step );
+	get_stress_tensor( correction_step );
+	get_force_tensor( correction_step );
 
 	// Update momentum //
-	update_velocity(0);// correction_step );
+	update_velocity( correction_step );
         
         boundary_rdh();
 	
 	// Update internal energy //
-	update_energy(0);// correction_step );
+	update_energy( correction_step );
       
         for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
           for (int dof = 0; dof < ref_elem.num_basis(); dof++){
             int node_lid = elem.vert_node_map(dof);
             int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
             for (int dim = 0; dim < mesh.num_dim(); dim++){
-              node.coords(1, node_gid, dim ) = node.coords( 0, node_gid, dim ) 
-		                                 + 0.5*dt*( node.vel(1, node_gid,  dim ) + node.vel( 0, node_gid, dim ) );
+              node.coords(update, node_gid, dim ) = node.coords( 0, node_gid, dim ) 
+		                                 + 0.5*dt*( node.vel(update, node_gid,  dim ) + node.vel( 0, node_gid, dim ) );
             }// end loop over dim
           }// end loop over dof
         }// end loop over elem_gid
       
-      //}// end correction step     
+      }// end correction step     
 
       // intepolate the velocity with evolved coeffs and save to nodes  //
-      interp_vel(1);//num_correction_steps);
+      interp_vel(num_correction_steps);
       
       // interpolate energy coeffs //
-      interp_ie(1);//num_correction_steps);
+      interp_ie(num_correction_steps);
 
       // update position //
-      interp_position(1);//num_correction_steps);   
+      interp_position(num_correction_steps);   
 
       get_gauss_pt_jacobian(mesh, ref_elem);
     
@@ -92,7 +92,7 @@ void rd_hydro(){
       
       get_state();
       
-      update_coeffs();
+      update_tn();
       
       for (int gauss_gid = 0; gauss_gid < mesh.num_gauss_pts(); gauss_gid++){
           gauss_properties(gauss_gid);

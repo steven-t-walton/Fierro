@@ -38,7 +38,7 @@ void setup_rdh(char *MESH){
   ref_elem.init(p_order, num_dim, elem);
 
   // ---- Node Initialization ---- //
-  node.init_node_state( num_dim, mesh, rk_storage);//correction_storage);
+  node.init_node_state( num_dim, mesh, correction_storage);
   std::cout << "Node state allocated and initialized" << std::endl;
   std::cout << std::endl;
 
@@ -54,12 +54,12 @@ void setup_rdh(char *MESH){
   std::cout << std::endl;
   
   // ---- Material point initialization ---- //
-  mat_pt.init_mat_pt_state(num_dim, mesh, rk_storage);//correction_storage);
+  mat_pt.init_mat_pt_state(num_dim, mesh, correction_storage);
   std::cout << "Material point state allocated and initialized"  << std::endl;
   std::cout << std::endl;
 
 
-  elem_state.init_elem_state( num_dim, mesh, rk_storage/*correction_storage*/, ref_elem );
+  elem_state.init_elem_state( num_dim, mesh, correction_storage, ref_elem );
   std::cout << "Element state allocated and initialized" << std::endl;  std::cout<< std::endl;
 
   std::cout << "number of patches = " << mesh.num_patches() << std::endl;
@@ -97,7 +97,7 @@ void setup_rdh(char *MESH){
   }// end loop over this_bdy
 
 
-  for(int t_step = 0; t_step < rk_storage/*correction_storage*/; t_step++){
+  for(int t_step = 0; t_step < correction_storage; t_step++){
     for(int node_gid = 0; node_gid < mesh.num_nodes(); node_gid++){
       for(int dim = 0; dim < mesh.num_dim(); dim++){
         node.coords(t_step, node_gid, dim) = mesh.node_coords(node_gid, dim);
@@ -123,7 +123,7 @@ void setup_rdh(char *MESH){
   // apply fill instruction over the elements //
   // for initialization, copy data to each substep //
   
-  for (int t_step = 0; t_step < rk_storage/*correction_storage*/; t_step++){
+  for (int t_step = 0; t_step < correction_storage; t_step++){
     for (int f_id = 0; f_id < NF; f_id++){
       for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){        
 	// coords and radius of element //
