@@ -51,9 +51,8 @@ void update_velocity(int t_step){
       // L^1(u^{k+1}) = L^1(u^k) - L^2(u^k) //
       for (int dim = 0; dim < num_dim; dim++){
         real_t sum_res = 0.0;
-	get_kinematic_L2(t_step, node_gid, dim, sum_res);
-      	node.vel(update, node_gid, dim) = node.vel(current, node_gid, dim) 
-		                                               - (dt/lumped_mass)*sum_res;
+	get_kinematic_L2(current, node_gid, dim, sum_res);
+      	node.vel(update, node_gid, dim) = node.vel(current, node_gid, dim) - (1.0/lumped_mass)*sum_res;
       }
     }// end loop over vertex
   });// end FOR_ALL

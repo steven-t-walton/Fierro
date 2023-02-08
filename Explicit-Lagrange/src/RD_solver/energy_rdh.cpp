@@ -15,7 +15,7 @@ using namespace utils;
 void update_energy( int t_step ){
   
   int update = t_step + 1;
-
+  int current = t_step;
  
   FOR_ALL( elem_gid , 0, mesh.num_elems(),{
     for (int t_dof = 0; t_dof < ref_elem.num_dual_basis(); t_dof++){
@@ -42,9 +42,9 @@ void update_energy( int t_step ){
       }      
 
       real_t sum_res = 0.0;
-      get_thermodynamic_L2( t_step, node_gid, sum_res); 
+      get_thermodynamic_L2( current, node_gid, sum_res); 
       // L^1(e^{k+1}) = L^1(e^k) - L^2(e^k) //
-      mat_pt.sie(update, gauss_gid) = mat_pt.sie(t_step, gauss_gid) - (dt/lumped_mass)*sum_res;
+      mat_pt.sie(update, gauss_gid) = mat_pt.sie(current, gauss_gid) - (1.0/lumped_mass)*sum_res;
 /*
       if (elem_state.sie_coeffs(update, elem_gid, t_dof) <= 0.0){
         std::cout << " sie is negative in elem "<< elem_gid << " and dof "<< t_dof << "with value "<< elem_state.sie_coeffs(update, elem_gid, t_dof) << std::endl; 

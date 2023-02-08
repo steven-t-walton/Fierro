@@ -7,14 +7,14 @@
 
 using namespace utils;
 
-void interp_vel(int t_step){
+void interp_vel(){
 
    for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
         for(int node_lid = 0; node_lid < mesh.num_gauss_in_elem(); node_lid++){
 
             int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
-	    auto interp_vel = CArray <real_t> (mesh.num_dim());
+	    CArray <real_t> interp_vel(mesh.num_dim());
             for(int i=0; i<mesh.num_dim(); i++) interp_vel(i) = 0.0;
          
             for (int dim = 0; dim < mesh.num_dim(); dim++){
@@ -22,12 +22,12 @@ void interp_vel(int t_step){
   
                     int node_basis_id = ref_elem.vert_node_map(basis_id);
                     int interp_gid = mesh.nodes_in_elem(elem_gid, node_basis_id);
-                    interp_vel(dim) += node.vel(t_step, interp_gid, dim) * ref_elem.ref_nodal_basis(node_lid, basis_id);
+                    interp_vel(dim) += node.vel(num_correction_steps, interp_gid, dim) * ref_elem.ref_nodal_basis(node_lid, basis_id);
                 }// end loop over basis_id
             }// end loop over dim
             
             for (int dim = 0; dim < mesh.num_dim(); dim++){   
-                node.vel(t_step, node_gid, dim) =  interp_vel(dim);
+                node.vel(num_correction_steps, node_gid, dim) =  interp_vel(dim);
             }// end loop over dim
 
    	}//end loop over gauss_lid
@@ -35,7 +35,7 @@ void interp_vel(int t_step){
 
 }// end interp_vel()
 
-void interp_ie(int t_step){
+void interp_ie(){
   
   for (int elem_gid = 0; elem_gid < mesh.num_elems(); elem_gid++){
         for(int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
@@ -50,10 +50,10 @@ void interp_ie(int t_step){
   
                     int node_basis_id = ref_elem.dual_vert_node_map(basis_id);
                     int interp_gid = mesh.gauss_in_elem(elem_gid, node_basis_id);
-                    interp_sie += mat_pt.sie(t_step, interp_gid) * ref_elem.ref_nodal_dual_basis(gauss_lid, basis_id);
+                    interp_sie += mat_pt.sie(num_correction_steps, interp_gid) * ref_elem.ref_nodal_dual_basis(gauss_lid, basis_id);
             }// end looop over basis_id
             
-            mat_pt.sie(t_step,gauss_gid) =  interp_sie;
+            mat_pt.sie(num_correction_steps,gauss_gid) =  interp_sie;
             
 	}// end loop over gauss_lid
   }// end loop over elems

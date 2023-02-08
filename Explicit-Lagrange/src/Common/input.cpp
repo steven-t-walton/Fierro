@@ -43,7 +43,7 @@ void input(){
 
     // ---- time varaibles and cycle info ---- //
     // time step
-    TFINAL = 1.0;
+    TFINAL = 2.0;
     
     //C1 = 1.0;
     //C2 = 1.333;
