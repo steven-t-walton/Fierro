@@ -74,9 +74,6 @@ void rd_hydro(){
       // intepolate the velocity with evolved coeffs and save to nodes  //
       interp_vel(1);//num_correction_steps);
       
-      // update boundary vel vals //
-      boundary_rdh();
-     
       // interpolate energy coeffs //
       interp_ie(1);//num_correction_steps);
 
