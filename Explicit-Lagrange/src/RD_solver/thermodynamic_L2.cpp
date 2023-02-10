@@ -88,8 +88,7 @@ void get_thermodynamic_L2( int t_step, int dof_gid, real_t& sum_res ){
       }// end loop over gauss_lid 
       //std::cout << source_int << std::endl;
       
-      real_t sub_factor = 1.0/((real_t)num_correction_steps - (real_t)t_step);
-      energy_res(t_dof) =  M_dot_e + sub_factor*dt*(Q - force - source_int);
+      energy_res(t_dof) =  M_dot_e + dt*(Q - force - source_int);
 
     }// end loop over t_dof
 

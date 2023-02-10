@@ -70,8 +70,7 @@ void get_kinematic_L2(int t_step, int dof_gid, int dim, real_t& sum_res){
       //std::cout << " force at dim " << dim << " is " << force(dim) << std::endl;
       
       //--- Assign Values to Galerkin/Rusanov Residual ---//
-      real_t sub_factor = 1.0/((real_t)num_correction_steps - (real_t)t_step);
-      galerkin_res(vertex) = Mv + sub_factor*dt*force;
+      galerkin_res(vertex) = Mv + dt*force;
       
       //std::cout << "kinematic nodal res = "<< galerkin_res(vertex)<< " at node "<< node_gid << " elem "<< elem_gid << " and dim " << dim << std::endl;
 

@@ -108,10 +108,6 @@ Calling Hydro Solver
 
 
  cycle = 1
- ke at t0 = 0.0825
- ie at t0 = 0.061875
-E_tot at t0 = 0.144375
-
  cycle = 2
  cycle = 3
  cycle = 4
@@ -121,7 +117,7 @@ E_tot at t0 = 0.144375
  cycle = 8
  cycle = 9
  cycle = 10
-Percent complete = 0.02 
+Percent complete = 0.01 
  cycle = 11
  cycle = 12
  cycle = 13
@@ -132,7 +128,7 @@ Percent complete = 0.02
  cycle = 18
  cycle = 19
  cycle = 20
-Percent complete = 0.07 
+Percent complete = 0.05 
  cycle = 21
  cycle = 22
  cycle = 23
@@ -143,7 +139,7 @@ Percent complete = 0.07
  cycle = 28
  cycle = 29
  cycle = 30
-Percent complete = 0.20 
+Percent complete = 0.15 
  cycle = 31
  cycle = 32
  cycle = 33
@@ -154,7 +150,7 @@ Percent complete = 0.20
  cycle = 38
  cycle = 39
  cycle = 40
-Percent complete = 0.54 
+Percent complete = 0.41 
  cycle = 41
  cycle = 42
  cycle = 43
@@ -165,7 +161,7 @@ Percent complete = 0.54
  cycle = 48
  cycle = 49
  cycle = 50
-Percent complete = 1.41 
+Percent complete = 1.08 
 Step = 50   dt = 1.291299e-03  time = 1.408329e-02  
   cycle = 51
  cycle = 52
@@ -181,7 +177,7 @@ write geo
  cycle = 58
  cycle = 59
  cycle = 60
-Percent complete = 3.65 
+Percent complete = 2.80 
  cycle = 61
  cycle = 62
  cycle = 63
@@ -196,7 +192,7 @@ write geo
  cycle = 68
  cycle = 69
  cycle = 70
-Percent complete = 6.34 
+Percent complete = 4.87 
  cycle = 71
  cycle = 72
  cycle = 73
@@ -211,7 +207,7 @@ write geo
  cycle = 78
  cycle = 79
  cycle = 80
-Percent complete = 8.78 
+Percent complete = 6.75 
  cycle = 81
  cycle = 82
  cycle = 83
@@ -226,7 +222,7 @@ write geo
  cycle = 88
  cycle = 89
  cycle = 90
-Percent complete = 12.17 
+Percent complete = 9.36 
  cycle = 91
 ****************Graphics write*************** 
 in ensight writer
@@ -238,60 +234,48 @@ write geo
  cycle = 95
  cycle = 96
  cycle = 97
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 98
  cycle = 99
  cycle = 100
-Percent complete = 16.02 
-Step = 100   dt = 3.746159e-03  time = 1.602478e-01  
+Percent complete = 10.38 
+Step = 100   dt = 8.226404e-04  time = 1.349450e-01  
   cycle = 101
  cycle = 102
  cycle = 103
  cycle = 104
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 105
  cycle = 106
  cycle = 107
  cycle = 108
  cycle = 109
  cycle = 110
-Percent complete = 18.44 
+Percent complete = 11.22 
  cycle = 111
  cycle = 112
  cycle = 113
  cycle = 114
  cycle = 115
  cycle = 116
+ cycle = 117
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
- cycle = 117
  cycle = 118
  cycle = 119
  cycle = 120
-Percent complete = 21.19 
+Percent complete = 11.58 
  cycle = 121
  cycle = 122
  cycle = 123
  cycle = 124
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 125
  cycle = 126
  cycle = 127
  cycle = 128
  cycle = 129
  cycle = 130
-Percent complete = 23.14 
+Percent complete = 11.82 
  cycle = 131
  cycle = 132
  cycle = 133
@@ -301,12 +285,8 @@ Percent complete = 23.14
  cycle = 137
  cycle = 138
  cycle = 139
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 140
-Percent complete = 25.18 
+Percent complete = 12.44 
  cycle = 141
  cycle = 142
  cycle = 143
@@ -315,14 +295,14 @@ Percent complete = 25.18
  cycle = 146
  cycle = 147
  cycle = 148
- cycle = 149
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
+ cycle = 149
  cycle = 150
-Percent complete = 27.54 
-Step = 150   dt = 3.516088e-04  time = 2.753516e-01  
+Percent complete = 13.75 
+Step = 150   dt = 1.975734e-03  time = 1.787719e-01  
   cycle = 151
  cycle = 152
  cycle = 153
@@ -331,9 +311,13 @@ Step = 150   dt = 3.516088e-04  time = 2.753516e-01
  cycle = 156
  cycle = 157
  cycle = 158
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
  cycle = 159
  cycle = 160
-Percent complete = 28.15 
+Percent complete = 15.49 
  cycle = 161
  cycle = 162
  cycle = 163
@@ -344,51 +328,39 @@ Percent complete = 28.15
  cycle = 168
  cycle = 169
  cycle = 170
-Percent complete = 29.75 
+Percent complete = 16.49 
  cycle = 171
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 172
  cycle = 173
  cycle = 174
  cycle = 175
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
  cycle = 176
  cycle = 177
  cycle = 178
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 179
  cycle = 180
-Percent complete = 33.38 
+Percent complete = 17.77 
  cycle = 181
  cycle = 182
  cycle = 183
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 184
  cycle = 185
  cycle = 186
  cycle = 187
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 188
  cycle = 189
- cycle = 190
-Percent complete = 39.28 
- cycle = 191
- cycle = 192
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
+ cycle = 190
+Percent complete = 19.31 
+ cycle = 191
+ cycle = 192
  cycle = 193
  cycle = 194
  cycle = 195
@@ -397,11 +369,15 @@ write geo
  cycle = 198
  cycle = 199
  cycle = 200
-Percent complete = 40.10 
-Step = 200   dt = 1.780055e-04  time = 4.010446e-01  
+Percent complete = 20.64 
+Step = 200   dt = 2.560782e-03  time = 2.682957e-01  
   cycle = 201
  cycle = 202
  cycle = 203
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
  cycle = 204
  cycle = 205
  cycle = 206
@@ -409,7 +385,7 @@ Step = 200   dt = 1.780055e-04  time = 4.010446e-01
  cycle = 208
  cycle = 209
  cycle = 210
-Percent complete = 40.42 
+Percent complete = 21.79 
  cycle = 211
  cycle = 212
  cycle = 213
@@ -418,9 +394,13 @@ Percent complete = 40.42
  cycle = 216
  cycle = 217
  cycle = 218
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
  cycle = 219
  cycle = 220
-Percent complete = 41.23 
+Percent complete = 23.21 
  cycle = 221
  cycle = 222
  cycle = 223
@@ -429,16 +409,16 @@ Percent complete = 41.23
  cycle = 226
  cycle = 227
  cycle = 228
+ cycle = 229
+ cycle = 230
+Percent complete = 24.39 
+ cycle = 231
+ cycle = 232
+ cycle = 233
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
- cycle = 229
- cycle = 230
-Percent complete = 42.56 
- cycle = 231
- cycle = 232
- cycle = 233
  cycle = 234
  cycle = 235
  cycle = 236
@@ -446,7 +426,11 @@ Percent complete = 42.56
  cycle = 238
  cycle = 239
  cycle = 240
-Percent complete = 43.07 
+Percent complete = 26.92 
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
  cycle = 241
  cycle = 242
  cycle = 243
@@ -456,39 +440,43 @@ Percent complete = 43.07
  cycle = 247
  cycle = 248
  cycle = 249
- cycle = 250
-Percent complete = 44.41 
-Step = 250   dt = 1.980375e-03  time = 4.441080e-01  
-  cycle = 251
- cycle = 252
- cycle = 253
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
+ cycle = 250
+Percent complete = 29.14 
+Step = 250   dt = 3.846946e-03  time = 3.788469e-01  
+  cycle = 251
+ cycle = 252
+ cycle = 253
  cycle = 254
  cycle = 255
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
  cycle = 256
  cycle = 257
  cycle = 258
  cycle = 259
  cycle = 260
-Percent complete = 46.37 
+Percent complete = 31.55 
  cycle = 261
  cycle = 262
  cycle = 263
  cycle = 264
+ cycle = 265
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
- cycle = 265
  cycle = 266
  cycle = 267
  cycle = 268
  cycle = 269
  cycle = 270
-Percent complete = 49.12 
+Percent complete = 33.92 
  cycle = 271
  cycle = 272
  cycle = 273
@@ -503,22 +491,18 @@ write geo
  cycle = 278
  cycle = 279
  cycle = 280
-Percent complete = 51.06 
+Percent complete = 34.71 
  cycle = 281
  cycle = 282
  cycle = 283
  cycle = 284
  cycle = 285
  cycle = 286
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 287
  cycle = 288
  cycle = 289
  cycle = 290
-Percent complete = 53.01 
+Percent complete = 35.01 
  cycle = 291
  cycle = 292
  cycle = 293
@@ -528,64 +512,56 @@ Percent complete = 53.01
  cycle = 297
  cycle = 298
  cycle = 299
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 300
-Percent complete = 55.17 
-Step = 300   dt = 1.676651e-03  time = 5.516767e-01  
+Percent complete = 35.79 
+Step = 300   dt = 1.503977e-03  time = 4.652818e-01  
   cycle = 301
  cycle = 302
  cycle = 303
  cycle = 304
  cycle = 305
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
  cycle = 306
  cycle = 307
  cycle = 308
  cycle = 309
+ cycle = 310
+Percent complete = 37.59 
+ cycle = 311
+ cycle = 312
+ cycle = 313
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
- cycle = 310
-Percent complete = 57.75 
- cycle = 311
- cycle = 312
- cycle = 313
  cycle = 314
  cycle = 315
  cycle = 316
  cycle = 317
+ cycle = 318
+ cycle = 319
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
- cycle = 318
- cycle = 319
  cycle = 320
-Percent complete = 60.62 
+Percent complete = 40.39 
  cycle = 321
  cycle = 322
  cycle = 323
  cycle = 324
  cycle = 325
  cycle = 326
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 327
  cycle = 328
  cycle = 329
  cycle = 330
-Percent complete = 64.30 
+Percent complete = 40.53 
  cycle = 331
  cycle = 332
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 333
  cycle = 334
  cycle = 335
@@ -594,14 +570,10 @@ write geo
  cycle = 338
  cycle = 339
  cycle = 340
-Percent complete = 66.71 
+Percent complete = 40.90 
  cycle = 341
  cycle = 342
  cycle = 343
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 344
  cycle = 345
  cycle = 346
@@ -609,113 +581,161 @@ write geo
  cycle = 348
  cycle = 349
  cycle = 350
-Percent complete = 68.78 
-Step = 350   dt = 2.382587e-03  time = 6.877594e-01  
+Percent complete = 41.85 
+Step = 350   dt = 1.830740e-03  time = 5.440890e-01  
   cycle = 351
  cycle = 352
  cycle = 353
- cycle = 354
- cycle = 355
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
+ cycle = 354
+ cycle = 355
  cycle = 356
  cycle = 357
  cycle = 358
  cycle = 359
  cycle = 360
-Percent complete = 70.05 
+Percent complete = 43.66 
  cycle = 361
  cycle = 362
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
  cycle = 363
  cycle = 364
  cycle = 365
  cycle = 366
  cycle = 367
- cycle = 368
- cycle = 369
- cycle = 370
-Percent complete = 70.27 
- cycle = 371
- cycle = 372
- cycle = 373
- cycle = 374
- cycle = 375
- cycle = 376
- cycle = 377
- cycle = 378
- cycle = 379
- cycle = 380
-Percent complete = 70.84 
- cycle = 381
- cycle = 382
- cycle = 383
- cycle = 384
- cycle = 385
- cycle = 386
- cycle = 387
- cycle = 388
- cycle = 389
- cycle = 390
-Percent complete = 72.30 
- cycle = 391
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
+ cycle = 368
+ cycle = 369
+ cycle = 370
+Percent complete = 47.66 
+ cycle = 371
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+ cycle = 372
+ cycle = 373
+ cycle = 374
+ cycle = 375
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+ cycle = 376
+ cycle = 377
+ cycle = 378
+ cycle = 379
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+ cycle = 380
+Percent complete = 52.36 
+ cycle = 381
+ cycle = 382
+ cycle = 383
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+ cycle = 384
+ cycle = 385
+ cycle = 386
+ cycle = 387
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+ cycle = 388
+ cycle = 389
+ cycle = 390
+Percent complete = 56.46 
+ cycle = 391
  cycle = 392
  cycle = 393
  cycle = 394
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
  cycle = 395
  cycle = 396
  cycle = 397
  cycle = 398
  cycle = 399
- cycle = 400
-Percent complete = 75.00 
-Step = 400   dt = 3.450073e-04  time = 7.500000e-01  
- ****************Graphics write*************** 
+****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
- cycle = 401
+ cycle = 400
+Percent complete = 59.97 
+Step = 400   dt = 4.561133e-03  time = 7.795611e-01  
+  cycle = 401
  cycle = 402
  cycle = 403
  cycle = 404
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
  cycle = 405
  cycle = 406
  cycle = 407
  cycle = 408
  cycle = 409
- cycle = 410
-Percent complete = 75.60 
- cycle = 411
- cycle = 412
- cycle = 413
- cycle = 414
- cycle = 415
- cycle = 416
- cycle = 417
- cycle = 418
- cycle = 419
- cycle = 420
-Percent complete = 77.17 
- cycle = 421
- cycle = 422
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
+ cycle = 410
+Percent complete = 63.92 
+ cycle = 411
+ cycle = 412
+ cycle = 413
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+ cycle = 414
+ cycle = 415
+ cycle = 416
+ cycle = 417
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+ cycle = 418
+ cycle = 419
+ cycle = 420
+Percent complete = 69.01 
+ cycle = 421
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+ cycle = 422
  cycle = 423
  cycle = 424
  cycle = 425
  cycle = 426
  cycle = 427
  cycle = 428
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
  cycle = 429
  cycle = 430
-Percent complete = 78.39 
+Percent complete = 71.23 
  cycle = 431
  cycle = 432
  cycle = 433
@@ -724,13 +744,9 @@ Percent complete = 78.39
  cycle = 436
  cycle = 437
  cycle = 438
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 439
  cycle = 440
-Percent complete = 80.04 
+Percent complete = 71.92 
  cycle = 441
  cycle = 442
  cycle = 443
@@ -739,10 +755,14 @@ Percent complete = 80.04
  cycle = 446
  cycle = 447
  cycle = 448
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
  cycle = 449
  cycle = 450
-Percent complete = 80.39 
-Step = 450   dt = 5.237424e-04  time = 8.039255e-01  
+Percent complete = 73.29 
+Step = 450   dt = 1.417808e-03  time = 9.527067e-01  
   cycle = 451
  cycle = 452
  cycle = 453
@@ -753,7 +773,11 @@ Step = 450   dt = 5.237424e-04  time = 8.039255e-01
  cycle = 458
  cycle = 459
  cycle = 460
-Percent complete = 81.31 
+Percent complete = 75.00 
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
  cycle = 461
  cycle = 462
  cycle = 463
@@ -761,16 +785,16 @@ Percent complete = 81.31
  cycle = 465
  cycle = 466
  cycle = 467
+ cycle = 468
+ cycle = 469
+ cycle = 470
+Percent complete = 76.50 
+ cycle = 471
+ cycle = 472
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
- cycle = 468
- cycle = 469
- cycle = 470
-Percent complete = 82.63 
- cycle = 471
- cycle = 472
  cycle = 473
  cycle = 474
  cycle = 475
@@ -779,7 +803,11 @@ Percent complete = 82.63
  cycle = 478
  cycle = 479
  cycle = 480
-Percent complete = 83.48 
+Percent complete = 78.85 
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
  cycle = 481
  cycle = 482
  cycle = 483
@@ -788,52 +816,44 @@ Percent complete = 83.48
  cycle = 486
  cycle = 487
  cycle = 488
+ cycle = 489
+ cycle = 490
+Percent complete = 80.56 
+ cycle = 491
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
- cycle = 489
- cycle = 490
-Percent complete = 85.49 
- cycle = 491
  cycle = 492
  cycle = 493
  cycle = 494
  cycle = 495
  cycle = 496
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 497
  cycle = 498
- cycle = 499
- cycle = 500
-Percent complete = 89.01 
-Step = 500   dt = 4.328008e-03  time = 8.900911e-01  
-  cycle = 501
- cycle = 502
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
+ cycle = 499
+ cycle = 500
+Percent complete = 82.97 
+Step = 500   dt = 1.890166e-03  time = 1.078608e+00  
+  cycle = 501
+ cycle = 502
  cycle = 503
  cycle = 504
  cycle = 505
  cycle = 506
-****************Graphics write*************** 
-in ensight writer
-Open files
-write geo
  cycle = 507
  cycle = 508
- cycle = 509
- cycle = 510
-Percent complete = 95.00 
 ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
+ cycle = 509
+ cycle = 510
+Percent complete = 84.91 
  cycle = 511
  cycle = 512
  cycle = 513
@@ -848,7 +868,7 @@ Open files
 write geo
  cycle = 519
  cycle = 520
-Percent complete = 97.92 
+Percent complete = 86.56 
  cycle = 521
  cycle = 522
  cycle = 523
@@ -856,15 +876,208 @@ Percent complete = 97.92
  cycle = 525
  cycle = 526
  cycle = 527
+ cycle = 528
+ cycle = 529
+ cycle = 530
+Percent complete = 86.75 
+ cycle = 531
+ cycle = 532
+ cycle = 533
+ cycle = 534
+ cycle = 535
+ cycle = 536
+ cycle = 537
+ cycle = 538
+ cycle = 539
+ cycle = 540
+Percent complete = 87.23 
+ cycle = 541
+ cycle = 542
+ cycle = 543
+ cycle = 544
+ cycle = 545
+ cycle = 546
+ cycle = 547
+ cycle = 548
+ cycle = 549
+ cycle = 550
+Percent complete = 88.46 
+Step = 550   dt = 1.947791e-03  time = 1.150000e+00  
+ ****************Graphics write*************** 
 in ensight writer
 Open files
 write geo
-Kinetic Energy at time = 1 is = -nan
-Internal Energy at time = 1 is = 0.061875
+ cycle = 551
+ cycle = 552
+ cycle = 553
+ cycle = 554
+ cycle = 555
+ cycle = 556
+ cycle = 557
+ cycle = 558
+ cycle = 559
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+ cycle = 560
+Percent complete = 90.43 
+ cycle = 561
+ cycle = 562
+ cycle = 563
+ cycle = 564
+ cycle = 565
+ cycle = 566
+ cycle = 567
+ cycle = 568
+ cycle = 569
+ cycle = 570
+Percent complete = 91.17 
+ cycle = 571
+ cycle = 572
+ cycle = 573
+ cycle = 574
+ cycle = 575
+ cycle = 576
+ cycle = 577
+ cycle = 578
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+ cycle = 579
+ cycle = 580
+Percent complete = 92.31 
+ cycle = 581
+ cycle = 582
+ cycle = 583
+ cycle = 584
+ cycle = 585
+ cycle = 586
+ cycle = 587
+ cycle = 588
+ cycle = 589
+ cycle = 590
+Percent complete = 92.36 
+ cycle = 591
+ cycle = 592
+ cycle = 593
+ cycle = 594
+ cycle = 595
+ cycle = 596
+ cycle = 597
+ cycle = 598
+ cycle = 599
+ cycle = 600
+Percent complete = 92.49 
+Step = 600   dt = 2.490953e-04  time = 1.202403e+00  
+  cycle = 601
+ cycle = 602
+ cycle = 603
+ cycle = 604
+ cycle = 605
+ cycle = 606
+ cycle = 607
+ cycle = 608
+ cycle = 609
+ cycle = 610
+Percent complete = 92.83 
+ cycle = 611
+ cycle = 612
+ cycle = 613
+ cycle = 614
+ cycle = 615
+ cycle = 616
+ cycle = 617
+ cycle = 618
+ cycle = 619
+ cycle = 620
+Percent complete = 93.70 
+ cycle = 621
+ cycle = 622
+ cycle = 623
+ cycle = 624
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+ cycle = 625
+ cycle = 626
+ cycle = 627
+ cycle = 628
+ cycle = 629
+ cycle = 630
+Percent complete = 94.75 
+ cycle = 631
+ cycle = 632
+ cycle = 633
+ cycle = 634
+ cycle = 635
+ cycle = 636
+ cycle = 637
+ cycle = 638
+ cycle = 639
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+ cycle = 640
+Percent complete = 96.18 
+ cycle = 641
+ cycle = 642
+ cycle = 643
+ cycle = 644
+ cycle = 645
+ cycle = 646
+ cycle = 647
+ cycle = 648
+ cycle = 649
+ cycle = 650
+Percent complete = 96.69 
+Step = 650   dt = 9.687061e-04  time = 1.256921e+00  
+  cycle = 651
+ cycle = 652
+ cycle = 653
+ cycle = 654
+ cycle = 655
+ cycle = 656
+ cycle = 657
+ cycle = 658
+ cycle = 659
+ cycle = 660
+Percent complete = 97.99 
+ cycle = 661
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+ cycle = 662
+ cycle = 663
+ cycle = 664
+ cycle = 665
+ cycle = 666
+ cycle = 667
+ cycle = 668
+ cycle = 669
+ cycle = 670
+Percent complete = 99.34 
+ cycle = 671
+ cycle = 672
+ cycle = 673
+****************Graphics write*************** 
+in ensight writer
+Open files
+write geo
+ cycle = 674
+in ensight writer
+Open files
+write geo
+Kinetic Energy at time = 1.3 is = 7121.9
+Internal Energy at time = 1.3 is = 0.061875
 Total energy at time = 0 = 0.144375
-Total energy at time = 1 is = -nan
-Energy Error = -nan
-Program Run Time = 809 sec 
+Total energy at time = 1.3 is = 7121.97
+Energy Error = -7121.82
+Program Run Time = 1879 sec 
 MAIN END
 double free or corruption (out)
-srun: error: cn129: task 0: Aborted (core dumped)
+srun: error: cn200: task 0: Aborted (core dumped)
