@@ -31,6 +31,7 @@ void update_tn(){
   for (int gauss_gid = 0; gauss_gid < mesh.num_gauss_pts(); gauss_gid++){
     mat_pt.sie(0, gauss_gid) = mat_pt.sie(num_correction_steps, gauss_gid);
     mat_pt.sie(1, gauss_gid) = mat_pt.sie(num_correction_steps, gauss_gid);
+    mat_pt.ie(gauss_gid) = mat_pt.sie(num_correction_steps, gauss_gid);
   }
   
 

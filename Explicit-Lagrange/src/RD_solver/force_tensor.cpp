@@ -13,9 +13,7 @@ void get_force_tensor(int step){
       for (int k_dof = 0; k_dof < ref_elem.num_basis(); k_dof++){
 	for (int t_dof = 0; t_dof < ref_elem.num_dual_basis(); t_dof++){
           for (int dim = 0; dim < mesh.num_dim(); dim++){
-            for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
 	       elem_state.force_tensor(step, elem_gid, k_dof, t_dof, dim) = 0.0;  
-	    }
 	  }
 	}
       }
@@ -25,8 +23,8 @@ void get_force_tensor(int step){
       for (int k_dof = 0; k_dof < ref_elem.num_basis(); k_dof++){
 	for (int t_dof = 0; t_dof < ref_elem.num_dual_basis(); t_dof++){
           for (int dim = 0; dim < mesh.num_dim(); dim++){
-            for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){
-              
+            
+	    for (int gauss_lid = 0; gauss_lid < mesh.num_gauss_in_elem(); gauss_lid++){  
 	      int gauss_gid = mesh.gauss_in_elem(elem_gid, gauss_lid);
 	      for (int k = 0; k < mesh.num_dim(); k++){
 	        for (int l = 0; l < mesh.num_dim(); l++){

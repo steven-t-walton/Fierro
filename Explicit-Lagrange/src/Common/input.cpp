@@ -43,7 +43,7 @@ void input(){
 
     // ---- time varaibles and cycle info ---- //
     // time step
-    TFINAL = 1.3;
+    TFINAL = 0.8;
     
     //C1 = 1.0;
     //C2 = 1.333;
@@ -61,7 +61,7 @@ void input(){
     
     correction_storage = num_correction_steps + 1;
 
-    dt_cfl = 0.4;
+    dt_cfl = 0.04;//0.04;
 
     // ---- graphics information ---- //
     graphics_cyc_ival = 1000000;
@@ -77,7 +77,7 @@ void input(){
     material[0].eos_func = ideal_gas; // EOS model
     material[0].cv       = 1.0;       // specific heat
     material[0].csmin    = 1.0E-14;       // minimum sound speed
-    material[0].g        = 1.4;       // gamma value
+    material[0].g        = 5.0/3.0;//1.4;       // gamma value
     material[0].b1       = 1.3333;    // linear slope of UsUp for Riemann solver
 
 

@@ -45,11 +45,11 @@ void update_energy( int t_step ){
       get_thermodynamic_L2( current, node_gid, sum_res); 
       // L^1(e^{k+1}) = L^1(e^k) - L^2(e^k) //
       mat_pt.sie(update, gauss_gid) = mat_pt.sie(current, gauss_gid) - (1.0/lumped_mass)*sum_res;
-/*
-      if (elem_state.sie_coeffs(update, elem_gid, t_dof) <= 0.0){
-        std::cout << " sie is negative in elem "<< elem_gid << " and dof "<< t_dof << "with value "<< elem_state.sie_coeffs(update, elem_gid, t_dof) << std::endl; 
+
+      if (mat_pt.sie(update, gauss_gid) <= 0.0){
+        std::cout << " sie is negative in elem "<< elem_gid << " and dof "<< t_dof << "with value "<< mat_pt.sie(update, gauss_gid) << std::endl; 
       }
-*/
+
     }// end loop over t_dof
   });// end loop over elem_gid
   
