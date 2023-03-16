@@ -19,18 +19,19 @@ void test_basis(){
 	    }
 	    std::cout<<std::endl;
 	}
+
 	std::cout <<  "  " << std::endl;
 	std::cout << " Dual Basis Values " << std::endl;
-  	for (int dof_i = 0; dof_i < ref_elem.num_basis(); dof_i = dof_i+2){ //ref_elem.num_dual_basis(); dof_i++){
-            for (int dof_j = 0; dof_j < ref_elem.num_basis(); dof_j=dof_j+2){ //ref_elem.num_dual_basis(); dof_j++){
-	    	int node_lid = ref_elem.vert_node_map(dof_j); //dual_vert_node_map(dof_j);
-		double test_fcn = ref_elem.ref_nodal_dual_basis(node_lid, dof_i);
+	for (int dof_i = 0; dof_i < ref_elem.num_dual_basis(); dof_i++){
+            for (int dof_j = 0; dof_j < ref_elem.num_dual_basis(); dof_j++){
+	    	int node_lid = ref_elem.ref_dual_vert_node_map(dof_j);
+		double test_fcn = ref_elem.BV_basis(node_lid, dof_i);
 		std::cout << test_fcn <<" , ";
 	    }
 	    std::cout<<std::endl;
 	}
 
-	
+/*	
 	std::cout <<  "  " << std::endl;
 	std::cout << " K mass matrix values " << std::endl;
   	for (int dof_i = 0; dof_i < ref_elem.num_basis(); dof_i++){
@@ -48,6 +49,9 @@ void test_basis(){
 	     }
 	    	std::cout<<std::endl;
 	}
+*/
+
+/*	
      for (int elem_gid =0; elem_gid < mesh.num_elems(); elem_gid++){
 	std::cout <<  "  " << std::endl;
 	std::cout << " T mass matrix values in elem "<< elem_gid <<" are "<< std::endl;
@@ -67,6 +71,6 @@ void test_basis(){
 	    	std::cout<<std::endl;
 	}
      }
-
+*/
   
 };

@@ -12,7 +12,9 @@ void rd_hydro(){
   
   real_t ke0 = 0.0;
   real_t ie0 = 0.0;
-  
+ 
+  test_basis();
+
   for (cycle = 1; cycle <= cycle_stop; cycle++){
         
     std::cout<<" cycle = "<<cycle<<std::endl;
