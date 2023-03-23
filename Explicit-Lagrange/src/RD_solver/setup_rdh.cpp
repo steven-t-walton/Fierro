@@ -344,12 +344,6 @@ void setup_rdh(char *MESH){
 		   real_t y = 0.0;
 		   track_rdh(x,y);
 		   
-		   cell_state.ie(0, cell_gid) = 0.0;
-                   
-		   cell_state.ie(0, cell_gid) += mat_pt.ie(gauss_gid)*0.125;
-		   
-		   cell_state.total_energy(0, cell_gid) = x+y;
-                   
 		   cell_state.ie(1, cell_gid) = 0.0;
                    
 		   cell_state.ie(1, cell_gid) += mat_pt.ie(gauss_gid)*0.125;

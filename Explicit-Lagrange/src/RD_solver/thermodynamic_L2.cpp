@@ -88,8 +88,8 @@ void get_thermodynamic_L2( int t_step, int dof_gid, real_t& sum_res ){
 	real_t source = 0.0;	
         
 	// the usual source term //
-        source = 0.5*(3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(0,node_gid,0))  * cos( 3.141592653589 * node.coords(0,node_gid,1)) - cos( 3.141592653589 * node.coords(0,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(0,node_gid, 1) ) )
-		       	+ 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(1,node_gid,0))  * cos( 3.141592653589 * node.coords(1,node_gid,1)) - cos( 3.141592653589 * node.coords(1,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(1,node_gid, 1) ) ) ); 
+        source = 0.5*((3.0/8.0)*3.141592653589/*/(4.0*(0.66666667))*/* ( cos(3.0*3.141592653589 * node.coords(0,node_gid,0))  * cos( 3.141592653589 * node.coords(0,node_gid,1)) - cos( 3.141592653589 * node.coords(0,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(0,node_gid, 1) ) )
+		       	+ (3.0/8.0)*3.141592653589/*/(4.0*(0.66666667))*/*( cos(3.0*3.141592653589 * node.coords(1,node_gid,0))  * cos( 3.141592653589 * node.coords(1,node_gid,1)) - cos( 3.141592653589 * node.coords(1,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(1,node_gid, 1) ) ) ); 
 	    
         source_int += (source)*ref_elem.ref_nodal_dual_basis(gauss_lid,t_dof) * mesh.gauss_pt_det_j(gauss_gid)* ref_elem.ref_node_g_weights(gauss_lid);
       }// end loop over gauss_lid 
@@ -112,7 +112,7 @@ void get_thermodynamic_L2( int t_step, int dof_gid, real_t& sum_res ){
       total_energy_res += energy_res( dof);
     }
 
-    real_t inv_total_res = 1.0/total_energy_res;
+    real_t inv_total_res = 1.0/(total_energy_res);
 
     for (int dof = 0; dof < ref_elem.num_dual_basis(); dof++){
       
@@ -122,13 +122,14 @@ void get_thermodynamic_L2( int t_step, int dof_gid, real_t& sum_res ){
       for (int dof_id = 0; dof_id < ref_elem.num_dual_basis(); dof_id++){
         denom += std::max( 0.0, ( energy_res(dof_id)*inv_total_res ) ); 
       }
-
+      
       int node_lid = ref_elem.dual_vert_node_map(dof);
       int node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
       if (dof_gid == node_gid){
-        sum_res += energy_res(dof);
-	//sum_res += numerator/denom*total_res(dof);
+	//std::cout << " thermo beta = " << numerator/denom << std::endl;
+        //sum_res += energy_res(dof);
+	sum_res += (numerator/denom)*total_energy_res;
       }
 
     }
