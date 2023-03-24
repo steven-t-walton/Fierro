@@ -25,11 +25,22 @@ void interp_vel(){
                     interp_vel(dim) += node.vel(num_correction_steps, interp_gid, dim) * ref_elem.ref_nodal_basis(node_lid, basis_id);
                 }// end loop over basis_id
             }// end loop over dim
-            
+           ///* 
             for (int dim = 0; dim < mesh.num_dim(); dim++){   
                 node.vel(num_correction_steps, node_gid, dim) =  interp_vel(dim);
             }// end loop over dim
+           //*/
 
+/*      
+        node.vel(num_correction_steps, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
+        node.vel(num_correction_steps, node_gid, 1) = -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));
+        node.vel(num_correction_steps, node_gid, 2) = 0.0;
+*/
+/*
+        std::cout << node.vel(num_correction_steps, node_gid, 0) - 1.0*sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1))<< std::endl;
+        std::cout << node.vel(num_correction_steps, node_gid, 1) + 1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1))<< std::endl; 
+        std::cout << node.vel(num_correction_steps, node_gid, 2) << std::endl; 
+*/
    	}//end loop over gauss_lid
    }// end loop over elements
 
@@ -88,19 +99,6 @@ void interp_ie(){
           }// end loop over dim
         }// end loop over basis
 */      
-/*      
-        node.vel(1, node_gid, 0) = sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1));
-        node.vel(1, node_gid, 1) = -1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1));
-        node.vel(1, node_gid, 2) = 0.0;
-*/
-
-/*
-        std::cout << node.vel(1, node_gid, 0) - sin(PI * mesh.node_coords(node_gid, 0)) * cos(PI * mesh.node_coords(node_gid, 1))<< std::endl;
-        std::cout << node.vel(1, node_gid, 1) + 1.0*cos(PI * mesh.node_coords(node_gid, 0)) * sin(PI * mesh.node_coords(node_gid, 1))<< std::endl; 
-        std::cout << node.vel(1, node_gid, 2) << std::endl; 
-
-      }// end loop over node_lid
-    */
 
 
 

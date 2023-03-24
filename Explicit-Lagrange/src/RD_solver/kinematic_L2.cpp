@@ -67,7 +67,7 @@ void get_kinematic_L2(int t_step, int dof_gid, int dim, real_t& sum_res){
       real_t force = 0.0;      
 
       for (int dof = 0; dof < ref_elem.num_dual_basis(); dof++){
-	force += ones(dof)*0.5*( elem_state.force_tensor(t_step,elem_gid, vertex, dof, dim) + elem_state.force_tensor(0, elem_gid, vertex, dof, dim));
+	force += 0.5*( elem_state.force_tensor(t_step,elem_gid, vertex, dof, dim) + elem_state.force_tensor(0, elem_gid, vertex, dof, dim))*ones(dof);
       }// end loop over dof
       //std::cout << " force at dim " << dim << " is " << force(dim) << std::endl;
       
@@ -136,7 +136,7 @@ void get_kinematic_L2(int t_step, int dof_gid, int dim, real_t& sum_res){
         psi_coeffs(dof) = num/denom;
       }
       else{
-        psi_coeffs(dof) = inv_num_basis;
+        psi_coeffs(dof) = 0.0;
       };      
     }  
 
@@ -154,33 +154,33 @@ void get_kinematic_L2(int t_step, int dof_gid, int dim, real_t& sum_res){
       int node_gid = mesh.nodes_in_elem(elem_gid,node_lid);
       
       if (node_gid == dof_gid){
-        if ( 0.0 < abs(total_res) ){
+        //if ( 0.0 < abs(total_res) ){
 	  //std::cout<< " executing blended " << std::endl;
 	  
-	  //sum_res += galerkin_res(dof);
+	  sum_res += galerkin_res(dof);
 	  
-          real_t limited_res = 0.0;
-          real_t factor = 0.0;
+          //real_t limited_res = 0.0;
+        //  real_t factor = 0.0;
 	  
-	  limited_res = psi_coeffs(dof)*total_res;
+	  //limited_res = psi_coeffs(dof)*total_res;
 	  
 	  //std::cout << " limited res is "<< limited_res << std::endl;
 	  
-	  factor = abs(total_res)*inv_abs_total_res;
+	  //factor = abs(total_res)*inv_abs_total_res;
 	  
 	  //std::cout << " factor is " << factor << std::endl;
 	  //std::cout << " blended res is " <<  factor*galerkin_res(dof) + (1.0-factor)*limited_res << std::endl;
            
-	  sum_res += (factor)*galerkin_res(dof) + (1.0-factor)*limited_res;
-	}
-	else{
+	  //sum_res += limited_res;//(factor)*galerkin_res(dof) + (1.0-factor)*limited_res;
+	//}
+	//else{
 	  
           //std::cout << " else condition met " << std::endl;
-	  sum_res += 0.0;
+	 // sum_res += 0.0;
 	  
 	  //sum_res += galerkin_res(dof);
 	
-	};
+	//};
       }
     }// end loop over dof
 

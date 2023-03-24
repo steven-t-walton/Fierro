@@ -52,6 +52,7 @@ void update_velocity(int t_step){
       for (int dim = 0; dim < num_dim; dim++){
         real_t sum_res = 0.0;
 	get_kinematic_L2(current, node_gid, dim, sum_res);
+	//std::cout << " L2 is " << sum_res << std::endl;
       	node.vel(update, node_gid, dim) = node.vel(current, node_gid, dim) - (1.0/lumped_mass)*sum_res;
       }
     }// end loop over vertex

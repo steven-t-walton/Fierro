@@ -61,7 +61,7 @@ void input(){
     
     correction_storage = num_correction_steps + 1;
 
-    dt_cfl = 0.04;//0.04;
+    dt_cfl = 0.04;
 
     // ---- graphics information ---- //
     graphics_cyc_ival = 1000000;

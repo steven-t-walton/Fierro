@@ -17,7 +17,7 @@ void rd_hydro(){
 
   for (cycle = 1; cycle <= cycle_stop; cycle++){
         
-    std::cout<<" cycle = "<<cycle<<std::endl;
+    std::cout<< " cycle = "<< cycle << std::endl;
 
     if (stop_calc == 1) break;
 
@@ -26,7 +26,7 @@ void rd_hydro(){
     get_timestep();
 
     dt = fmin(dt, (graphics_time - TIME)+fuzz);
-
+    
     { // Time integration scope //
       
 #pragma omp simd

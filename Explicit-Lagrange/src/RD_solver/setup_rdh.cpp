@@ -331,12 +331,12 @@ void setup_rdh(char *MESH){
                    cell_state.pressure(cell_gid) = 0.25*(cos(2.0*PI*mesh.cell_coords(cell_gid,0) ) + cos(2.0*PI*mesh.cell_coords(cell_gid, 1)) ) + 1.0;                   
 		   mat_pt.pressure(gauss_gid) = 0.25*(cos(2.0*PI*mesh.node_coords(node_gid, 0)) + cos(2.0*PI*mesh.node_coords(node_gid, 1))) + 1.0;
                    
-	           real_t source = 0.0;	
+	           //real_t source = 0.0;	
         
 	           // the usual source term //
-                   source = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(0,node_gid,0))  * cos( 3.141592653589 * node.coords(0,node_gid,1)) - cos( 3.141592653589 * node.coords(0,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(0,node_gid, 1) ) ); 
+                   //source = 3.141592653589/(4.0*(0.66666667))* ( cos(3.0*3.141592653589 * node.coords(0,node_gid,0))  * cos( 3.141592653589 * node.coords(0,node_gid,1)) - cos( 3.141592653589 * node.coords(0,node_gid,0) ) * cos( 3.0*3.141592653589 * node.coords(0,node_gid, 1) ) ); 
                    // save the internal energy contribution to the total energy
-                   mat_pt.sie(t_step,gauss_gid) = (mat_pt.pressure(gauss_gid) / (mat_pt.density(gauss_gid)*((5.0/3.0) - 1.0)));// + source;
+                   mat_pt.sie(t_step,gauss_gid) = (1.50)*( mat_pt.pressure(gauss_gid)/mat_pt.density(gauss_gid) );// + source;
                    
 		   mat_pt.ie(gauss_gid) = mat_pt.sie(t_step, gauss_gid);
 		   
@@ -344,7 +344,7 @@ void setup_rdh(char *MESH){
 		   real_t y = 0.0;
 		   track_rdh(x,y);
 		   
-		   cell_state.ie(1, cell_gid) = 0.0;
+		   //cell_state.ie(1, cell_gid) = 0.0;
                    
 		   cell_state.ie(1, cell_gid) += mat_pt.ie(gauss_gid)*0.125;
 		   

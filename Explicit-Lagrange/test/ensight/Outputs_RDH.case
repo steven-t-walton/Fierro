@@ -35,7 +35,7 @@ vector per node: norm_sum data/Outputs_RDH.*****.norm_sum
 vector per node: mass data/Outputs_RDH.*****.mass
 TIME
 time set: 1
-number of steps:    7
+number of steps:    5
 filename start number: 0
 filename increment: 1
 time values: 
@@ -44,5 +44,3 @@ time values:
  5.00000e-02
  7.50000e-02
  1.00000e-01
- 1.25000e-01
- 1.50000e-01
